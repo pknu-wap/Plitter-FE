@@ -9,10 +9,10 @@ function App() {
         <Route path="/" element={<Login/>} />
         
         {/* 게스트 버튼을 누르면 이동할 임시 경로*/}
-        <Route path="/main" element={<div>메인 페이지 (게스트 입장 완료)</div>} />
+        <Route path="/main" element={<div> main page (guest)</div>} />
         
         {/* 카카오 로그인 후 돌아올 경로*/}
-        <Route path="/auth/callback" element={<div>카카오 로그인 처리 중...</div>} />
+        <Route path="/auth/callback" element={<div> kakao login.. </div>} />
       </Routes>
     </BrowserRouter>
   );

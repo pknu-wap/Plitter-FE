@@ -1,50 +1,78 @@
 import { useNavigate } from "react-router-dom"; // Hook import
+import kakaoBtn from "../assets/kakao_login.png"
 
 export default function Login() { // component 선언
-  const navigate = useNavigate();
+    const navigate = useNavigate();
 
-  // 카카오 로그인 버튼 클릭 후 로직
-  const handleKakaoLogin = () => {
-    // 카카오 디벨로퍼스 REST API 키 넣기
-    const REST_API_KEY = "REST API 키";
-    
-    // 로그인 후 돌아올 주소
-    const REDIRECT_URI = "http://localhost:5173/auth/callback";
+    // 카카오 로그인 버튼 클릭 후 로직
+    const handleKakaoLogin = () => {
+        // 카카오 디벨로퍼스 REST API 키 넣기
+        const REST_API_KEY = "REST API 키";
 
-    // KaKao Template Literal : REST API KEY, REDIECT_URI 전송
-    const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code`;
+        // 로그인 후 돌아올 주소
+        const REDIRECT_URI = "http://localhost:5173/auth/callback";
 
-    // External Redirect : 카카오 서버로 이동
-    window.location.href = KAKAO_AUTH_URL;
-  };
+        // KaKao Template Literal : REST API KEY, REDIECT_URI 전송
+        const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code`;
 
-  // 게스트 버튼 클릭 후 메인으로 이동
-  const handleGuestLogin = () => {
-    navigate("/main");
-  };
+        // External Redirect : 카카오 서버로 이동
+        window.location.href = KAKAO_AUTH_URL;
+    };
 
-  // JSX Rendering
-  return (
-    <div style={{ textAlign: "center", marginTop: "100px" }}>
-      
-      <div style={{ display: "flex", flexDirection: "column", gap: "10px", alignItems: "center" }}>
-        {/* 카카오 로그인 버튼 UI */}
-        <button 
-          onClick={handleKakaoLogin} // Event Binding : 매뉴얼 함수 연결
-          style={{ backgroundColor: "#FEE500", padding: "10px 20px", border: "none", borderRadius: "5px", cursor: "pointer", fontWeight: "bold" }}
-        >
-          카카오계정으로 로그인
-        </button>
+    // 게스트 버튼 클릭 후 메인으로 이동
+    const handleGuestLogin = () => {
+        navigate("/main");
+    };
 
-        {/* 게스트 로그인 버튼 UI */}
-        <button 
-          onClick={handleGuestLogin}
-          style={{ backgroundColor: "#EAEAEA", padding: "10px 20px", border: "none", borderRadius: "5px", cursor: "pointer" }}
-        >
-          게스트로 추천만 할게요
-        </button>
-      </div>
-      
-    </div>
-  );
+    // JSX Rendering
+    return (
+        <div style={{ // 페이지 전체 중앙 정렬
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "100vh",
+            backgroundColor: "#ffffff"
+        }}>
+
+            <div style={{ // 카카오,게스트 버튼 묶음
+                display: "flex",
+                flexDirection: "column",
+                gap: "12px",
+                width: "340px"
+            }}>
+                {/* 게스트 로그인 UI */}
+                <button
+                    onClick={handleGuestLogin} // Event Binding: 클릭->로그인
+                    style={{
+                        background: "none",
+                        border: "none",
+                        padding: 0,
+                        cursor: "pointer",
+                        fontSize: "12px",
+                        fontWeight: 400,
+                        lineHeight: "100%",
+                        letterSpacing: "0%",
+                        color: "#8D949E"
+                    }}
+                > 게스트로 추천만 할게요
+                </button>
+
+                {/* 카카오 로그인 UI */}
+                <img
+                    src={kakaoBtn}
+                    onClick={handleKakaoLogin}
+                    alt="카카오 로그인 버튼"
+                    style={{
+                        width: "340px",
+                        height: "45px",
+                        borderRadius: "24.5px",
+                        cursor: "pointer",
+                        objectFit: "fill" // 이미지가 버튼 크기에 딱 맞게
+                    }}
+                />
+            </div>
+
+        </div>
+    );
 }
