@@ -68,7 +68,7 @@ export default function Login() { // component 선언
                         height: "45px",
                         borderRadius: "24.5px",
                         cursor: "pointer",
-                        objectFit: "fill" // 이미지가 버튼 크기에 딱 맞게
+                        objectFit: "fill" // 이미지가 버튼 크기에 맞게
                     }}
                 />
             </div>
