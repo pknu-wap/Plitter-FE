@@ -6,8 +6,8 @@ export default function Login() { // component 선언
 
     // 카카오 로그인 버튼 클릭 후 로직
     const handleKakaoLogin = () => {
-        // 카카오 디벨로퍼스 REST API 키 넣기
-        const REST_API_KEY = "REST API 키";
+        // 카카오 디벨로퍼스 REST API 키 
+        const REST_API_KEY = "1d65ad9d5b15d04d74d793739309ba69";
 
         // 로그인 후 돌아올 주소
         const REDIRECT_URI = "http://localhost:5173/auth/callback";
