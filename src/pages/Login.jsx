@@ -6,7 +6,7 @@ import kakaoBtn from "../assets/kakao_login.png"
 export default function Login() { // component 선언
     const navigate = useNavigate();
 
-    // 카카오 로그인 버튼 클릭 후 로직
+    // 카카오 로그인 이후
     const handleKakaoLogin = () => {
         // 카카오 디벨로퍼스 REST API 키 
         const REST_API_KEY = "1d65ad9d5b15d04d74d793739309ba69";
@@ -21,7 +21,7 @@ export default function Login() { // component 선언
         window.location.href = KAKAO_AUTH_URL;
     };
 
-    // 게스트 버튼 클릭 후 메인으로 이동
+    // 게스트 로그인 이후
     const handleGuestLogin = () => {
         navigate("/guest");
     };
