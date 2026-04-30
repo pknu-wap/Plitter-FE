@@ -23,7 +23,7 @@ export default function Login() { // component 선언
 
     // 게스트 버튼 클릭 후 메인으로 이동
     const handleGuestLogin = () => {
-        navigate("/main");
+        navigate("/guest");
     };
 
     // JSX Rendering

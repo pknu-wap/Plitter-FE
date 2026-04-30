@@ -14,7 +14,7 @@ export default function AuthCallback() {
     if (code) {
       navigate("/main");
     } else { // 인가코드 없으면 로그인 페이지로
-      navigate("/");
+      //navigate("/");
     }
   }, [navigate]);
 
