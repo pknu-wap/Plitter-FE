@@ -16,7 +16,7 @@ export default function MainPage() {
       <section className="character-section">
         <VinylCarousel tracks={dummyTracks} onSelect={setSelectedTrack} />
 
-        <div className="angel"> // 임의 생성 추후 수정 필요
+        <div className="angel"> {/* 임의 생성 추후 수정 필요 */}
           <div className="angel-head">
             <span>▪</span>
             <span>▪</span>
@@ -30,8 +30,8 @@ export default function MainPage() {
       </section>
 
       <section className="playlist-info">
-        <h2>사용자의 플레이리스트</h2> // 사용자 이름은 백엔드에서 전달 수정 필요
-        <p>{dummyTracks.length}곡 · 18명이 추천함</p> // 추천한 사람 수는 백엔드에서 계산해서 전달할 것
+        <h2>사용자의 플레이리스트</h2> {/* 사용자 이름은 백엔드에서 전달 수정 필요 */}
+        <p>{dummyTracks.length}곡 · 18명이 추천함</p> {/* 추천한 사람 수는 백엔드에서 계산해서 전달할 것 */}
       </section>
 
       <section className="track-list">
@@ -42,7 +42,7 @@ export default function MainPage() {
               <strong>{track.title}</strong>
               <p>{track.artist}</p>
             </div>
-            <span>0:30</span> // 백엔드에서 가져와야 함 수정 필요
+            <span>0:30</span> {/* 백엔드에서 가져와야 함 수정 필요 */}
           </div>
         ))}
 
