@@ -1,3 +1,5 @@
+// 카카오 로그인 페이지
+
 import { useNavigate } from "react-router-dom"; // Hook import
 import kakaoBtn from "../assets/kakao_login.png"
 
