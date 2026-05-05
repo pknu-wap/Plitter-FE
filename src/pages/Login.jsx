@@ -1,24 +1,30 @@
 // 카카오 로그인 페이지
 
 import { useNavigate } from "react-router-dom"; // Hook import
-import kakaoBtn from "../assets/kakao_login.png"
+import kakaoBtn from "../assets/kakao_login.png";
 
 export default function Login() { // component 선언
     const navigate = useNavigate();
 
     // 카카오 로그인 이후
-    const handleKakaoLogin = () => {
-        // 카카오 디벨로퍼스 REST API 키 
-        const REST_API_KEY = "1d65ad9d5b15d04d74d793739309ba69";
+    const handleKakaoLogin = async () => {
+        try {
+            const response = await fetch("http://localhost:8080/auth/kakao/login");
 
-        // 로그인 후 돌아올 주소
-        const REDIRECT_URI = "http://localhost:5173/auth/callback";
+            if (!response.ok) {
+                throw new Error("카카오 로그인 URL 요청 실패");
+            }
 
-        // KaKao Template Literal : REST API KEY, REDIECT_URI 전송
-        const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code`;
+            const data = await response.json();
 
-        // External Redirect : 카카오 서버로 이동
-        window.location.href = KAKAO_AUTH_URL;
+            if (data.code !== "SUCCESS" || !data.content) {
+                throw new Error(data.message || "카카오 로그인 URL이 없습니다.");
+            }
+
+            window.location.href = data.content;
+        } catch (error) {
+            console.error("카카오 로그인 실패:", error);
+        }
     };
 
     // 게스트 로그인 이후
