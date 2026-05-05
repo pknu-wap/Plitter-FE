@@ -37,84 +37,11 @@
   padding: 0;
 }
 
-.character-section {
+.record-section {
   position: relative;
   height: clamp(360px, 105vw, 460px);
   background: #ffffff;
   overflow: hidden;
-}
-
-.angel {
-  position: absolute;
-  left: 50%;
-  top: 120px;
-  transform: translateX(-50%);
-  width: 110px;
-  z-index: 999;
-}
-
-.angel-head {
-  width: clamp(52px, 16vw, 64px);
-  height: clamp(52px, 16vw, 64px);
-  margin: 0 auto;
-  background: #ffd45c;
-  border-radius: 14px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
-}
-
-.angel-head span {
-  font-size: clamp(16px, 5vw, 20px);
-}
-
-.angel-body {
-  width: clamp(48px, 14vw, 56px);
-  height: clamp(56px, 16vw, 64px);
-  margin: -2px auto 0;
-  background: #ffffff;
-  border-radius: 14px;
-  text-align: center;
-  font-size: clamp(38px, 12vw, 46px);
-  color: #c63a2b;
-  line-height: clamp(54px, 15vw, 62px);
-}
-
-.wing {
-  position: absolute;
-  top: clamp(48px, 15vw, 58px);
-  width: clamp(38px, 12vw, 46px);
-  height: clamp(54px, 17vw, 64px);
-  background: #ffffff;
-  border-radius: 50%;
-  border: 1px solid #dddddd;
-  z-index: -1;
-}
-
-.left-wing {
-  left: clamp(0px, 1vw, 4px);
-}
-
-.right-wing {
-  right: clamp(0px, 1vw, 4px);
-}
-
-.angel-leg {
-  position: absolute;
-  bottom: 0;
-  width: clamp(20px, 6vw, 24px);
-  height: clamp(42px, 13vw, 50px);
-  background: #57c4d8;
-  border-radius: 6px;
-}
-
-.left-leg {
-  left: 28%;
-}
-
-.right-leg {
-  right: 28%;
 }
 
 .playlist-info {
@@ -210,6 +137,16 @@
   font-size: clamp(18px, 5vw, 20px);
   font-weight: 800;
   cursor: pointer;
+}
+
+.login-button {
+  border: none;
+  background: #111111;
+  color: #ffffff;
+  font-size: clamp(10px, 6vw, 15px);
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 8px;
 }
 
 @media (max-width: 360px) {

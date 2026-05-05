@@ -1,26 +1,59 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 export default function VinylCarousel({ tracks, onSelect }) {
   const [rotation, setRotation] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
+  const rotationRef = useRef(0);
+  const hasDraggedRef = useRef(false);
+  const angleStep = tracks.length > 0 ? 360 / tracks.length : 0;
+  const frontTrackIndex =
+    tracks.length > 0
+      ? ((-Math.round(rotation / angleStep) % tracks.length) + tracks.length) % tracks.length
+      : -1;
+  const carouselTracks = tracks
+    .map((track, index) => ({ track, index, isFrontTrack: index === frontTrackIndex }))
+    .sort((a, b) => {
+      if (a.isFrontTrack === b.isFrontTrack) return 0;
+      return a.isFrontTrack ? 1 : -1;
+    });
 
   const handleMouseDown = (e) => {
     e.preventDefault();
     setIsDragging(true);
     setStartX(e.clientX);
+    hasDraggedRef.current = false;
   };
 
   const handleMouseMove = (e) => {
     if (!isDragging) return;
 
     const diff = e.clientX - startX;
-    setRotation((prev) => prev + diff * 0.3);
+    const nextRotation = rotationRef.current + diff * 0.3;
+
+    if (Math.abs(diff) > 2) {
+      hasDraggedRef.current = true;
+    }
+
+    rotationRef.current = nextRotation;
+    setRotation(nextRotation);
     setStartX(e.clientX);
   };
 
   const handleMouseUp = () => {
+    if (!isDragging) return;
+
     setIsDragging(false);
+
+    if (!hasDraggedRef.current || tracks.length === 0) return;
+
+    const snappedStep = Math.round(rotationRef.current / angleStep);
+    const snappedRotation = snappedStep * angleStep;
+    const snappedFrontTrackIndex = ((-snappedStep % tracks.length) + tracks.length) % tracks.length;
+
+    rotationRef.current = snappedRotation;
+    setRotation(snappedRotation);
+    onSelect(tracks[snappedFrontTrackIndex]);
   };
 
   return (
@@ -35,6 +68,7 @@ export default function VinylCarousel({ tracks, onSelect }) {
         overflow: "hidden",
         cursor: isDragging ? "grabbing" : "grab",
         userSelect: "none",
+        perspective: "900px",
       }}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
@@ -46,46 +80,49 @@ export default function VinylCarousel({ tracks, onSelect }) {
         style={{
           position: "absolute",
           left: "50%",
-          top: "45%", // 캐러셀 중심 좌표
+          top: "50%",
+          width: "0px",
+          height: "0px",
+          transformStyle: "preserve-3d",
           transform: "translate(-50%, -50%)",
         }}
       >
-        {tracks.map((track, index) => {
-          const angle = (index / tracks.length) * 360 + rotation;
-          const rad = (angle * Math.PI) / 180;
+        {carouselTracks.map(({ track, index }) => {
+          const itemAngle = (index / tracks.length) * 360 + rotation;
+          const rad = (itemAngle * Math.PI) / 180;
 
-          const radiusX = 180; //LP 간격
-          const radiusY = 42; // 캐러셀 높이 조절
-          const itemSize = 76;
-
-          const x = Math.sin(rad) * radiusX;
-          const y = Math.cos(rad) * radiusY;
+          const radius = 180;
+          const itemSize = 88;
 
           const depth = Math.cos(rad);
-          const isBack = depth < 0;
-
-          if (isBack) return null;
-
-          const scale = 0.75 + depth * 0.5; // LP 크기 조정
+          const scale = 0.75 + depth * 0.5;
+          const isFrontTrack = index === frontTrackIndex;
+          const zIndex = isFrontTrack ? 1000 : Math.round((depth + 1) * 50);
+          const opacity = 0.5 + depth * 0.5;
+          const itemDepth = isFrontTrack ? radius + 80 : radius;
 
           return (
             <div
               key={track.id}
-              onClick={() => onSelect(track)}
+              onClick={() => {
+                if (hasDraggedRef.current) return;
+                onSelect(track);
+              }}
               draggable={false}
               style={{
                 position: "absolute",
                 width: `${itemSize}px`,
                 height: `${itemSize}px`,
-                borderRadius: "50%",
-                background:
-                  "radial-gradient(circle, #111 0 8px, #2a2a2a 9px 18px, #050505 19px 100%)",
-                boxShadow: "0px 10px 24px rgba(0, 0, 0, 0.35)",
+                borderRadius: "0px",
+                background: "linear-gradient(180deg, #121212 0%, #111 100%)",
+                border: "1px solid rgba(255, 255, 255, 0.08)",
                 cursor: isDragging ? "grabbing" : "pointer",
-                zIndex: Math.round(depth * 100),
-                transform: `translate(${x}px, ${y}px) translate(-50%, -50%) scale(${scale})`,
+                zIndex,
+                opacity,
+                transform: `rotateY(${itemAngle}deg) translateZ(${itemDepth}px) translate(-50%, -50%) scale(${scale})`,
+                transformStyle: "preserve-3d",
                 transition: isDragging ? "none" : "transform 0.2s ease",
-                overflow: "hidden", // LP 배경
+                overflow: "hidden",
                 userSelect: "none",
               }}
             >
@@ -97,29 +134,16 @@ export default function VinylCarousel({ tracks, onSelect }) {
                   position: "absolute",
                   left: "50%",
                   top: "50%",
-                  width: "42px",
-                  height: "42px",
-                  borderRadius: "50%",
+                  width: "100%",
+                  height: "100%",
+                  borderRadius: "0px",
                   objectFit: "cover",
-                  transform: "translate(-50%, -50%)", // 앨범 이미지
+                  transform: "translate(-50%, -50%)",
                   userSelect: "none",
                   pointerEvents: "none",
                 }}
               />
 
-              <div
-                style={{
-                  position: "absolute",
-                  left: "50%",
-                  top: "50%",
-                  width: "10px",
-                  height: "10px",
-                  borderRadius: "50%",
-                  backgroundColor: "#f5f5f5",
-                  transform: "translate(-50%, -50%)", // LP 구멍
-                  pointerEvents: "none",
-                }}
-              />
             </div>
           );
         })}
