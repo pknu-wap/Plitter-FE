@@ -1,15 +1,22 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import VinylCarousel from "../components/VinylCarousel";
 import { dummyTracks } from "../data/dummyTracks";
 import "./MainPage.css";
 
+const API_BASE_URL = "http://52.79.235.46:8080";
+
 export default function MainPage() {
   const [, setSelectedTrack] = useState(dummyTracks[0]);
   const [accessToken, setAccessToken] = useState(() => localStorage.getItem("accessToken"));
+  const location = useLocation();
   const navigate = useNavigate();
 
   const isLoggedIn = Boolean(accessToken);
+
+  useEffect(() => {
+    setAccessToken(localStorage.getItem("accessToken"));
+  }, [location.pathname, location.search]);
 
   const handleAuthButtonClick = async () => {
     if (!isLoggedIn) {
@@ -18,7 +25,7 @@ export default function MainPage() {
     }
 
     try {
-      await fetch("http://localhost:8080/auth/logout", {
+      await fetch(`${API_BASE_URL}/auth/logout`, {
         method: "POST",
         headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
         credentials: "include",

@@ -3,13 +3,15 @@
 import { useNavigate } from "react-router-dom"; // Hook import
 import kakaoBtn from "../assets/kakao_login.png";
 
+const API_BASE_URL = "http://52.79.235.46:8080";
+
 export default function Login() { // component 선언
     const navigate = useNavigate();
 
     // 카카오 로그인 이후
     const handleKakaoLogin = async () => {
         try {
-            const response = await fetch("http://localhost:8080/auth/kakao/login");
+            const response = await fetch(`${API_BASE_URL}/auth/kakao/login`);
 
             if (!response.ok) {
                 throw new Error("카카오 로그인 URL 요청 실패");
