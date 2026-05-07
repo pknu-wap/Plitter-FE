@@ -3,7 +3,7 @@
 import { useNavigate } from "react-router-dom"; // Hook import
 import kakaoBtn from "../assets/kakao_login.png";
 
-const API_BASE_URL = import.meta.env.PROD ? "/api" : "http://52.79.235.46:8080";
+const API_BASE_URL = import.meta.env.PROD ? "/api" : "http://3.39.194.83:8080";
 
 export default function Login() { // component 선언
     const navigate = useNavigate();
