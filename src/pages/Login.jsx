@@ -3,27 +3,28 @@
 import { useNavigate } from "react-router-dom"; // Hook import
 import kakaoBtn from "../assets/kakao_login.png";
 
-const API_BASE_URL = import.meta.env.PROD ? "/api" : "http://3.39.194.83:8080";
-
 export default function Login() { // component 선언
     const navigate = useNavigate();
 
     // 카카오 로그인 이후
     const handleKakaoLogin = async () => {
         try {
-            const response = await fetch(`${API_BASE_URL}/auth/kakao/login`);
+            const response = await fetch("http://localhost:8080/auth/kakao/login");
+            // 백엔드(8080포트)에 카카오 로그인 페이지 URL fetch(요청)
 
             if (!response.ok) {
                 throw new Error("카카오 로그인 URL 요청 실패");
             }
 
-            const data = await response.json();
+            const data = await response.json(); 
+            // 서버가 준 데이터 JSON 형태로 변환
 
             if (data.code !== "SUCCESS" || !data.content) {
                 throw new Error(data.message || "카카오 로그인 URL이 없습니다.");
             }
 
             window.location.href = data.content;
+            // 백엔드에서 받은 data.content(주소)로 유저 이동
         } catch (error) {
             console.error("카카오 로그인 실패:", error);
         }

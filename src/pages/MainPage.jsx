@@ -1,22 +1,15 @@
-import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import VinylCarousel from "../components/VinylCarousel";
 import { dummyTracks } from "../data/dummyTracks";
 import "./MainPage.css";
 
-const API_BASE_URL = import.meta.env.PROD ? "/api" : "http://3.39.194.83:8080";
-
 export default function MainPage() {
   const [, setSelectedTrack] = useState(dummyTracks[0]);
-  const [accessToken, setAccessToken] = useState(() => localStorage.getItem("accessToken"));
-  const location = useLocation();
+  const [accessToken, setAccessToken] = useState(() => localStorage.getItem("accessToken")); 
   const navigate = useNavigate();
 
   const isLoggedIn = Boolean(accessToken);
-
-  useEffect(() => {
-    setAccessToken(localStorage.getItem("accessToken"));
-  }, [location.pathname, location.search]);
 
   const handleAuthButtonClick = async () => {
     if (!isLoggedIn) {
@@ -25,7 +18,7 @@ export default function MainPage() {
     }
 
     try {
-      await fetch(`${API_BASE_URL}/auth/logout`, {
+      await fetch("http://localhost:8080/auth/logout", {
         method: "POST",
         headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
         credentials: "include",
@@ -52,7 +45,7 @@ export default function MainPage() {
         <VinylCarousel tracks={dummyTracks} onSelect={setSelectedTrack} />
       </section>
 
-      <button className="recommend-button">+ 노래 추천하기</button>
+      <button className="recommend-button" onClick={() =>navigate('/search')}> + 노래 추천하기</button>
     </main>
   );
 }
