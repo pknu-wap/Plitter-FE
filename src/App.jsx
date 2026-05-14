@@ -54,7 +54,7 @@ function App() {
         {/* 카카오 로그인 완료 후 경로 */}
         <Route path="/main" element={<MainPage />} />
         {/* 노래 검색 페이지 */}
-        <Route path="/search" element={<SongSearch />} />
+        <Route path="/search" element={<SongSearch />} /> 
 
       </Routes>
     </BrowserRouter>

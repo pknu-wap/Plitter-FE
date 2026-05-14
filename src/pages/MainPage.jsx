@@ -45,7 +45,7 @@ export default function MainPage() {
         <VinylCarousel tracks={dummyTracks} onSelect={setSelectedTrack} />
       </section>
 
-      <button className="recommend-button" onClick={() =>navigate('/search')}> + 노래 추천하기</button>
+      <button className="recommend-button" onClick={() =>navigate('/search')}> + 노래 추천하기</button> 
     </main>
   );
 }
