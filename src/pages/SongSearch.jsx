@@ -4,10 +4,10 @@ export default function SongSearch() {
     // 사용자의 검색 키워드 저장
     const [keyword, setKeyword] = useState('');
     
-    // API 응답으로 받은 검색 결과 저장 배열
+    // API 응답으로 받은 검색 결과 저장 : 검색 후 결과 화면에 표시하기 위함
     const [searchResults, setSearchResults] = useState([]);
     
-    // 데이터 가져오는 중인지의 여부(로딩 표시용)
+    // 로딩 중 여부 : API 호출 시 로딩중 메세지 or 스피너 표시
     const [isLoading, setIsLoading] = useState(false);
     
     // 에러 메세지(검색 실패 시 사용자에 알림)
