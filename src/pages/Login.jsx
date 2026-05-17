@@ -9,8 +9,7 @@ export default function Login() { // component 선언
     // 카카오 로그인 이후
     const handleKakaoLogin = async () => {
         try {
-            const response = await fetch("http://localhost:8080/auth/kakao/login");
-            // 백엔드(8080포트)에 카카오 로그인 페이지 URL fetch(요청)
+            const response = await fetch("/api/auth/kakao/login");
 
             if (!response.ok) {
                 throw new Error("카카오 로그인 URL 요청 실패");
