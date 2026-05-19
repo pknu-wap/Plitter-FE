@@ -17,9 +17,15 @@ export default function SongSearch() {
     const [limit, setLimit] = useState(10);
 
     // 입력창 값 변할 때 실행 for 입력마다 상태 업데이트
-    const handleInputChange = (event) => {
+    const handleInputChange = (event) => { 
+        // event: 함수 실행 시 외부에서 들어오는 데이터(매개변수)
         setKeyword(event.target.value);
         // 입력창 값을 keyword에 저장
+        {/* # 웹의 표준 API 속성명
+            event : 브라우저에서 이벤트(키보드,마우스) 시 생기는 '상태 정보 데이터 객체'
+            target : event 내부 속성 - '이벤트 발생 최초 진원지'(특정 HTML요소)
+            value : HTML 요소의 '표준 입력 속성'(최신 텍스트값)
+        */}
     };
 
     // API 호출
