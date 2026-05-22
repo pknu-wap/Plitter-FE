@@ -140,6 +140,7 @@ export default function SongSearch() {
                     <ul style={{ listStyle: 'none', padding: 0 }}>
                         {searchResults.map((track) => (
                             <li
+                                // Sporify ID (UI 표시x)
                                 key={track.spotifyId}
                                 style={{
                                     padding: '10px',
@@ -153,20 +154,35 @@ export default function SongSearch() {
                                     spotifyId는 API 응답에서 받은 각 곡의 고유 ID (중복 없음)
                                 */}
 
+                                {/* 앨범 커버 이미지 */}
+                                {track.albumCoverImageUrl && (
+                                    <img
+                                        src={track.albumCoverImageUrl}
+                                        alt={`${track.title} 앨범 커버`}
+                                        style={{
+                                            width: '80px',
+                                            height: '80px',
+                                            objectFit: 'cover'
+                                        }}
+                                    />
+                                )}
+
                                 {/* 노래 제목 */}
                                 <h3>{track.title}</h3>
 
                                 {/* 아티스트명 */}
                                 <p>{track.artistName}</p>
 
-                                {/* 추가 정보 표시 (선택사항)
-                                    albumCoverImageUrl, previewUrl, spotifyUrl은 나중에 이미지나 재생 버튼으로 활용 가능
-                                */}
+                                {/* Spotify 곡 상세 URL */}
+                                <a href={track.spotifyUrl} target="_blank" rel="noreferrer">
+                                    Spotify에서 보기
+                                </a>
 
+                                {/* 미리듣기 URL */}
                                 {track.previewUrl && (
-                                    <p style={{ fontSize: '12px', color: '#666' }}>
-                                        미리듣기 가능
-                                    </p>
+                                    <audio controls src={track.previewUrl}>
+                                        미리듣기를 지원하지 않는 브라우저입니다.
+                                    </audio>
                                 )}
                             </li>
                         ))}
