@@ -91,12 +91,13 @@ export default function VinylCarousel({ tracks, onSelect }) {
           const itemAngle = (index / tracks.length) * 360 + rotation;
           const rad = (itemAngle * Math.PI) / 180;
 
-          const radius = 180;
-          const itemSize = 88;
+          const radius = 170;
+          const itemSize = 150;
 
           const depth = Math.cos(rad);
-          const scale = 0.75 + depth * 0.5;
+          
           const isFrontTrack = index === frontTrackIndex;
+          const scale = isFrontTrack ? 1 : 0.8;
           const zIndex = isFrontTrack ? 1000 : Math.round((depth + 1) * 50);
           const opacity = 0.5 + depth * 0.5;
           const itemDepth = isFrontTrack ? radius + 80 : radius;
@@ -114,8 +115,9 @@ export default function VinylCarousel({ tracks, onSelect }) {
                 width: `${itemSize}px`,
                 height: `${itemSize}px`,
                 borderRadius: "0px",
-                background: "linear-gradient(180deg, #121212 0%, #111 100%)",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
+                background: "transparent",
+                border: "none",
+                boxShadow: "none",
                 cursor: isDragging ? "grabbing" : "pointer",
                 zIndex,
                 opacity,
@@ -136,7 +138,7 @@ export default function VinylCarousel({ tracks, onSelect }) {
                   top: "50%",
                   width: "100%",
                   height: "100%",
-                  borderRadius: "0px",
+                  borderRadius: "4px",
                   objectFit: "cover",
                   transform: "translate(-50%, -50%)",
                   userSelect: "none",
