@@ -51,7 +51,8 @@ export default function SongSearch() {
             });
 
             // *** 백엔드 서버에 GET 요청 및 응답 대기 ***
-            const response = await fetch(`http://13.124.174.30:8080/api/tracks/search?${query}`);
+            const response = await fetch(`/api/tracks/search?${query}`); 
+            // response : 응답 자체(헤더,상태코드)만 있음, 본문 데이터x
 
             // 백엔드 응답을 JSON 형식으로 변환
             const data = await response.json();
@@ -79,7 +80,7 @@ export default function SongSearch() {
 
     return (
         <div style={{ padding: '20px' }}>
-            <h1>FIND YOU NUMBER 18</h1>
+            <h1>FIND YOUR NUMBER 18</h1>
 
             {/* 검색 입력 UI */}
             <div style={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
@@ -94,7 +95,7 @@ export default function SongSearch() {
                     type="text"
                     value={keyword}
                     onChange={handleInputChange}
-                    placeholder="검색할 노래 또는 아티스트 입력"
+                    placeholder="노래, 아티스트 검색"
                     disabled={isLoading}
                     style={{ padding: '8px', flex: 1 }}
                 />
@@ -115,6 +116,7 @@ export default function SongSearch() {
 
             {/* 로딩 상태 표시
                 API 호출 진행 중을 사용자에게 알림
+                A && B : A(false)-> A 반환(B 평가x) / A(true) -> B(true) -> B 반환
             */}
             {isLoading && <p style={{ color: 'blue' }}>검색 중입니다...</p>}
 
@@ -133,6 +135,7 @@ export default function SongSearch() {
                     {/* 검색 결과 목록 표시
                         .map() 메서드로 배열의 각 track 객체를 순회
                         각 track마다 <li> 요소로 변환하여 렌더링
+                        track : content 배열 순회를 위한 변수 (임의 지정)
                     */}
                     <ul style={{ listStyle: 'none', padding: 0 }}>
                         {searchResults.map((track) => (
@@ -143,13 +146,14 @@ export default function SongSearch() {
                                     marginBottom: '10px',
                                     border: '1px solid #ddd'
                                 }}
-                            >
+                            > {/* searchResults 배열의 곡(track)마다 <li> 만들기*/}
+                            
                                 {/* 각 검색 결과 아이템 (React 필수)
                                     key={track.spotifyId}: React가 리스트 아이템 구분을 위한 고유 식별자
                                     spotifyId는 API 응답에서 받은 각 곡의 고유 ID (중복 없음)
                                 */}
 
-                                {/* 곡 제목 */}
+                                {/* 노래 제목 */}
                                 <h3>{track.title}</h3>
 
                                 {/* 아티스트명 */}
