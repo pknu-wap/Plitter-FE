@@ -7,7 +7,7 @@
   max-width: 430px;
   min-height: 100dvh;
   margin: 0 auto;
-  background-color: #ffffff;
+  background-color: #fff9f0;
   color: #111111;
   overflow: hidden;
   font-family: serif;
@@ -19,7 +19,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #eeeeee;
+  border-bottom: 1px solid #fff9f0;
 }
 
 .main-header h1 {
@@ -40,13 +40,13 @@
 .record-section {
   position: relative;
   height: clamp(360px, 105vw, 460px);
-  background: #ffffff;
+  background: #fff9f0;
   overflow: hidden;
 }
 
 .playlist-info {
   padding: clamp(24px, 7vw, 32px);
-  border-bottom: 1px solid #eeeeee;
+  border-bottom: 1px solid #fff9f0;
 }
 
 .playlist-info h2 {
@@ -79,7 +79,10 @@
   height: clamp(58px, 17vw, 70px);
   border-radius: 9px;
   object-fit: cover;
-  background: #eeeeee;
+  background: transparent;
+  border: none;
+  outline: none;
+  box-shadow: none;
   flex-shrink: 0;
 }
 
@@ -108,7 +111,7 @@
 
 .track-item span {
   font-size: clamp(13px, 3.8vw, 14px);
-  color: #bbbbbb;
+  color: #000000;
   flex-shrink: 0;
 }
 
@@ -126,24 +129,25 @@
 
 .recommend-button {
   display: block;
-  width: calc(100% - 64px);
-  max-width: 330px;
-  height: clamp(56px, 15vw, 64px);
-  margin: 28px auto 24px;
+  width: calc(100% - 48px);
+  max-width: 345px;
+  height: 56px;
+  margin: 120px auto 24px;
   border: none;
   border-radius: 16px;
-  background: #111111;
-  color: #ffffff;
-  font-size: clamp(18px, 5vw, 20px);
-  font-weight: 800;
+  background: #f2e8d9;
+  color: #bca57c;
+  font-size: 16px;
+  font-weight: 700;
   cursor: pointer;
 }
 
 .login-button {
   border: none;
-  background: #111111;
+  background: #bca57c;
   color: #ffffff;
   font-size: clamp(10px, 6vw, 15px);
+  font-weight: bold;
   cursor: pointer;
   padding: 8px 12px;
   border-radius: 8px;
