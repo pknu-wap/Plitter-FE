@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
+import { useNavigate } from "react-router-dom";
 import "./SongSearch.css";
 import searchIcon from "../assets/magnifyingglass.png";
 
 export default function SongSearch() {
+    const navigate = useNavigate();
+
     // 사용자의 검색 키워드 저장
     const [keyword, setKeyword] = useState('');
 
@@ -17,6 +20,15 @@ export default function SongSearch() {
 
     // 검색 결과 개수 제한 (기본값 10)
     const [limit, setLimit] = useState(10);
+
+    // 선택한 노래 데이터 LP페이지로 넘기기 (아직 API 호출x)
+    const handleSelectTrack = (track) => {
+        navigate("/lp", {
+            state: {
+                track,
+            },
+        });
+    };
 
     // 입력창 값 변할 때 실행 for 입력마다 상태 업데이트
     const handleInputChange = (event) => {
@@ -173,7 +185,10 @@ export default function SongSearch() {
 
                         {searchResults.map((track) => (
 
-                            <li key={track.spotifyId}>
+                            <li
+                                key={track.spotifyId}
+                                onClick={() => handleSelectTrack(track)}
+                            >
 
                                 {/* 앨범 커버 이미지 */}
                                 <img

@@ -4,6 +4,7 @@ import MainPage from "./pages/MainPage";
 import Login from "./pages/Login";
 import AuthCallback from "./pages/AuthCallback";
 import SongSearch from './pages/SongSearch';
+import LpPage from './pages/LpPage';
 
 function AuthTokenHandler() { // 백엔드에서 발급한 accessToken 수신,관리 모듈
   const location = useLocation(); // 현재 주소창 정보 가져옴
@@ -52,9 +53,13 @@ function App() {
         <Route path="/auth/callback" element={<AuthCallback />} />
 
         {/* 카카오 로그인 완료 후 경로 */}
+
         <Route path="/main" element={<MainPage />} />
         {/* 노래 검색 페이지 */}
         <Route path="/search" element={<SongSearch />} /> 
+
+        {/* 노래별 LP 페이지 */}
+        <Route path="/lp" element={<LpPage />} />
 
       </Routes>
     </BrowserRouter>
