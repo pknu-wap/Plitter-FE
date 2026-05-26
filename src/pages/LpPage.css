@@ -1,0 +1,44 @@
+.lp-page {
+  width: 100%;
+  max-width: 430px;
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: 45px 24px 32px;
+  background: #fff9f0;
+  color: #111111;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.lp-page h1 {
+  margin: 0 0 64px;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #111111;
+}
+
+.lp-track-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.lp-album-cover {
+  width: 240px;
+  height: 240px;
+  object-fit: cover;
+}
+
+.lp-track-preview h2 {
+  margin: 32px 0 8px;
+  font-size: 16px;
+  font-weight: 800;
+  color: #111111;
+}
+
+.lp-track-preview p {
+  font-size: 12px;
+  color: #111111;
+}
