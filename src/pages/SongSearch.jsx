@@ -54,9 +54,8 @@ export default function SongSearch() {
             });
 
             // *** 백엔드 서버에 GET 요청 및 응답 대기 ***
-            const response = await fetch(
-                `http://13.124.174.30:8080/api/tracks/search?${query}`
-            );
+            const response = await fetch(`/api/tracks/search?${query}`); 
+            // response : 응답 자체(헤더,상태코드)만 있음, 본문 데이터x
 
             // 백엔드 응답을 JSON 형식으로 변환
             const data = await response.json();
@@ -138,6 +137,7 @@ export default function SongSearch() {
 
             {/* 로딩 상태 표시
                 API 호출 진행 중을 사용자에게 알림
+                A && B : A(false)-> A 반환(B 평가x) / A(true) -> B(true) -> B 반환
             */}
             {isLoading && (
                 <p className="loading-text">
