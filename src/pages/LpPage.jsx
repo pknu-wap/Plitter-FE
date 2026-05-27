@@ -108,6 +108,29 @@ export default function LpPage() {
                 </section>
             ) : null}
 
+            {/* 노래 재생바 */}
+            {!isCommentPopupOpen ? (
+                <div className="player-bar-container">
+
+                    {/* 재생 게이지 막대 */}
+                    <div className="progress-bar-bg">
+                        <div className="progress-bar-fill"></div>
+                    </div>
+
+                    {/* 현재 시간과 총 시간 */}
+                    <div className="time-info">
+                        <span>0:00</span>
+                        <span>0:30</span>
+                    </div>
+
+                    {/* 재생 버튼 */}
+                    <div className="play-control-row">
+                        <button className="play-btn">▶</button>
+                    </div>
+
+                </div>
+            ) : null}
+
             {/* 바텀 시트 렌더링 */}
             {isCommentPopupOpen ? (
                 <div className="comment-bottom-sheet">
