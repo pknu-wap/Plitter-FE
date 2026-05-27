@@ -6,8 +6,23 @@ import plusIcon from "../assets/plus.png";
 export default function ProfileCreatePage() {
   const navigate = useNavigate();
   const [nickname, setNickname] = useState("");
+  const [profileImagePreview, setProfileImagePreview] = useState("");
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    setProfileImagePreview(URL.createObjectURL(file));
+  };
 
   const handleNext = () => {
+    if (!nickname.trim()) {
+      alert("닉네임을 입력해주세요!");
+      return;
+    }
+
+    localStorage.setItem("nickname", nickname);
     navigate("/profile-share");
   };
 
@@ -23,13 +38,28 @@ export default function ProfileCreatePage() {
       </section>
 
       <section className="profile-image-section">
-        <button type="button" className="profile-image-button">
-            <span className="profile-plus-button">
-                <img src={plusIcon} alt="프로필 사진 추가" />
-            </span>
-        </button>
+        <label className="profile-image-button">
+          {profileImagePreview && (
+            <img
+              src={profileImagePreview}
+              alt="선택한 프로필"
+              className="profile-preview-image"
+            />
+          )}
+
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            hidden
+          />
+
+          <span className="profile-plus-button">
+            <img src={plusIcon} alt="프로필 사진 추가" />
+          </span>
+        </label>
       </section>
- 
+
       <section className="nickname-section">
         <input
           type="text"

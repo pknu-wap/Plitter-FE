@@ -3,22 +3,72 @@ import { useNavigate } from "react-router-dom";
 import "./ProfileShare.css";
 import plusIcon from "../assets/plus.png";
 
+const API_BASE_URL = import.meta.env.PROD ? "/api" : "http://13.124.174.30:8080";
+
 export default function ProfileShare() {
   const navigate = useNavigate();
 
   const [playlistName, setPlaylistName] = useState("봄날의 플레이리스트");
+  const [shareLink, setShareLink] = useState("");
   const [copied, setCopied] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const shareLink = "findyournumber18.com/pl/abc123";
+  const createPlaylist = async () => {
+    const accessToken = localStorage.getItem("accessToken");
+
+    if (!accessToken) {
+      alert("로그인이 필요합니다.");
+      navigate("/login");
+      return null;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/playlists`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({}),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      if (data.code === "PLAYLIST_ALREADY_EXISTS") {
+        alert("이미 생성된 플레이리스트가 있어요.");
+      } else {
+        alert(data.message || "플레이리스트 생성에 실패했어요.");
+      }
+
+      return null;
+    }
+
+    return data.content.shareUrl;
+  };
 
   const handleCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText(shareLink);
-    } catch (error) {
-      console.log("링크 복사 실패", error);
-    }
+      setIsLoading(true);
 
-    setCopied(true);
+      let currentShareLink = shareLink;
+
+      if (!currentShareLink) {
+        const newShareLink = await createPlaylist();
+
+        if (!newShareLink) return;
+
+        currentShareLink = newShareLink;
+        setShareLink(newShareLink);
+      }
+
+      await navigator.clipboard.writeText(currentShareLink);
+      setCopied(true);
+    } catch (error) {
+      console.error("링크 복사 실패", error);
+      alert("링크 복사 중 문제가 발생했어요.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleGoRecommend = () => {
@@ -59,7 +109,9 @@ export default function ProfileShare() {
 
         <label className="share-label share-link-label">공유 링크</label>
 
-        <div className="share-link-box">{shareLink}</div>
+        <div className="share-link-box">
+          {shareLink || "링크 복사하기를 누르면 링크가 생성돼요"}
+        </div>
 
         <p className="share-guide">
           링크를 공유하면 친구들이 곡을 추천 할 수 있어요
@@ -69,8 +121,13 @@ export default function ProfileShare() {
           type="button"
           className={`copy-button ${copied ? "copied" : ""}`}
           onClick={handleCopyLink}
+          disabled={isLoading}
         >
-          {copied ? "링크 복사 완료!" : "링크 복사하기"}
+          {isLoading
+            ? "링크 생성 중..."
+            : copied
+              ? "링크 복사 완료!"
+              : "링크 복사하기"}
         </button>
       </section>
 
