@@ -7,20 +7,64 @@ export default function LpPage() {
     const location = useLocation();
     const track = location.state?.track;
 
-    // 하단 코멘트 팝업창 힘열림/닫 
+    // 하단 코멘트 팝업창 열림/닫힘
     const [isCommentPopupOpen, setIsCommentPopupOpen] = useState(true);
 
     // 닉네임, 코멘트 텍스트 상태 관리
     const [nickname, setNickname] = useState("");
     const [commentText, setCommentText] = useState("");
 
-    // *** 코멘트 API ***
-    const handleRecommend = () => {
-        // 1. 나중에 백엔드로 보낼 데이터 확인용
-        console.log("입력된 데이터:", nickname, commentText);
+    // 추천하기 버튼
+    const [isRecommended, setIsRecommended] = useState(false);
 
-        // 2. 추천하기 누르면 팝업창 닫음 (기존 LP 페이지 남음)
-        setIsCommentPopupOpen(false);
+    // *** 코멘트 API ***
+    const handleRecommend = async () => {
+
+        // 연동에 쓸 데이터
+        const requestData = {
+            spotifyId: track.spotifyId,
+            title: track.title,
+            artistName: track.artistName,
+            albumCoverImageUrl: track.albumCoverImageUrl,
+            previewUrl: track.previewUrl || "", // 미리듣기 없는 경우 대비
+            comment: commentText,
+            guestToken: "test-guest-token-1234", // 임시 토큰 값
+            isAnonymous: false
+        };
+
+        console.log("백엔드에 보낼 데이터(예정):", requestData);
+
+        /* 임시 주석 처리 (백엔드 연동 전)
+        try {
+            const response = await fetch("/api/playlists/1/recommendations", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(requestData),
+            });
+
+            const result = await response.json();
+
+            if (result.code === "SUCCESS") {
+                console.log("백엔드 저장", result.content);
+
+                // 1. 코멘트 입력창 내리기
+                setIsCommentPopupOpen(false);
+
+                // 2. 최종 추천 성공 (이후 포스트잇 띄우기)
+                setIsRecommended(true);
+            } else {
+                alert("추천 실패: " + result.message);
+            }
+        } catch (error) {
+            console.error("API 통신 에러:", error);
+        }
+        */
+       
+        setIsCommentPopupOpen(false); // 팝업 닫기
+        setIsRecommended(true);       // 추천 완료 스위치 ON (포스트잇 띄울 준비)
+
     };
     return (
         <main className="lp-page">
