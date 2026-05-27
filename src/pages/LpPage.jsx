@@ -1,10 +1,12 @@
-import { useLocation } from "react-router-dom";
 import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+
 import vinylImage from "../assets/lp-vinyl.png";
 import "./LpPage.css";
 
 export default function LpPage() {
     const location = useLocation();
+    const navigate = useNavigate();
     const track = location.state?.track;
 
     // 하단 코멘트 팝업창
@@ -19,6 +21,9 @@ export default function LpPage() {
 
     // 포스트잇(코멘트) on/off
     const [showComments, setShowComments] = useState(true);
+
+    // 코멘트 개수 저장 (임시:5개)
+    const [commentCount, setCommentCount] = useState(5);
 
     // *** 코멘트 API ***
     const handleRecommend = async () => {
@@ -69,6 +74,13 @@ export default function LpPage() {
         setIsRecommended(true);       // 추천 완료 스위치 ON (포스트잇 띄울 준비)
 
     };
+    // 노래 정보(track) 가지고 /comments 페이지로 이동
+    const handleGoToComments = () => {
+        /* commnet 페이지 라우팅 전 임시 주석 처리 
+        navigate("/comments", { state: { track: track } });
+        */
+    };
+
     return (
         <main className="lp-page">
             <h1>FIND YOUR NUMBER 18</h1>
@@ -127,6 +139,11 @@ export default function LpPage() {
                     <div className="play-control-row">
                         <button className="play-btn">▶</button>
                     </div>
+
+                    {/* 코멘트 보러가기 */}
+                    <button className="view-comments-btn" onClick={handleGoToComments}>
+                        이 곡의 코멘트 {commentCount}개 보기 →
+                    </button>
 
                 </div>
             ) : null}
