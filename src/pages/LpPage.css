@@ -73,7 +73,7 @@
   color: #111111;
 }
 
-/* 애니메이션 규칙 */
+/* LP 회전 애니메이션 */
 @keyframes lp-spin {
   from {
     transform: rotate(0turn);
@@ -82,4 +82,56 @@
   to {
     transform: rotate(1turn);
   }
+}
+
+/* 반투명 곡 정보 박스 */
+.sheet-track-info {
+  display: flex;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.6); /* 투명도 60% 흰색 배경 */
+  backdrop-filter: blur(8px); /* 배경 블러 처리 (유리 질감) */
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+/* 바텀 시트 내부 앨범 커버 */
+.sheet-album-cover {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  object-fit: cover;
+  margin-right: 16px;
+}
+
+/* 바텀 시트 내부 텍스트 여백 제거 */
+.sheet-track-text h3 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.sheet-track-text p {
+  margin: 0;
+  font-size: 12px;
+  color: #555555;
+}
+
+/* 추천하기 버튼 꽉 채우기 */
+.recommend-btn {
+  width: 100%;
+  padding: 16px;
+  background-color: #bfa888;
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.popup-actions {
+  display: flex;
+  width: 100%;
+  margin-top: 16px;
 }
