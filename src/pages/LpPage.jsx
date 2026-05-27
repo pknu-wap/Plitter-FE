@@ -7,15 +7,18 @@ export default function LpPage() {
     const location = useLocation();
     const track = location.state?.track;
 
-    // 하단 코멘트 팝업창 열림/닫힘
+    // 하단 코멘트 팝업창
     const [isCommentPopupOpen, setIsCommentPopupOpen] = useState(true);
 
-    // 닉네임, 코멘트 텍스트 상태 관리
+    // 닉네임, 코멘트 텍스트 상태
     const [nickname, setNickname] = useState("");
     const [commentText, setCommentText] = useState("");
 
     // 추천하기 버튼
     const [isRecommended, setIsRecommended] = useState(false);
+
+    // 포스트잇(코멘트) on/off
+    const [showComments, setShowComments] = useState(true);
 
     // *** 코멘트 API ***
     const handleRecommend = async () => {
@@ -61,7 +64,7 @@ export default function LpPage() {
             console.error("API 통신 에러:", error);
         }
         */
-       
+
         setIsCommentPopupOpen(false); // 팝업 닫기
         setIsRecommended(true);       // 추천 완료 스위치 ON (포스트잇 띄울 준비)
 
@@ -69,6 +72,25 @@ export default function LpPage() {
     return (
         <main className="lp-page">
             <h1>FIND YOUR NUMBER 18</h1>
+
+            {/* 코멘트 on/off */}
+            <button
+                className="comment-toggle-btn"
+                onClick={() => setShowComments(showComments ? false : true)}
+            >
+                {showComments ? "코멘트 OFF" : "코멘트 ON"}
+            </button>
+
+            {/* 추천 후 코멘트on일 때 포스트잇 띄우기 */}
+            {isRecommended ? (
+                showComments ? (
+                    <div className="post-it-container">
+                        <div className="post-it">
+                            <p>{commentText}</p>
+                        </div>
+                    </div>
+                ) : null
+            ) : null}
 
             {/* 앨범 커버, 곡명, 가수명 렌더링 */}
             {track ? (
