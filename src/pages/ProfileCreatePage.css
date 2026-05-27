@@ -1,0 +1,135 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.profile-create-page {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  padding: 30px 36px 30px;
+  background-color: #fff9f0;
+  font-family: Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  color: #000;
+}
+
+.profile-create-header h1 {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #111111;
+  margin: 0;
+  text-align: left;
+
+}
+
+/* 제목 영역 */
+.profile-create-title {
+  margin-top: 66px;
+  text-align: center;
+}
+
+.profile-create-title h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.profile-create-title p {
+  margin: 9px 0 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: #9ca3af;
+}
+
+/* 프로필 이미지 */
+.profile-image-section {
+  display: flex;
+  justify-content: center;
+  margin-top: 42px;
+}
+
+.profile-image-button {
+  position: relative;
+  width: 93px;
+  height: 93px;
+  border: none;
+  border-radius: 50%;
+  background-color: #eee4d5;
+  cursor: pointer;
+}
+
+.profile-plus-button {
+  position: absolute;
+  right: -1px;
+  bottom: 1px;
+  width: 29px;
+  height: 29px;
+  border-radius: 50%;
+  background: #7a4b2a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-plus-button img {
+  width: 17px;
+  height: 14px;
+  object-fit: contain;
+  display: block;
+}
+
+/* 닉네임 입력 */
+.nickname-section {
+  margin-top: 51px;
+}
+
+.nickname-input {
+  width: 100%;
+  height: 53px;
+  border: none;
+  outline: none;
+  border-radius: 12px;
+  background-color: #f0e7d8;
+  padding: 0 24px;
+  color: #2f2f2f;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.nickname-input::placeholder {
+  color: #dedbd3;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.nickname-guide {
+  margin: 16px 0 18px;
+  color: #9ca3af;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* 하단 버튼 */
+.next-button {
+  position: fixed;
+  left: 36px;
+  right: 36px;
+  bottom: 30px;
+  height: 49px;
+  border: none;
+  border-radius: 12px;
+  background-color: #c4ad80;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.next-button:active {
+  transform: scale(0.99);
+}
