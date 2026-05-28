@@ -74,11 +74,10 @@ export default function LpPage() {
         setIsRecommended(true);       // 추천 완료 스위치 ON (포스트잇 띄울 준비)
 
     };
-    // 노래 정보(track) 가지고 /comments 페이지로 이동
+    // 노래 정보(track) 가지고 /comments로 이동
     const handleGoToComments = () => {
-        /* commnet 페이지 라우팅 전 임시 주석 처리 
         navigate("/comments", { state: { track: track } });
-        */
+    
     };
 
     return (
