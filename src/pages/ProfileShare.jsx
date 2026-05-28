@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./ProfileShare.css";
 import plusIcon from "../assets/plus.png";
@@ -13,8 +13,12 @@ export default function ProfileShare() {
   const [copied, setCopied] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // 개발 모드에서 useEffect가 두 번 실행되는 걸 막기 위한 용도
+  const hasCreatedPlaylist = useRef(false);
+
   const createPlaylist = async () => {
     const accessToken = localStorage.getItem("accessToken");
+    const userId = localStorage.getItem("userId");
 
     if (!accessToken) {
       alert("로그인이 필요합니다.");
@@ -28,10 +32,16 @@ export default function ProfileShare() {
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken}`,
       },
-      body: JSON.stringify({}),
+      body: JSON.stringify({
+        user_id: userId,
+        title: playlistName,
+        cover_image: null,
+      }),
     });
 
     const data = await response.json();
+
+    console.log("플레이리스트 생성 응답:", data);
 
     if (!response.ok) {
       if (data.code === "PLAYLIST_ALREADY_EXISTS") {
@@ -46,28 +56,43 @@ export default function ProfileShare() {
     return data.content.shareUrl;
   };
 
-  const handleCopyLink = async () => {
-    try {
-      setIsLoading(true);
+  useEffect(() => {
+    const loadShareLink = async () => {
+      if (hasCreatedPlaylist.current) return;
 
-      let currentShareLink = shareLink;
+      hasCreatedPlaylist.current = true;
 
-      if (!currentShareLink) {
+      try {
+        setIsLoading(true);
+
         const newShareLink = await createPlaylist();
 
         if (!newShareLink) return;
 
-        currentShareLink = newShareLink;
         setShareLink(newShareLink);
+      } catch (error) {
+        console.error("공유 링크 생성 실패", error);
+        alert("공유 링크 생성 중 문제가 발생했어요.");
+      } finally {
+        setIsLoading(false);
       }
+    };
 
-      await navigator.clipboard.writeText(currentShareLink);
+    loadShareLink();
+  }, []);
+
+  const handleCopyLink = async () => {
+    if (!shareLink) {
+      alert("아직 공유 링크가 생성되지 않았어요.");
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(shareLink);
       setCopied(true);
     } catch (error) {
       console.error("링크 복사 실패", error);
       alert("링크 복사 중 문제가 발생했어요.");
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -89,7 +114,7 @@ export default function ProfileShare() {
       <section className="share-profile-image-section">
         <button type="button" className="share-profile-image-button">
           <span className="share-plus-button">
-            <img src={plusIcon} alt="프로필 사진 추가" />
+            <img src={plusIcon} alt="플레이리스트 커버 사진 추가" />
           </span>
         </button>
       </section>
@@ -103,32 +128,31 @@ export default function ProfileShare() {
           id="playlist-name"
           type="text"
           value={playlistName}
-          onChange={(e) => setPlaylistName(e.target.value)}
+          onChange={(e) => {
+            setPlaylistName(e.target.value);
+            setCopied(false);
+          }}
           className="share-input"
         />
 
         <label className="share-label share-link-label">공유 링크</label>
 
-        <div className="share-link-box">
-          {shareLink || "링크 복사하기를 누르면 링크가 생성돼요"}
+        <div
+          className="share-link-box"
+          onClick={handleCopyLink}
+          role="button"
+          tabIndex={0}
+        >
+          {isLoading
+            ? "공유 링크 생성 중..."
+            : shareLink || "공유 링크를 불러오지 못했어요"}
         </div>
 
         <p className="share-guide">
-          링크를 공유하면 친구들이 곡을 추천 할 수 있어요
+          {copied
+            ? "공유 링크가 복사되었어요!"
+            : "링크를 누르면 복사돼요. 친구들이 곡을 추천할 수 있어요"}
         </p>
-
-        <button
-          type="button"
-          className={`copy-button ${copied ? "copied" : ""}`}
-          onClick={handleCopyLink}
-          disabled={isLoading}
-        >
-          {isLoading
-            ? "링크 생성 중..."
-            : copied
-              ? "링크 복사 완료!"
-              : "링크 복사하기"}
-        </button>
       </section>
 
       <section className="share-bottom-buttons">
