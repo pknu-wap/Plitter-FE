@@ -4,7 +4,6 @@ import MainPage from "./pages/MainPage";
 import Login from "./pages/Login";
 import AuthCallback from "./pages/AuthCallback";
 import SongSearch from './pages/SongSearch';
-import ProfileCreatePage from "./pages/ProfileCreatePage";
 import ProfileShare from "./pages/ProfileShare";
 
 function AuthTokenHandler() { // 백엔드에서 발급한 accessToken 수신,관리 모듈
@@ -57,8 +56,6 @@ function App() {
         <Route path="/main" element={<MainPage />} />
         {/* 노래 검색 페이지 */}
         <Route path="/search" element={<SongSearch />} /> 
-
-        <Route path="/profile-create" element={<ProfileCreatePage />} />
         <Route path="/profile-share" element={<ProfileShare />} />
 
 

@@ -6,187 +6,140 @@ html,
 body,
 #root {
   width: 100%;
-  min-height: 100vh;
+  min-height: 100%;
   margin: 0;
   padding: 0;
 }
 
 body {
-  overflow-x: hidden;
+  background-color: #eeeeee;
+  font-family: Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
 }
 
 .profile-share-page {
   position: relative;
   width: 100%;
+  max-width: 100%;
   min-height: 100vh;
-  padding: 20.5px 24px;
+  margin: 0 auto;
+  padding: 0px 30px 34px;
   background-color: #fff9f0;
-  font-family: Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  color: #000;
-  text-align: left;
+  overflow: hidden;
+  color: #111111;
 }
 
+/* 헤더 */
 .profile-share-header {
+  margin-top: 25px;
   width: 100%;
-  text-align: left;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
 }
 
 .profile-share-header h1 {
   margin: 0;
-  color: #111111;
-  font-size: 16px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  line-height: 1.2;
-}
-
-.profile-share-title {
-  margin-top: 53px;
-  text-align: center;
-}
-
-.profile-share-title h2 {
-  margin: 0;
+  font-size: 24px;
+  font-weight: 900;
+  font: Milker;
+  letter-spacing: -1.2px;
   color: #000;
-  font-size: 20px;
-  font-weight: 800;
-  line-height: 1.2;
 }
 
-.profile-share-title p {
-  margin: 4px 0 0;
-  color: #9ca3af;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.share-profile-image-section {
-  display: flex;
-  justify-content: center;
-  margin-top: 42px;
-}
-
-.share-profile-image-button {
+/* 중간 멘트 */
+.share-main-content {
   position: relative;
-  width: 93px;
-  height: 93px;
-  border: none;
-  border-radius: 50%;
-  background-color: #eee4d5;
-  cursor: pointer;
-}
-
-.share-plus-button {
-  position: absolute;
-  right: -1px;
-  bottom: 1px;
-  width: 29px;
-  height: 29px;
-  border-radius: 50%;
-  background-color: #7a4b2a;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.share-plus-button img {
-  width: 17px;
-  height: 14px;
-  object-fit: contain;
-  display: block;
-}
-
-.share-form-section {
-  margin-top: 25px;
-  text-align: left;
-}
-
-.share-label {
-  display: block;
-  width: 100%;
-  margin: 0 0 6px 0;
-  color: #000;
-  font-size: 15px;
-  font-weight: 800;
-  text-align: left;
-}
-
-.share-link-label {
-  margin-top: 21px;
-}
-
-.share-input,
-.share-link-box {
-  width: 100%;
-  height: 53px;
-  border: none;
-  border-radius: 12px;
-  background-color: #f0e7d8;
-  padding: 0 22px;
-  color: #7a4b2a;
-  font-size: 16px;
-  font-weight: 800;
-  text-align: left;
-}
-
-.share-input {
-  outline: none;
-}
-
-.share-link-box {
-  display: flex;
-  align-items: center;
-}
-
-.share-guide {
-  margin: 8px 0 0 0;
-  color: #9ca3af;
-  font-size: 12px;
-  font-weight: 500;
-  text-align: left;
-}
-
-.copy-button {
-  width: 100%;
-  height: 53px;
-  margin-top: 6px;
-  border: none;
-  border-radius: 12px;
-  background-color: #f0e7d8;
-  color: #7a4b2a;
-  font-size: 16px;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.copy-button.copied {
-  color: #fff;
-}
-
-.share-bottom-buttons {
-  position: fixed;
-  left: 24px;
-  right: 24px;
-  bottom: 30px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  align-items: center;
+  min-height: calc(100vh - 210px);
+  padding-top: 280px;
 }
 
-.share-bottom-buttons button {
-  width: 100%;
-  height: 49px;
-  border: none;
-  border-radius: 12px;
-  background-color: #c4ad80;
-  color: #fff;
+.share-main-text {
+  margin: 0;
+  text-align: center;
   font-size: 16px;
   font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: -0.6px;
+  color: #000;
+}
+
+.share-glow {
+  width: 330px;
+  height: 42px;
+  margin-top: 24px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 128, 88, 0.55) 0%,
+    rgba(255, 158, 121, 0.35) 35%,
+    rgba(255, 206, 180, 0.16) 60%,
+    rgba(255, 249, 240, 0) 75%
+  );
+  filter: blur(5px);
+}
+
+.share-player-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 126px;
+  margin-top: 101px;
+}
+
+.share-player-line .line {
+  width: 49px;
+  height: 3px;
+  background-color: #eee6d8;
+  border-radius: 999px;
+}
+
+.share-player-line .slider {
+  width: 38px;
+  height: 7px;
+  margin: 0 -2px;
+  background-color: #fffaf1;
+  border: 2px solid #e5ddcf;
+  border-radius: 999px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  z-index: 1;
+}
+
+.playlist-title {
+  margin: 36px 0 105px;
+  color: #c3a779;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.8px;
+}
+
+/* 하단 버튼 */
+.share-bottom-area {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: 68px;
+}
+
+.copy-link-button {
+  width: 100%;
+  height: 56px;
+  border: none;
+  border-radius: 14px;
+  background-color: #f1eadc;
+  color: #c3a779;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
   cursor: pointer;
 }
 
-.share-profile-image-button:active,
-.copy-button:active,
-.share-bottom-buttons button:active {
+.copy-link-button:active {
   transform: scale(0.99);
 }
+
+.copy-link-button.copied {
+  background-color: #eadfca;
+}
+
