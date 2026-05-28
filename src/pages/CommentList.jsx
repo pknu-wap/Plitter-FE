@@ -5,13 +5,23 @@ import "./CommentList.css";
 export default function CommentList() {
     const location = useLocation();
     const navigate = useNavigate();
-
     // LpPage에서 노래 정보(track) 가져오기
     const track = location.state?.track;
+    
+    // 넘어온 추천 상태 및 코멘트 기억
+    const isRecommended = location.state?.isRecommended;
+    const commentText = location.state?.commentText;
 
-    // 뒤로가기 누르면 LP페이지로
+    // 돌아갈 때 코멘트 내용까지 보냄
     const handleGoBack = () => {
-        navigate("/lp", { state: { track: track, hidePopup: true } });
+        navigate("/lp", { 
+        state: { 
+            track: track, 
+            hidePopup: true, 
+            isRecommended: isRecommended,
+            commentText: commentText 
+        } 
+    });
     };
 
     return (

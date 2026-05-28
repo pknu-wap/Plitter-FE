@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import vinylImage from "../assets/lp-vinyl.png";
@@ -12,12 +12,26 @@ export default function LpPage() {
     // 하단 코멘트 팝업창
     const [isCommentPopupOpen, setIsCommentPopupOpen] = useState(true);
 
+    // '돌아가기'로 넘어오면 팝업 닫기 
+    useEffect(() => {
+        if (location.state?.hidePopup) {
+            setIsCommentPopupOpen(false);
+
+            // 만약 돌아올 때 isRecommended가 true였다면 스위치를 다시 켜줍니다.
+            if (location.state?.isRecommended) {
+                setIsRecommended(true);
+            }
+        }
+    }, [location.state]);
+
+    // 돌아왔을 때 코멘트 정보 가져오기
+    const [commentText, setCommentText] = useState(location.state?.commentText || "");
+
     // 닉네임, 코멘트 텍스트 상태
     const [nickname, setNickname] = useState("");
-    const [commentText, setCommentText] = useState("");
 
     // 추천하기 버튼
-    const [isRecommended, setIsRecommended] = useState(false);
+    const [isRecommended, setIsRecommended] = useState(location.state?.isRecommended || false);
 
     // 포스트잇(코멘트) on/off
     const [showComments, setShowComments] = useState(true);
@@ -71,13 +85,18 @@ export default function LpPage() {
         */
 
         setIsCommentPopupOpen(false); // 팝업 닫기
-        setIsRecommended(true);       // 추천 완료 스위치 ON (포스트잇 띄울 준비)
+        setIsRecommended(true); // 추천 완료 스위치 ON (포스트잇 띄울 준비)
 
     };
     // 노래 정보(track) 가지고 /comments로 이동
     const handleGoToComments = () => {
-        navigate("/comments", { state: { track: track } });
-    
+        navigate("/comments", {
+            state: {
+                track: track,
+                isRecommended: isRecommended,
+                commentText: commentText
+            }
+        });
     };
 
     return (
