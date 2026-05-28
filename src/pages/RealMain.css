@@ -1,0 +1,331 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  overflow-x: hidden;
+  background-color: #fff9f0;
+}
+
+.landing-page {
+  position: relative;
+  width: 100%;
+  max-width: 540px;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 25px 24px 0px 24px;
+  background-color: #fff9f0;
+  font-family: Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  color: #000;
+  overflow: hidden;
+}
+
+.landing-header h1 {
+  margin: 0;
+  text-align: left;
+  color: #111111;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+}
+
+.landing-hero {
+  position: relative;
+  margin-top: 35px;
+  min-height: 700px;
+}
+
+.hero-text {
+  position: relative;
+  z-index: 6;
+}
+
+.hero-find,
+.hero-your {
+  margin: 0;
+  color: #000;
+  font-size: 118px;
+  font-weight: 900;
+  line-height: 0.78;
+  letter-spacing: -1px;
+}
+
+.hero-find {
+  text-align: center;
+}
+
+.hero-your {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.hero-description {
+  position: absolute;
+  top: 88px;
+  left: 0;
+  right: 0;
+  z-index: 8;
+  margin: 0;
+  color: #000;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+}
+
+/* 앞쪽 주황/빨강 LP */
+.vinyl-record {
+  position: relative;
+  z-index: 7;
+  width: 369px;
+  height: 374px;
+  margin: -30px auto 0;
+
+  opacity: 0;
+  transform: translateY(120px);
+  animation: lpSlideUpFront 0.75s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: 0.65s;
+}
+
+.lp-layer,
+.lp-number,
+.lp-center,
+.lp-dot {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.lp-ellipse-25 {
+  width: 361px;
+  height: 361px;
+  z-index: 1;
+}
+
+.lp-ellipse-14 {
+  width: 369px;
+  height: 374px;
+  z-index: 2;
+}
+
+.lp-ellipse-37 {
+  width: 359px;
+  height: 358px;
+  z-index: 3;
+}
+
+.lp-ellipse-33 {
+  width: 300px;
+  height: 300px;
+  z-index: 4;
+}
+
+.lp-ellipse-35 {
+  width: 249px;
+  height: 249px;
+  z-index: 5;
+}
+
+.lp-ellipse-36 {
+  width: 197px;
+  height: 197px;
+  z-index: 6;
+}
+
+.lp-ellipse-34 {
+  width: 154px;
+  height: 154px;
+  z-index: 7;
+}
+
+.lp-number {
+  top: 32%;
+  width: 113px;
+  height: 15px;
+  z-index: 8;
+}
+
+.lp-center {
+  width: 84px;
+  height: 84px;
+  z-index: 9;
+}
+
+.lp-dot {
+  width: 8px;
+  height: 8px;
+  z-index: 10;
+}
+
+/* 노랑이 + 파랑이 */
+.vinyl-record-back {
+  position: absolute;
+  left: 50%;
+  top: 250px;
+  z-index: 1;
+  width: 310px;
+  height: 430px;
+  margin: 0;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.vinyl-record-back .lp-layer {
+  position: absolute;
+  left: 50%;
+  top: 100px;
+  display: block;
+  pointer-events: none;
+}
+
+/* 노랑이 */
+.lp-ellipse-27 {
+  top: 74px;
+  width: 307px;
+  height: 312px;
+  z-index: 2;
+
+  opacity: 0;
+  transform: translateX(-50%) translateY(120px);
+  animation: lpSlideUpBack 0.75s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: 0.35s;
+}
+
+/* 파랑이 */
+.lp-ellipse-28 {
+  top: 75px;
+  width: 285px;
+  height: 290px;
+  z-index: 2;
+
+  opacity: 0;
+  transform: translateX(-50%) translateY(120px);
+  animation: lpSlideUpBack 0.75s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: 0.1s;
+}
+
+.lp-ellipse-29 {
+  margin-top: 100px;
+  width: 245px;
+  height: 250px;
+  z-index: 1;
+
+  opacity: 0;
+  transform: translateX(-50%) translateY(120px);
+  animation: lpSlideUpBack 0.75s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: 0.1s;
+}
+
+@keyframes lpSlideUpBack {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(120px);
+  }
+
+  70% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-10px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* 앞쪽 LP용: margin auto 배치라 translateX 없이 Y축만 움직이기 */
+@keyframes lpSlideUpFront {
+  0% {
+    opacity: 0;
+    transform: translateY(120px);
+  }
+
+  70% {
+    opacity: 1;
+    transform: translateY(-10px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* START 슬라이더 */
+.start-slider {
+  position: absolute;
+  left: 50%;
+  top: 575px;
+  transform: translateX(-50%);
+  z-index: 20;
+
+  width: 121px;
+  height: 45px;
+  border-radius: 999px;
+
+  display: flex;
+  align-items: center;
+  padding: 5px;
+
+  background: rgba(180, 185, 170, 0.58);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  box-shadow:
+    0 8px 18px rgba(0, 0, 0, 0.18),
+    inset 0 1px 3px rgba(255, 255, 255, 0.7);
+
+  backdrop-filter: blur(8px);
+
+  user-select: none;
+  touch-action: none;
+  overflow: hidden;
+}
+
+/* 동그라미 */
+.start-slider-thumb {
+  position: relative;
+  z-index: 2;
+
+  width: 41px;
+  height: 41px;
+  margin-left: -4px;
+  flex-shrink: 0;
+
+  border-radius: 50%;
+  background: #fff;
+  box-shadow:
+    0 4px 9px rgba(0, 0, 0, 0.25),
+    inset 0 1px 2px rgba(255, 255, 255, 0.9);
+
+  cursor: grab;
+  touch-action: none;
+}
+
+.start-slider-thumb:active {
+  cursor: grabbing;
+}
+
+.start-slider-text {
+  position: absolute;
+  left: 53px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  color: #fff;
+  font-size: 16px;
+  font-weight: bold;
+  letter-spacing: -0.5px;
+
+  pointer-events: none;
+}

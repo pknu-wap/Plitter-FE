@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import AuthCallback from "./pages/AuthCallback";
 import SongSearch from "./pages/SongSearch";
 import LandingPage from "./pages/LandingPage";
+import RealMain from "./pages/RealMain";
 
 function AuthTokenHandler() {
   const location = useLocation();
@@ -46,6 +47,7 @@ function App() {
         <Route path="/main" element={<MainPage />} />
         <Route path="/search" element={<SongSearch />} />
         <Route path="/landing" element={<LandingPage />} />
+        <Route path="/realmain" element={<RealMain />} />
       </Routes>
     </BrowserRouter>
   );
