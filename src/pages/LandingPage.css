@@ -1,0 +1,251 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  overflow-x: hidden;
+  background-color: #fff9f0;
+}
+
+.landing-page {
+  position: relative;
+  width: 100%;
+  max-width: 540px;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 25px 24px 32px;
+  background-color: #fff9f0;
+  font-family: Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  color: #000;
+  overflow: hidden;
+}
+
+.landing-header h1 {
+  margin: 0;
+  text-align: left;
+  color: #111111;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+}
+
+.landing-hero {
+  position: relative;
+  margin-top: 35px;
+}
+
+.hero-text {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-find,
+.hero-your {
+  margin: 0;
+  color: #000;
+  font-size: 118px;
+  font-weight: 900;
+  line-height: 0.78;
+  letter-spacing: -1px;
+}
+
+.hero-find {
+  text-align: center;
+}
+
+.hero-your {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.hero-description {
+  position: absolute;
+  top: 88px;
+  left: 0;
+  right: 0;
+  z-index: 8;
+  margin: 0;
+  color: #000;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.vinyl-record {
+  position: relative;
+  z-index: 4;
+  width: 369px;
+  height: 374px;
+  margin: -30px auto 0;
+}
+
+.lp-layer,
+.lp-number,
+.lp-center,
+.lp-dot {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.lp-ellipse-25 {
+  width: 361px;
+  height: 361px;
+  z-index: 1;
+}
+
+.lp-ellipse-14 {
+  width: 369px;
+  height: 374px;
+  z-index: 2;
+}
+
+.lp-ellipse-37 {
+  width: 359px;
+  height: 358px;
+  z-index: 3;
+}
+
+.lp-ellipse-33 {
+  width: 300px;
+  height: 300px;
+  z-index: 4;
+}
+
+.lp-ellipse-35 {
+  width: 249px;
+  height: 249px;
+  z-index: 5;
+}
+
+.lp-ellipse-36 {
+  width: 197px;
+  height: 197px;
+  z-index: 6;
+}
+
+.lp-ellipse-34 {
+  width: 154px;
+  height: 154px;
+  z-index: 7;
+}
+
+.lp-number {
+  top: 32%;
+  width: 113px;
+  height: 15px;
+  z-index: 8;
+}
+
+.lp-center {
+  width: 84px;
+  height: 84px;
+  z-index: 9;
+}
+
+.lp-dot {
+  width: 8px;
+  height: 8px;
+  z-index: 10;
+}
+
+.landing-login-section {
+  position: absolute;
+  left: 36px;
+  right: 36px;
+  bottom: 20px;
+  z-index: 20;
+  text-align: center;
+}
+
+.login-guide {
+  margin: 0 0 8px;
+  color: #9ca3af;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.kakao-login-button {
+  width: 100%;
+  height: 45px;
+  border: none;
+  border-radius: 999px;
+  background-color: #fee500;
+  color: #111;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.kakao-icon {
+  position: relative;
+  width: 18px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: #111;
+}
+
+.kakao-icon::after {
+  content: "";
+  position: absolute;
+  left: 2px;
+  bottom: -4px;
+  width: 7px;
+  height: 7px;
+  background-color: #111;
+  transform: rotate(35deg);
+}
+
+.guest-button {
+  margin-top: 16px;
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.kakao-login-button:active,
+.guest-button:active {
+  transform: scale(0.99);
+}
+
+/* START 완료 후 다음 화면으로 넘어가는 전환 */
+.landing-page.page-dropping {
+  pointer-events: none;
+}
+
+/* START 버튼은 먼저 사라짐 */
+.landing-page.page-dropping .start-slider {
+  animation: startSliderDisappear 0.45s ease forwards;
+}
+
+@keyframes startSliderDisappear {
+  0% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.92);
+  }
+}
