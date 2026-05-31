@@ -8,6 +8,10 @@ export default function LpPage() {
     const location = useLocation();
     const navigate = useNavigate();
     const track = location.state?.track;
+    const accessToken = localStorage.getItem("accessToken");
+    const guestToken = localStorage.getItem("guestToken");
+    const isKakaoUser = Boolean(accessToken);
+    const isGuestUser = !isKakaoUser && Boolean(guestToken);
 
     // SongSearch(새 추천)와 MainPage(플리에서 선택) 중 넘어온 경로 판단
     const isNewRecommendation = location.state?.isNewRecommendation ?? true;
@@ -32,6 +36,8 @@ export default function LpPage() {
 
     // 닉네임, 코멘트 텍스트 상태
     const [nickname, setNickname] = useState("");
+    // Kakao users can choose whether this recommendation is anonymous.
+    const [isAnonymous, setIsAnonymous] = useState(false);
 
     // 추천하기 버튼
     const [isRecommended, setIsRecommended] = useState(location.state?.isRecommended || false);
@@ -112,7 +118,7 @@ export default function LpPage() {
             previewUrl: track.previewUrl || "", // 미리듣기 없는 경우 대비
             comment: commentText,
             guestToken: "test-guest-token-1234", // 임시 토큰 값
-            isAnonymous: false
+            isAnonymous: isKakaoUser ? isAnonymous : true
         };
 
         console.log("백엔드에 보낼 데이터(예정):", requestData);
@@ -286,17 +292,30 @@ export default function LpPage() {
                             <p>{track?.artistName}</p>
                         </div>
                     </div>
+                    
+                    {/* 익명 체크 박스 */}
+                    {isKakaoUser ? (
+                        <label className="anonymous-check">
+                            <input
+                                type="checkbox"
+                                checked={isAnonymous}
+                                onChange={(e) => setIsAnonymous(e.target.checked)}
+                            />
+                            익명으로 추천하기
+                        </label>
+                    ) : null}
 
-                    {/* 닉네임 입력 */}
-                    <div className="input-group">
-                        <label>닉네임</label>
-                        <input
-                            type="text"
-                            placeholder="@yyyh"
-                            value={nickname}
-                            onChange={(e) => setNickname(e.target.value)}
-                        />
-                    </div>
+                    {isGuestUser ? (
+                        <div className="input-group">
+                            <label>닉네임</label>
+                            <input
+                                type="text"
+                                placeholder="@yyyh"
+                                value={nickname}
+                                onChange={(e) => setNickname(e.target.value)}
+                            />
+                        </div>
+                    ) : null}
 
                     {/* 코멘트 입력 */}
                     <div className="input-group">

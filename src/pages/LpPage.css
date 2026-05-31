@@ -120,6 +120,16 @@
   color: #555555;
 }
 
+.anonymous-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #111111;
+}
+
 /* 추천하기 버튼 꽉 채우기 */
 .recommend-btn {
   width: 100%;
