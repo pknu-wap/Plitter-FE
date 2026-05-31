@@ -1,369 +1,420 @@
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-
 import vinylImage from "../assets/lp-vinyl.png";
 import "./LpPage.css";
 
-const API_BASE_URL = import.meta.env.PROD ? "/api" : "http://13.124.174.30:8080";
+const API_BASE_URL = import.meta.env.PROD ? "/api" : "http://13.124.174.30:8080/api";
+
+function normalizeTrack(track) {
+  if (!track) return null;
+
+  return {
+    spotifyId: track.spotifyId,
+    title: track.title || "제목 없음",
+    artistName: track.artistName || track.artist || "아티스트 정보 없음",
+    albumCoverImageUrl: track.albumCoverImageUrl || track.albumImage || "",
+    previewUrl: track.previewUrl || "",
+    albumName: track.albumName || track.album || "",
+  };
+}
+
+function formatTime(seconds) {
+  if (!Number.isFinite(seconds) || seconds < 0) {
+    return "0:00";
+  }
+
+  const minute = Math.floor(seconds / 60);
+  const second = Math.floor(seconds % 60)
+    .toString()
+    .padStart(2, "0");
+  return `${minute}:${second}`;
+}
+
+async function parseJson(response) {
+  try {
+    return await response.json();
+  } catch {
+    return null;
+  }
+}
 
 export default function LpPage() {
-    const location = useLocation();
-    const navigate = useNavigate();
-    const track = location.state?.track;
-    const accessToken = localStorage.getItem("accessToken") || "";
-    const guestToken = localStorage.getItem("guestToken") || "";
-    const guestNickname = localStorage.getItem("guestNickname") || "";
-    const isKakaoUser = Boolean(accessToken);
-    const isGuestUser = !isKakaoUser && Boolean(guestToken);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const audioRef = useRef(null);
 
-    // SongSearch(새 추천)와 MainPage(플리에서 선택) 중 넘어온 경로 판단
-    const isNewRecommendation = location.state?.isNewRecommendation ?? true;
+  const initialTrack = normalizeTrack(location.state?.track);
 
-    // true : 새 추천 / false : 플리 조회(코멘트 입력창x)
-    const [isCommentPopupOpen, setIsCommentPopupOpen] = useState(false);
+  const [displayTrack, setDisplayTrack] = useState(initialTrack);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [duration, setDuration] = useState(30);
+  const [currentTime, setCurrentTime] = useState(0);
 
-    // '돌아가기'로 넘어오면 팝업 닫기 
-    useEffect(() => {
-        if (location.state?.hidePopup) {
-            setIsCommentPopupOpen(false);
+  const [isCommentPopupOpen, setIsCommentPopupOpen] = useState(Boolean(location.state?.openRecommendSheet));
+  const [commentText, setCommentText] = useState(location.state?.commentText || "");
+  const [isAnonymous, setIsAnonymous] = useState(location.state?.isAnonymous ?? true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-            // 만약 돌아올 때 isRecommended가 true였다면 스위치를 다시 켜줍니다.
-            if (location.state?.isRecommended) {
-                setIsRecommended(true);
-            }
-        }
-    }, [location.state]);
+  const [isRecommended, setIsRecommended] = useState(Boolean(location.state?.isRecommended));
+  const [showComments, setShowComments] = useState(true);
+  const [comments, setComments] = useState(Array.isArray(location.state?.localComments) ? location.state.localComments : []);
+  const [commentCount, setCommentCount] = useState(location.state?.commentCount || comments.length || 0);
 
-    // 돌아왔을 때 코멘트 정보 가져오기
-    const [commentText, setCommentText] = useState(location.state?.commentText || "");
+  const [recommendationId, setRecommendationId] = useState(location.state?.recommendationId || null);
+  const [isCommentsLoading, setIsCommentsLoading] = useState(false);
 
-    // 닉네임, 코멘트 텍스트 상태
-    const [nickname, setNickname] = useState(guestNickname);
-    // Kakao users can choose whether this recommendation is anonymous.
-    const [isAnonymous, setIsAnonymous] = useState(false);
+  const accessToken = localStorage.getItem("accessToken") || "";
+  const guestToken = localStorage.getItem("guestToken") || "";
+  const guestNickname = localStorage.getItem("guestNickname") || "익명";
 
-    // 추천하기 버튼
-    const [isRecommended, setIsRecommended] = useState(location.state?.isRecommended || false);
+  const isKakaoUser = Boolean(accessToken);
+  const isGuestUser = !isKakaoUser && Boolean(guestToken);
 
-    // Spotify embed 플레이어 상태 관리
-    const [isPlayerVisible, setIsPlayerVisible] = useState(false); // embed 플레이어 표시 여부
-    const [embedUrl, setEmbedUrl] = useState(null); // Spotify embed URL
-    const [isPlaying, setIsPlaying] = useState(false); // 재생/일시정지 상태
+  const playlistId = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    return location.state?.playlistId || params.get("playlistId");
+  }, [location.search, location.state?.playlistId]);
 
-    const handlePlayClick = async () => {
-        if (!track?.spotifyId) {
-            alert("곡 정보가 없습니다.");
-            return;
-        }
+  useEffect(() => {
+    if (!displayTrack?.previewUrl) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+      return;
+    }
 
-        const authToken =
-            localStorage.getItem("accessToken") || localStorage.getItem("guestToken");
+    const audio = new Audio(displayTrack.previewUrl);
 
-        if (!authToken) {
-            alert("로그인 또는 게스트 선택 후 미리듣기를 사용할 수 있습니다.");
-            return;
-        }
-
-        try {
-            // 백엔드 embedUrl
-            const response = await fetch(`${API_BASE_URL}/api/tracks/${track.spotifyId}/play`, {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${authToken}`,
-                    "Content-Type": "application/json",
-                },
-            });
-            const data = await response.json();
-
-            if (response.ok && data.response?.embedUrl) {
-                setEmbedUrl(data.response.embedUrl);
-                setIsPlayerVisible(true); // 플레이어 표시
-                setIsPlaying(true); // 재생 상태로 변경
-            } else {
-                alert("플레이어를 불러올 수 없습니다.");
-            }
-        } catch (err) {
-            console.error("API 호출 에러:", err);
-            alert("네트워크 오류가 발생했습니다.");
-        }
+    const handleLoadedMetadata = () => {
+      if (Number.isFinite(audio.duration) && audio.duration > 0) {
+        setDuration(audio.duration);
+      }
     };
 
-    // 일시정지 버튼 클릭
-    const handlePauseClick = () => {
-        setIsPlaying(false); // 일시정지 상태로 변경
+    const handleTimeUpdate = () => {
+      setCurrentTime(audio.currentTime || 0);
     };
 
-    // 추천 완료 후 화면 전환 (게스트 or 카카오)
-    const handleRecommendationComplete = () => {
-        // 나중에 게스트/카카오 구분해서 화면 이동
-        // 임시: alert 표시
-        alert("추천 완료");
-        // navigate("/"); // 나중에 완료 화면으로 이동
+    const handleEnded = () => {
+      setIsPlaying(false);
+      setCurrentTime(0);
     };
 
+    audio.addEventListener("loadedmetadata", handleLoadedMetadata);
+    audio.addEventListener("timeupdate", handleTimeUpdate);
+    audio.addEventListener("ended", handleEnded);
+    audioRef.current = audio;
 
-    // 포스트잇(코멘트) on/off
-    const [showComments, setShowComments] = useState(true);
-
-    // 코멘트 개수 저장 (임시:5개)
-    const [commentCount, setCommentCount] = useState(5);
-
-
-    // *** 추천 등록 API 호출 ***
-    const handleRecommend = async () => {
-        const currentAccessToken = localStorage.getItem("accessToken") || "";
-        const currentGuestToken = localStorage.getItem("guestToken") || "";
-        const currentGuestNickname = localStorage.getItem("guestNickname") || "";
-        const isCurrentKakaoUser = Boolean(currentAccessToken);
-        const isCurrentGuestUser = !isCurrentKakaoUser && Boolean(currentGuestToken);
-
-        if (!track) {
-            alert("추천할 노래 정보가 없습니다.");
-            return;
-        }
-
-        if (!commentText.trim()) {
-            alert("코멘트를 입력해주세요.");
-            return;
-        }
-
-        if (!isCurrentKakaoUser && !isCurrentGuestUser) {
-            alert("카카오 로그인 또는 게스트 입장 후 추천할 수 있습니다.");
-            return;
-        }
-
-        // playlistId 전달 브랜치가 머지 전까지 "1"로 테스트
-        const playlistId =
-            location.state?.playlistId || new URLSearchParams(location.search).get("playlistId") || "1";
-
-        // 카카오 유저는 accessToken으로 인증, 게스트는 guestToken 보냄
-        const requestData = {
-            spotifyId: track.spotifyId,
-            title: track.title,
-            artistName: track.artistName,
-            albumCoverImageUrl: track.albumCoverImageUrl,
-            previewUrl: track.previewUrl || null,
-            comment: commentText,
-            isAnonymous: isCurrentKakaoUser ? isAnonymous : true,
-            ...(isCurrentGuestUser ? { guestToken: currentGuestToken, randomNickname: "" } : {}),
-        };
-
-        const headers = {
-            "Content-Type": "application/json",
-            ...(isCurrentKakaoUser ? { Authorization: `Bearer ${currentAccessToken}` } : {}),
-        };
-
-        try {
-            console.log("recommendation request:", {
-                userType: isCurrentKakaoUser ? "kakao" : "guest",
-                playlistId,
-                requestData,
-            });
-
-            const response = await fetch(`${API_BASE_URL}/api/playlists/${playlistId}/recommendations`, {
-                method: "POST",
-                headers,
-                body: JSON.stringify(requestData),
-            });
-
-            const result = await response.json();
-
-            if (!response.ok || result.code !== "SUCCESS") {
-                alert(result.message || "추천 등록에 실패했습니다.");
-                return;
-            }
-
-            setIsCommentPopupOpen(false); // 코멘트 입력창 닫기
-            setIsRecommended(true); // 추천 완료 -> 포스트잇 표시
-            setCommentCount((prevCount) => prevCount + 1);
-        } catch (error) {
-            console.error("추천 등록 API 에러:", error);
-            alert("추천 등록 중 네트워크 오류가 발생했습니다.");
-        }
+    return () => {
+      audio.pause();
+      audio.currentTime = 0;
+      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      audio.removeEventListener("timeupdate", handleTimeUpdate);
+      audio.removeEventListener("ended", handleEnded);
     };
-    // 노래 정보(track) 가지고 /comments로 이동
-    const handleGoToComments = () => {
-        navigate("/comments", {
-            state: {
-                track: track,
-                isRecommended: isRecommended,
-                commentText: commentText
-            }
-        });
+  }, [displayTrack?.previewUrl]);
+
+  const fetchComments = useCallback(async (id) => {
+    if (!id || !accessToken) return;
+
+    setIsCommentsLoading(true);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/playlists/recommendations/${id}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      const payload = await parseJson(response);
+
+      if (!response.ok || payload?.code !== "SUCCESS") {
+        return;
+      }
+
+      const content = payload?.content;
+      const fetchedComments = Array.isArray(content?.comments) ? content.comments : [];
+
+      setComments(fetchedComments);
+      setCommentCount(fetchedComments.length);
+      setIsRecommended(fetchedComments.length > 0);
+
+      if (content) {
+        setDisplayTrack((prevTrack) =>
+          normalizeTrack({
+            ...prevTrack,
+            spotifyId: content.spotifyId,
+            title: content.title,
+            artistName: content.artist,
+            albumCoverImageUrl: content.albumCoverImageUrl,
+            previewUrl: content.previewUrl,
+          }),
+        );
+      }
+    } finally {
+      setIsCommentsLoading(false);
+    }
+  }, [accessToken]);
+
+  useEffect(() => {
+    if (recommendationId) {
+      const timer = setTimeout(() => {
+        void fetchComments(recommendationId);
+      }, 0);
+
+      return () => clearTimeout(timer);
+    }
+
+    return undefined;
+  }, [fetchComments, recommendationId]);
+
+  const handleTogglePlay = async () => {
+    if (!audioRef.current) {
+      alert("이 곡은 미리듣기를 지원하지 않습니다.");
+      return;
+    }
+
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+      return;
+    }
+
+    try {
+      await audioRef.current.play();
+      setIsPlaying(true);
+    } catch {
+      alert("재생에 실패했습니다.");
+    }
+  };
+
+  const handleRecommend = async () => {
+    if (!displayTrack?.spotifyId) {
+      alert("추천할 곡 정보가 없습니다.");
+      return;
+    }
+
+    if (!commentText.trim()) {
+      alert("코멘트를 입력해주세요.");
+      return;
+    }
+
+    if (!isKakaoUser && !isGuestUser) {
+      alert("로그인 또는 게스트 입장 후 추천할 수 있습니다.");
+      if (playlistId) {
+        localStorage.setItem("postLoginRedirect", `/search?playlistId=${encodeURIComponent(playlistId)}`);
+        navigate(`/login?playlistId=${encodeURIComponent(playlistId)}`);
+      } else {
+        navigate("/login");
+      }
+      return;
+    }
+
+    if (!playlistId) {
+      alert("플레이리스트 정보가 없습니다. 공유 링크에서 다시 시작해 주세요.");
+      return;
+    }
+
+    const requestData = {
+      spotifyId: displayTrack.spotifyId,
+      title: displayTrack.title,
+      artistName: displayTrack.artistName,
+      albumCoverImageUrl: displayTrack.albumCoverImageUrl,
+      previewUrl: displayTrack.previewUrl || null,
+      comment: commentText.trim(),
+      guestToken: isGuestUser ? guestToken : null,
+      randomNickname: isGuestUser ? guestNickname : "",
+      isAnonymous: isKakaoUser ? isAnonymous : true,
     };
 
+    const headers = {
+      "Content-Type": "application/json",
+      ...(isKakaoUser ? { Authorization: `Bearer ${accessToken}` } : {}),
+    };
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/playlists/${playlistId}/recommendations`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(requestData),
+      });
+
+      const payload = await parseJson(response);
+
+      if (!response.ok || payload?.code !== "SUCCESS") {
+        alert(payload?.message || "추천 등록에 실패했습니다.");
+        return;
+      }
+
+      const newRecommendationId = payload?.content?.recommendationId;
+
+      setIsCommentPopupOpen(false);
+      setIsRecommended(true);
+
+      if (newRecommendationId && accessToken) {
+        setRecommendationId(newRecommendationId);
+        await fetchComments(newRecommendationId);
+      } else {
+        const optimisticName = isKakaoUser ? (isAnonymous ? "익명" : "나") : guestNickname;
+        const optimisticComments = [{ recommenderName: optimisticName, comment: commentText.trim() }];
+        setComments(optimisticComments);
+        setCommentCount(optimisticComments.length);
+      }
+    } catch {
+      alert("추천 등록 중 네트워크 오류가 발생했습니다.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleGoToComments = () => {
+    if (!recommendationId && comments.length === 0) {
+      alert("표시할 코멘트가 없습니다.");
+      return;
+    }
+
+    navigate("/comments", {
+      state: {
+        track: displayTrack,
+        recommendationId,
+        playlistId,
+        commentText,
+        isRecommended,
+        commentCount,
+        localComments: comments,
+      },
+    });
+  };
+
+  const notes = comments.slice(0, 4);
+  const hasNotes = notes.length > 0;
+  const progressRatio = duration > 0 ? Math.min(currentTime / duration, 1) : 0;
+
+  if (!displayTrack) {
     return (
-        <main className="lp-page">
-            <h1>FIND YOUR NUMBER 18</h1>
-
-            {/* 경우2 : 플리에서 넘어왔을 때 코멘트 on/off */}
-            {(!isNewRecommendation || isRecommended) && (
-                <button
-                    className="comment-toggle-btn"
-                    onClick={() => setShowComments(!showComments)}
-                >
-                    {showComments ? "코멘트 OFF" : "코멘트 ON"}
-                </button>
-            )}
-
-            {/* Spotify embed 플레이어 */}
-            {isPlayerVisible && embedUrl && (
-                <div style={{ width: "100%", marginTop: "20px" }}>
-                    <iframe
-                        src={embedUrl}
-                        width="100%"
-                        height="152"
-                        frameBorder="0"
-                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                        title="Spotify Player"
-                    />
-                </div>
-            )}
-
-            {/* 추천 후 코멘트on : 포스트잇 */}
-            {isRecommended ? (
-                showComments ? (
-                    <div className="post-it-container">
-                        <div className="post-it">
-                            <p>{commentText}</p>
-                        </div>
-                    </div>
-                ) : null
-            ) : null}
-
-            {/* 앨범 커버, 곡명, 가수명 렌더링 */}
-            {track ? (
-                <section className="lp-track-preview">
-                    <div className="lp-record-view">
-                        <img className="lp-vinyl" src={vinylImage} alt="" aria-hidden="true" />
-                        <img
-                            className="lp-album-cover"
-                            src={track.albumCoverImageUrl}
-                            alt={track.title}
-                        />
-                    </div>
-                    <h2>{track.title}</h2>
-                    <p>{track.artistName}</p>
-                </section>
-            ) : null}
-
-            {/* 노래 재생바 */}
-            {!isCommentPopupOpen ? (
-                <div className="player-bar-container">
-
-                    {/* 재생 게이지 막대 */}
-                    <div className="progress-bar-bg">
-                        <div className="progress-bar-fill"></div>
-                    </div>
-
-                    {/* 현재 시간과 총 시간 */}
-                    <div className="time-info">
-                        <span>0:00</span>
-                        <span>0:30</span>
-                    </div>
-
-                    {/* 재생/일시정지 버튼 토글 */}
-                    <div className="play-control-row">
-                        {!isPlaying ? (
-                            <button
-                                className="play-btn"
-                                onClick={handlePlayClick}
-                                disabled={isPlayerVisible} // 이미 로드됐으면 비활성화
-                            >
-                                ▶
-                            </button>
-                        ) : (
-                            <button
-                                className="play-btn"
-                                onClick={handlePauseClick}
-                            >
-                                ⏸
-                            </button>
-                        )}
-                    </div>
-
-                    {isNewRecommendation && !isRecommended ? (
-                        // 경우 1: 새로 추천하러 들어왔고, 아직 추천을 완료하지 않은 경우
-                        <button
-                            className="view-comments-btn"
-                            onClick={() => setIsCommentPopupOpen(true)}
-                        >
-                            이 노래 친구에게 추천하기 →
-                        </button>
-                    ) : (
-                        // 경우 2: 이미 추천을 완료했거나(isRecommended), 애초에 플리에서 들어온 경우
-                        <button
-                            className="view-comments-btn"
-                            onClick={handleGoToComments}
-                        >
-                            이 곡의 코멘트 {commentCount}개 보기 →
-                        </button>
-                    )}
-
-                </div>
-            ) : null}
-
-            {/* 바텀 시트 렌더링 */}
-            {isCommentPopupOpen ? (
-                <div className="comment-bottom-sheet">
-
-                    {/* 앨범 커버, 곡명, 아티스트명 반투명창 */}
-                    <div className="sheet-track-info">
-                        <img
-                            className="sheet-album-cover"
-                            src={track?.albumCoverImageUrl}
-                            alt={track?.title}
-                        />
-                        <div className="sheet-track-text">
-                            <h3>{track?.title}</h3>
-                            <p>{track?.artistName}</p>
-                        </div>
-                    </div>
-                    
-                    {/* 익명 체크 박스 */}
-                    {isKakaoUser ? (
-                        <label className="anonymous-check">
-                            <input
-                                type="checkbox"
-                                checked={isAnonymous}
-                                onChange={(e) => setIsAnonymous(e.target.checked)}
-                            />
-                            익명으로 추천하기
-                        </label>
-                    ) : null}
-
-                    {isGuestUser ? (
-                        <div className="input-group">
-                            <label>닉네임</label>
-                            <input
-                                type="text"
-                                placeholder="@yyyh"
-                                value={nickname}
-                                onChange={(e) => setNickname(e.target.value)}
-                            />
-                        </div>
-                    ) : null}
-
-                    {/* 코멘트 입력 */}
-                    <div className="input-group">
-                        <label>코멘트</label>
-                        <textarea
-                            placeholder="코멘트 입력"
-                            value={commentText}
-                            onChange={(e) => setCommentText(e.target.value)}
-                        />
-                    </div>
-
-                    {/* 추천하기 버튼 연결 */}
-                    <div className="popup-actions">
-                        <button className="recommend-btn" onClick={handleRecommend}>
-                            추천하기
-                        </button>
-                    </div>
-
-                </div>
-            ) : null}
-
-        </main>
+      <main className="lp-page">
+        <header className="lp-header">
+          <button type="button" className="brand-home-button" onClick={() => navigate("/")}>
+            PLITTER
+          </button>
+        </header>
+        <section className="lp-empty">
+          <p>선택된 곡이 없습니다.</p>
+          <button type="button" onClick={() => navigate("/search")}>검색 페이지로 이동</button>
+        </section>
+      </main>
     );
+  }
+
+  return (
+    <main className="lp-page">
+      <header className="lp-header">
+        <button type="button" className="brand-home-button" onClick={() => navigate("/")}>
+          PLITTER
+        </button>
+      </header>
+
+      <section className="lp-stage">
+        <div className="lp-record-view">
+          <img className="lp-vinyl" src={vinylImage} alt="vinyl" aria-hidden="true" />
+          <img className="lp-album-cover" src={displayTrack.albumCoverImageUrl} alt={displayTrack.title} />
+        </div>
+
+        {hasNotes && showComments ? (
+          <div className="post-it-container" aria-label="comments-notes">
+            {notes.map((comment, index) => (
+              <article key={`${comment.recommenderName}-${index}`} className={`post-it post-it-${index + 1}`}>
+                <p>{comment.comment}</p>
+              </article>
+            ))}
+          </div>
+        ) : null}
+      </section>
+
+      {(hasNotes || isRecommended) ? (
+        <button type="button" className="comment-pill" onClick={() => setShowComments((prev) => !prev)}>
+          코멘트
+        </button>
+      ) : null}
+
+      <section className="lp-track-preview">
+        <h2>{displayTrack.title}</h2>
+        <p>{displayTrack.artistName}</p>
+      </section>
+
+      <section className="player-bar-container">
+        <div className="progress-bar-bg" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progressRatio * 100)}>
+          <div className="progress-bar-fill" style={{ width: `${progressRatio * 100}%` }} />
+          <span className="progress-thumb" style={{ left: `${progressRatio * 100}%` }} />
+        </div>
+
+        <div className="time-info">
+          <span>{formatTime(currentTime)}</span>
+          <span>{formatTime(duration)}</span>
+        </div>
+
+        <button type="button" className="play-btn" onClick={handleTogglePlay}>
+          {isPlaying ? "❚❚" : "▶"}
+        </button>
+
+        {isRecommended || hasNotes || recommendationId ? (
+          <button type="button" className="view-comments-btn" onClick={handleGoToComments}>
+            {isCommentsLoading ? "코멘트 불러오는 중..." : `이 곡의 코멘트 ${commentCount}개 보기 →`}
+          </button>
+        ) : (
+          <button type="button" className="view-comments-btn" onClick={() => setIsCommentPopupOpen(true)}>
+            친구에게 추천하기 →
+          </button>
+        )}
+      </section>
+
+      {isCommentPopupOpen ? (
+        <div className="comment-sheet-overlay" onClick={() => setIsCommentPopupOpen(false)}>
+          <section className="comment-bottom-sheet" onClick={(event) => event.stopPropagation()}>
+            <span className="sheet-handle" aria-hidden="true" />
+
+            <div className="sheet-track-info">
+              <img className="sheet-album-cover" src={displayTrack.albumCoverImageUrl} alt={displayTrack.title} />
+              <div className="sheet-track-text">
+                <h3>{displayTrack.title}</h3>
+                <p>{displayTrack.artistName}</p>
+                <span>앨범 {displayTrack.albumName || "-"}</span>
+              </div>
+            </div>
+
+            <div className="input-group">
+              <label htmlFor="commentText">코멘트</label>
+              <textarea
+                id="commentText"
+                placeholder="이 노래를 들을 때 떠오르는 장면을 적어주세요"
+                value={commentText}
+                onChange={(event) => setCommentText(event.target.value)}
+              />
+            </div>
+
+            <div className="anonymous-row">
+              <div>
+                <strong>익명 여부</strong>
+                <p>익명을 선택하면 랜덤 닉네임으로 추천됩니다.</p>
+              </div>
+              <button
+                type="button"
+                className={`anonymous-toggle ${isAnonymous ? "on" : "off"}`}
+                onClick={() => setIsAnonymous((prev) => !prev)}
+                disabled={!isKakaoUser}
+              >
+                {isKakaoUser ? (isAnonymous ? "ON" : "OFF") : "ON"}
+              </button>
+            </div>
+
+            <button type="button" className="recommend-btn" onClick={handleRecommend} disabled={isSubmitting}>
+              {isSubmitting ? "추천 등록 중..." : "추천하기"}
+            </button>
+          </section>
+        </div>
+      ) : null}
+    </main>
+  );
 }
