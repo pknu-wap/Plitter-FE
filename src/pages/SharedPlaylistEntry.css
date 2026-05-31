@@ -75,6 +75,7 @@
 .shared-record-section {
   flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 24px 0 8px;
@@ -84,6 +85,9 @@
   position: relative;
   width: 320px;
   height: 290px;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
 }
 
 .shared-main-cover {
@@ -92,6 +96,10 @@
   padding: 0;
   background: transparent;
   cursor: pointer;
+}
+
+.shared-cover-stack:active {
+  cursor: grabbing;
 }
 
 .shared-main-cover:disabled {
@@ -114,14 +122,17 @@
   width: 132px;
   height: 132px;
   opacity: 0.92;
+  transition: transform 180ms ease, opacity 180ms ease;
 }
 
 .shared-main-cover-back-left {
   left: 34px;
+  transform: translateX(-16px) scale(0.96);
 }
 
 .shared-main-cover-back-right {
   right: 34px;
+  transform: translateX(16px) scale(0.96);
 }
 
 .shared-main-cover-front {
@@ -131,6 +142,12 @@
   height: 168px;
   transform: translateX(-50%);
   z-index: 2;
+}
+
+.shared-main-cover-front:hover,
+.shared-main-cover-back-left:hover,
+.shared-main-cover-back-right:hover {
+  opacity: 1;
 }
 
 .shared-center-caption {
@@ -167,6 +184,37 @@
   border-radius: 20px;
   background: linear-gradient(135deg, #f3c4b4, #e8764f);
   box-shadow: 0 18px 32px rgba(77, 53, 28, 0.18);
+}
+
+.shared-cover-indicator {
+  position: relative;
+  width: 120px;
+  height: 12px;
+  margin-top: 10px;
+}
+
+.shared-cover-indicator-track,
+.shared-cover-indicator-thumb {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  border-radius: 999px;
+}
+
+.shared-cover-indicator-track {
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: rgba(192, 173, 140, 0.28);
+}
+
+.shared-cover-indicator-thumb {
+  left: 0;
+  height: 8px;
+  min-width: 20px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 2px 8px rgba(77, 53, 28, 0.12);
+  transition: transform 180ms ease;
 }
 
 .shared-playlist-error {

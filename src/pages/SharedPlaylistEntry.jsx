@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { API_BASE_URL, parseJson } from "../lib/api";
 import "./SharedPlaylistEntry.css";
@@ -53,11 +53,11 @@ function buildInitialTracks(playlistId) {
   const historyCovers = getStoredCoverHistory(playlistId).map((cover) => normalizeTrack(null, cover));
   const storedTracks = getStoredRecommendedTracks(playlistId).map((track) => normalizeTrack(track));
 
-  return dedupeTracksByCover([...storedTracks, normalizeTrack(null, latestCover), ...historyCovers]).slice(0, 3);
+  return dedupeTracksByCover([...storedTracks, normalizeTrack(null, latestCover), ...historyCovers]);
 }
 
 function mergeTracks(nextTracks, prevTracks) {
-  return dedupeTracksByCover([...nextTracks, ...prevTracks]).slice(0, 3);
+  return dedupeTracksByCover([...nextTracks, ...prevTracks]);
 }
 
 export default function SharedPlaylistEntry() {
@@ -76,9 +76,14 @@ export default function SharedPlaylistEntry() {
 
   const [playlistMeta, setPlaylistMeta] = useState({
     recommendationCount: 0,
+    ownerNickname: "",
   });
   const [recommendedTracks, setRecommendedTracks] = useState(() => buildInitialTracks(normalizedPlaylistId));
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
   const linkError = !normalizedPlaylistId ? "유효하지 않은 공유 링크입니다." : "";
+  const pointerStartXRef = useRef(0);
+  const hasDraggedRef = useRef(false);
 
   const searchPath = useMemo(() => {
     if (!normalizedPlaylistId) return "/search";
@@ -99,6 +104,7 @@ export default function SharedPlaylistEntry() {
 
         setPlaylistMeta({
           recommendationCount: payload?.content?.recommendationCount || 0,
+          ownerNickname: payload?.content?.ownerNickname || "",
         });
 
         const latestCoverImageUrl = payload?.content?.latestCoverImageUrl || "";
@@ -106,44 +112,45 @@ export default function SharedPlaylistEntry() {
           localStorage.setItem(storageKey, latestCoverImageUrl);
         }
 
-        const storedHistoryTracks = getStoredCoverHistory(normalizedPlaylistId).map((cover) => normalizeTrack(null, cover));
-        const latestPublicTrack = normalizeTrack(null, latestCoverImageUrl);
-        setRecommendedTracks((prev) => mergeTracks([latestPublicTrack, ...storedHistoryTracks], prev));
-
-        if (!accessToken) return;
-
-        const privateResponse = await fetch(`${API_BASE_URL}/playlists/${normalizedPlaylistId}`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-        const privatePayload = await parseJson(privateResponse);
-
-        if (!privateResponse.ok || privatePayload?.code !== "SUCCESS") {
-          return;
-        }
-
-        const recommendations = Array.isArray(privatePayload?.content?.recommendations)
-          ? privatePayload.content.recommendations
+        const publicRecommendations = Array.isArray(payload?.content?.recommendations)
+          ? payload.content.recommendations
           : [];
-        const latestTracks = recommendations
+        const publicTracks = publicRecommendations
           .map((recommendation) => normalizeTrack(recommendation))
           .filter((track) => track.albumCoverImageUrl)
-          .slice(-10)
           .reverse();
+        const storedHistoryTracks = getStoredCoverHistory(normalizedPlaylistId).map((cover) => normalizeTrack(null, cover));
+        const latestPublicTrack = normalizeTrack(null, latestCoverImageUrl);
+        const nextTracks = publicTracks.length > 0
+          ? mergeTracks(publicTracks, [...storedHistoryTracks, latestPublicTrack])
+          : mergeTracks([latestPublicTrack, ...storedHistoryTracks], []);
 
-        if (latestTracks.length > 0) {
-          localStorage.setItem(`recommendedTracks:${normalizedPlaylistId}`, JSON.stringify(latestTracks));
+        if (publicTracks.length > 0) {
+          localStorage.setItem(`recommendedTracks:${normalizedPlaylistId}`, JSON.stringify(publicTracks));
         }
 
-        setRecommendedTracks((prev) => mergeTracks(latestTracks, prev));
+        setRecommendedTracks(nextTracks);
       } catch {
         // Ignore and use fallback UI.
       }
     };
 
     void fetchPlaylist();
-  }, [accessToken, normalizedPlaylistId, storageKey]);
+  }, [normalizedPlaylistId, storageKey]);
+
+  useEffect(() => {
+    if (recommendedTracks.length === 0) {
+      setActiveIndex(0);
+      return;
+    }
+
+    setActiveIndex((prevIndex) => {
+      if (prevIndex < recommendedTracks.length) {
+        return prevIndex;
+      }
+      return 0;
+    });
+  }, [recommendedTracks]);
 
   const handleStartRecommendation = () => {
     if (!normalizedPlaylistId) {
@@ -172,17 +179,69 @@ export default function SharedPlaylistEntry() {
     });
   };
 
-  const centerTrack = recommendedTracks[0] || null;
-  const leftTrack = recommendedTracks[1] || recommendedTracks[0] || null;
-  const rightTrack = recommendedTracks[2] || recommendedTracks[1] || recommendedTracks[0] || null;
+  const trackCount = recommendedTracks.length;
+  const centerTrack = trackCount > 0 ? recommendedTracks[activeIndex] : null;
+  const leftTrack = trackCount > 1
+    ? recommendedTracks[(activeIndex - 1 + trackCount) % trackCount]
+    : null;
+  const rightTrack = trackCount > 1
+    ? recommendedTracks[(activeIndex + 1) % trackCount]
+    : null;
+  const ownerLabel = playlistMeta.ownerNickname
+    ? `${playlistMeta.ownerNickname}님의 플레이리스트`
+    : "친구의 플레이리스트";
   const description = playlistMeta.recommendationCount > 0
-    ? `친구의 플레이리스트에 ${playlistMeta.recommendationCount}곡이 모였어요`
+    ? `${ownerLabel}에 ${playlistMeta.recommendationCount}곡이 모였어요`
     : "친구에게 어울리는 한 곡을 쌓아보세요";
   const helperText = isLoggedIn
     ? "마음에 드는 앨범을 눌러 추천 흐름을 이어가 보세요."
     : "로그인하거나 게스트로 입장해 추천을 남겨보세요.";
   const hasTrackIdentity = centerTrack
     && (centerTrack.title !== "추천된 곡" || centerTrack.artistName !== "아티스트 정보 없음");
+  const moveCarousel = (direction) => {
+    if (trackCount <= 1) return;
+
+    setActiveIndex((prevIndex) => {
+      const nextIndex = prevIndex + direction;
+      return (nextIndex + trackCount) % trackCount;
+    });
+  };
+
+  const handlePointerDown = (event) => {
+    if (trackCount <= 1) return;
+
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+    pointerStartXRef.current = event.clientX;
+    hasDraggedRef.current = false;
+    setIsDragging(true);
+  };
+
+  const handlePointerMove = (event) => {
+    if (!isDragging || trackCount <= 1) return;
+
+    const diff = event.clientX - pointerStartXRef.current;
+    if (Math.abs(diff) < 40) return;
+
+    hasDraggedRef.current = true;
+    moveCarousel(diff > 0 ? -1 : 1);
+    pointerStartXRef.current = event.clientX;
+  };
+
+  const handlePointerUp = (event) => {
+    if (!isDragging) return;
+    event.currentTarget.releasePointerCapture?.(event.pointerId);
+    setIsDragging(false);
+  };
+
+  const handleSideCoverClick = (direction) => {
+    if (hasDraggedRef.current) return;
+    moveCarousel(direction);
+  };
+
+  const handleCenterCoverClick = () => {
+    if (hasDraggedRef.current || !centerTrack) return;
+    openRecommendationTrack(centerTrack);
+  };
 
   return (
     <main className="shared-entry-page">
@@ -198,17 +257,24 @@ export default function SharedPlaylistEntry() {
       </header>
 
       <section className="shared-entry-copy">
-        <p className="shared-entry-eyebrow">친구의 플레이리스트</p>
+        <p className="shared-entry-eyebrow">{ownerLabel}</p>
         <h1>{description}</h1>
         <p>{helperText}</p>
       </section>
 
       <section className="shared-record-section">
-        <div className="shared-cover-stack">
+        <div
+          className="shared-cover-stack"
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerLeave={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+        >
           <button
             type="button"
             className="shared-main-cover shared-main-cover-back-left"
-            onClick={() => openRecommendationTrack(leftTrack)}
+            onClick={() => handleSideCoverClick(-1)}
             disabled={!leftTrack}
             aria-label="왼쪽 추천곡 보기"
           >
@@ -217,7 +283,7 @@ export default function SharedPlaylistEntry() {
           <button
             type="button"
             className="shared-main-cover shared-main-cover-back-right"
-            onClick={() => openRecommendationTrack(rightTrack)}
+            onClick={() => handleSideCoverClick(1)}
             disabled={!rightTrack}
             aria-label="오른쪽 추천곡 보기"
           >
@@ -228,19 +294,31 @@ export default function SharedPlaylistEntry() {
             <button
               type="button"
               className="shared-main-cover shared-main-cover-front"
-              onClick={() => openRecommendationTrack(centerTrack)}
+              onClick={handleCenterCoverClick}
               aria-label="대표 추천곡 보기"
             >
               <img className="shared-cover" src={centerTrack.albumCoverImageUrl} alt={centerTrack.title} />
               <span className="shared-center-caption">
-                <strong>{hasTrackIdentity ? centerTrack.title : "최근 추천 커버"}</strong>
-                <span>{hasTrackIdentity ? centerTrack.artistName : "공유 링크에서 추천을 이어갈 수 있어요"}</span>
+                <strong>{hasTrackIdentity ? centerTrack.title : "추천 커버 모음"}</strong>
+                <span>{hasTrackIdentity ? centerTrack.artistName : "추천된 모든 곡 커버를 넘겨서 볼 수 있어요"}</span>
               </span>
             </button>
           ) : (
             <div className="shared-cover-placeholder" aria-hidden="true" />
           )}
         </div>
+        {trackCount > 1 ? (
+          <div className="shared-cover-indicator" aria-label={`추천 곡 ${activeIndex + 1} / ${trackCount}`}>
+            <span className="shared-cover-indicator-track" />
+            <span
+              className="shared-cover-indicator-thumb"
+              style={{
+                width: `${100 / trackCount}%`,
+                transform: `translate(${activeIndex * 100}%, -50%)`,
+              }}
+            />
+          </div>
+        ) : null}
       </section>
 
       {linkError ? <p className="shared-playlist-error">{linkError}</p> : null}
