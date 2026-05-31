@@ -187,6 +187,7 @@ export default function SharedPlaylistEntry() {
   const rightTrack = trackCount > 1
     ? recommendedTracks[(activeIndex + 1) % trackCount]
     : null;
+  const indicatorProgress = trackCount > 1 ? activeIndex / (trackCount - 1) : 0;
   const ownerLabel = playlistMeta.ownerNickname
     ? `${playlistMeta.ownerNickname}님의 플레이리스트`
     : "친구의 플레이리스트";
@@ -311,8 +312,7 @@ export default function SharedPlaylistEntry() {
             <span
               className="shared-cover-indicator-thumb"
               style={{
-                width: `${100 / trackCount}%`,
-                transform: `translate(${activeIndex * 100}%, -50%)`,
+                left: `calc((100% - 20px) * ${indicatorProgress})`,
               }}
             />
           </div>
