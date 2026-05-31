@@ -190,10 +190,11 @@ body {
   font-size: 16px;
   font-weight: 800;
   cursor: pointer;
-  display: flex;
+  display: grid;
+  grid-template-columns: 18px 1fr 18px;
   align-items: center;
-  justify-content: center;
   gap: 12px;
+  padding: 0 28px;
 }
 
 .kakao-icon {
@@ -202,6 +203,15 @@ body {
   height: 14px;
   border-radius: 50%;
   background-color: #111;
+}
+
+.kakao-login-label {
+  text-align: center;
+}
+
+.kakao-icon-spacer {
+  width: 18px;
+  height: 14px;
 }
 
 .kakao-icon::after {

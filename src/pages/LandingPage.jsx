@@ -80,7 +80,8 @@ export default function LandingPage() {
           onClick={handleKakaoLogin}
         >
           <span className="kakao-icon" />
-          카카오계정으로 로그인
+          <span className="kakao-login-label">카카오계정으로 로그인</span>
+          <span className="kakao-icon-spacer" aria-hidden="true" />
         </button>
 
         <button
