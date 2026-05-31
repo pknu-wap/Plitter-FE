@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL, parseJson } from "../lib/api";
 import "./RealMain.css";
 
 import plitterLogo from "../assets/Plitter.png";
@@ -29,8 +30,20 @@ export default function LandingPage() {
 
   const maxSlide = 74;
 
-  const handleKakaoLogin = () => {
-    window.location.href = "http://13.124.174.30:8080/api/auth/kakao";
+  const handleKakaoLogin = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/kakao/login`);
+      const payload = await parseJson(response);
+
+      if (!response.ok || payload?.code !== "SUCCESS" || !payload?.content) {
+        throw new Error(payload?.message || "카카오 로그인 URL 요청에 실패했습니다.");
+      }
+
+      window.location.href = payload.content;
+    } catch (error) {
+      console.error("카카오 로그인 실패:", error);
+      alert(error.message || "카카오 로그인 중 오류가 발생했습니다.");
+    }
   };
 
   const handleGuestStart = () => {
