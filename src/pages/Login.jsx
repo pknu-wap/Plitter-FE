@@ -45,7 +45,14 @@ export default function Login() {
       // 2. 응답을 JS로 바꿔서 guestToken, nickname을 꺼낼 준비
       const data = await response.json();
 
-      if (!response.ok || !data.response?.guestToken || !data.response?.nickname) {
+      // 백엔드 응답 래퍼가 response/content 중 무엇이든 처리하게
+      const guestData = data.response || data.content || data;
+      const issuedGuestToken = guestData.guestToken;
+      const issuedGuestNickname = guestData.nickname || guestData.randomNickname;
+
+      console.log("guest login response:", data);
+
+      if (!response.ok || !issuedGuestToken || !issuedGuestNickname) {
         throw new Error(data.message || "게스트 토큰 발급에 실패했습니다.");
       }
 
@@ -53,8 +60,8 @@ export default function Login() {
       localStorage.removeItem("accessToken");
 
       // 4. 이후 추천 등록 API에서 사용할 게스트 정보는 localStorage에 보관
-      localStorage.setItem("guestToken", data.response.guestToken);
-      localStorage.setItem("guestNickname", data.response.nickname);
+      localStorage.setItem("guestToken", issuedGuestToken);
+      localStorage.setItem("guestNickname", issuedGuestNickname);
 
       // 5. 게스트도 노래 검색 후 추천해야 하므로 SongSearch 페이지로 이동
       navigate("/search");

@@ -4,12 +4,15 @@ import { useLocation, useNavigate } from "react-router-dom";
 import vinylImage from "../assets/lp-vinyl.png";
 import "./LpPage.css";
 
+const API_BASE_URL = import.meta.env.PROD ? "/api" : "http://13.124.174.30:8080";
+
 export default function LpPage() {
     const location = useLocation();
     const navigate = useNavigate();
     const track = location.state?.track;
-    const accessToken = localStorage.getItem("accessToken");
-    const guestToken = localStorage.getItem("guestToken");
+    const accessToken = localStorage.getItem("accessToken") || "";
+    const guestToken = localStorage.getItem("guestToken") || "";
+    const guestNickname = localStorage.getItem("guestNickname") || "";
     const isKakaoUser = Boolean(accessToken);
     const isGuestUser = !isKakaoUser && Boolean(guestToken);
 
@@ -35,7 +38,7 @@ export default function LpPage() {
     const [commentText, setCommentText] = useState(location.state?.commentText || "");
 
     // 닉네임, 코멘트 텍스트 상태
-    const [nickname, setNickname] = useState("");
+    const [nickname, setNickname] = useState(guestNickname);
     // Kakao users can choose whether this recommendation is anonymous.
     const [isAnonymous, setIsAnonymous] = useState(false);
 
@@ -63,7 +66,7 @@ export default function LpPage() {
 
         try {
             // 백엔드 embedUrl
-            const response = await fetch(`/api/tracks/${track.spotifyId}/play`, {
+            const response = await fetch(`${API_BASE_URL}/api/tracks/${track.spotifyId}/play`, {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${authToken}`,
@@ -106,53 +109,77 @@ export default function LpPage() {
     const [commentCount, setCommentCount] = useState(5);
 
 
-    // *** 코멘트 API ***
+    // *** 추천 등록 API 호출 ***
     const handleRecommend = async () => {
+        const currentAccessToken = localStorage.getItem("accessToken") || "";
+        const currentGuestToken = localStorage.getItem("guestToken") || "";
+        const currentGuestNickname = localStorage.getItem("guestNickname") || "";
+        const isCurrentKakaoUser = Boolean(currentAccessToken);
+        const isCurrentGuestUser = !isCurrentKakaoUser && Boolean(currentGuestToken);
 
-        // 연동에 쓸 데이터
+        if (!track) {
+            alert("추천할 노래 정보가 없습니다.");
+            return;
+        }
+
+        if (!commentText.trim()) {
+            alert("코멘트를 입력해주세요.");
+            return;
+        }
+
+        if (!isCurrentKakaoUser && !isCurrentGuestUser) {
+            alert("카카오 로그인 또는 게스트 입장 후 추천할 수 있습니다.");
+            return;
+        }
+
+        // playlistId 전달 브랜치가 머지 전까지 "1"로 테스트
+        const playlistId =
+            location.state?.playlistId || new URLSearchParams(location.search).get("playlistId") || "1";
+
+        // 카카오 유저는 accessToken으로 인증, 게스트는 guestToken 보냄
         const requestData = {
             spotifyId: track.spotifyId,
             title: track.title,
             artistName: track.artistName,
             albumCoverImageUrl: track.albumCoverImageUrl,
-            previewUrl: track.previewUrl || "", // 미리듣기 없는 경우 대비
+            previewUrl: track.previewUrl || null,
             comment: commentText,
-            guestToken: "test-guest-token-1234", // 임시 토큰 값
-            isAnonymous: isKakaoUser ? isAnonymous : true
+            isAnonymous: isCurrentKakaoUser ? isAnonymous : true,
+            ...(isCurrentGuestUser ? { guestToken: currentGuestToken, randomNickname: "" } : {}),
         };
 
-        console.log("백엔드에 보낼 데이터(예정):", requestData);
+        const headers = {
+            "Content-Type": "application/json",
+            ...(isCurrentKakaoUser ? { Authorization: `Bearer ${currentAccessToken}` } : {}),
+        };
 
-        /* 임시 주석 처리 (백엔드 연동 전)
         try {
-            const response = await fetch("/api/playlists/1/recommendations", {
+            console.log("recommendation request:", {
+                userType: isCurrentKakaoUser ? "kakao" : "guest",
+                playlistId,
+                requestData,
+            });
+
+            const response = await fetch(`${API_BASE_URL}/api/playlists/${playlistId}/recommendations`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers,
                 body: JSON.stringify(requestData),
             });
 
             const result = await response.json();
 
-            if (result.code === "SUCCESS") {
-                console.log("백엔드 저장", result.content);
-
-                // 1. 코멘트 입력창 내리기
-                setIsCommentPopupOpen(false);
-
-                // 2. 최종 추천 성공 (이후 포스트잇 띄우기)
-                setIsRecommended(true);
-            } else {
-                alert("추천 실패: " + result.message);
+            if (!response.ok || result.code !== "SUCCESS") {
+                alert(result.message || "추천 등록에 실패했습니다.");
+                return;
             }
-        } catch (error) {
-            console.error("API 통신 에러:", error);
-        }
-        */
 
-        setIsCommentPopupOpen(false); // 코멘트 입력창 닫기
-        setIsRecommended(true); // 추천 완료 -> 포스트잇 표시
+            setIsCommentPopupOpen(false); // 코멘트 입력창 닫기
+            setIsRecommended(true); // 추천 완료 -> 포스트잇 표시
+            setCommentCount((prevCount) => prevCount + 1);
+        } catch (error) {
+            console.error("추천 등록 API 에러:", error);
+            alert("추천 등록 중 네트워크 오류가 발생했습니다.");
+        }
     };
     // 노래 정보(track) 가지고 /comments로 이동
     const handleGoToComments = () => {
@@ -193,7 +220,7 @@ export default function LpPage() {
                 </div>
             )}
 
-            {/* 추천 후 코멘트on : 포스트잇 띄우기 */}
+            {/* 추천 후 코멘트on : 포스트잇 */}
             {isRecommended ? (
                 showComments ? (
                     <div className="post-it-container">
