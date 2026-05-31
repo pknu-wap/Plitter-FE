@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./RealMain.css";
 
+import plitterLogo from "../assets/Plitter.png";
+
 import ellipse14 from "../assets/Ellipse 14.png";
 import ellipse25 from "../assets/Ellipse 25.png";
 import ellipse26 from "../assets/Ellipse 26.png";
@@ -76,7 +78,7 @@ export default function LandingPage() {
       onPointerCancel={handleSliderUp}
     >
       <header className="landing-header">
-        <h1>FIND YOUR NUMBER 18</h1>
+        <img src={plitterLogo} alt="PLITTER" className="plitter-logo" />
       </header>
 
       <section className="landing-hero">
