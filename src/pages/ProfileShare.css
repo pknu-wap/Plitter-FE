@@ -37,13 +37,11 @@ body {
   align-items: center;
 }
 
-.profile-share-header h1 {
-  margin: 0;
-  font-size: 24px;
-  font-weight: 900;
-  font: Milker;
-  letter-spacing: -1.2px;
-  color: #000;
+.profile-share-logo {
+  display: block;
+  width: 146px;
+  height: auto;
+  object-fit: contain;
 }
 
 /* 중간 멘트 */

@@ -16,9 +16,7 @@ export default function ProfileShare() {
 
   const createPlaylist = async () => {
     const accessToken = localStorage.getItem("accessToken");
-    const userId = localStorage.getItem("userId");
 
-    // 카카오 로그인 후 저장된 이름 key에 맞게 하나만 남겨도 됨
     const nickname =
       localStorage.getItem("nickname") ||
       localStorage.getItem("userName") ||
@@ -26,12 +24,6 @@ export default function ProfileShare() {
 
     if (!accessToken) {
       alert("로그인이 필요합니다.");
-      navigate("/login");
-      return null;
-    }
-
-    if (!userId) {
-      alert("사용자 정보를 불러오지 못했어요. 다시 로그인해 주세요.");
       navigate("/login");
       return null;
     }
@@ -47,11 +39,7 @@ export default function ProfileShare() {
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken}`,
       },
-      body: JSON.stringify({
-        user_id: userId,
-        title: finalPlaylistName,
-        cover_image: null,
-      }),
+      body: JSON.stringify({}),
     });
 
     const data = await response.json();
@@ -62,17 +50,15 @@ export default function ProfileShare() {
       if (data.code === "PLAYLIST_ALREADY_EXISTS") {
         alert("이미 생성된 플레이리스트가 있어요.");
 
-        if (data.content?.shareUrl) {
-          return data.content.shareUrl;
-        }
-      } else {
-        alert(data.message || "플레이리스트 생성에 실패했어요.");
+        // 명세상 이미 존재할 때는 content가 null일 수 있음
+        return null;
       }
 
+      alert(data.message || "플레이리스트 생성에 실패했어요.");
       return null;
     }
 
-    return data.content.shareUrl;
+    return data.content?.shareUrl || null;
   };
 
   useEffect(() => {
@@ -121,7 +107,7 @@ export default function ProfileShare() {
   return (
     <main className="profile-share-page">
       <header className="profile-share-header">
-        <h1>PLITTER</h1>
+        <img src={plitterLogo} alt="PLITTER" className="plitter-logo" />
       </header>
 
       <section className="share-main-content">
