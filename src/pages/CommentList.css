@@ -3,21 +3,20 @@
   max-width: 430px;
   min-height: 100dvh;
   margin: 0 auto;
-  padding: 22px 0 32px;
-  background: #f2ede4;
+  padding: 26px 18px 34px;
+  background: #fff9f0;
   color: #111111;
-  box-sizing: border-box;
   text-align: left;
   font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
 }
 
 .comments-header {
-  margin: 6px 24px 22px;
-  font-size: 16px;
+  margin: 2px 0 22px;
+  font-size: 17px;
   line-height: 1;
-  letter-spacing: 0.4px;
+  letter-spacing: -0.02em;
   font-weight: 900;
-  color: #6b4428;
+  color: #74472d;
 }
 
 .brand-home-button {
@@ -32,61 +31,67 @@
 }
 
 .track-info-card {
-  background: #e4dac9;
-  padding: 24px;
+  background: linear-gradient(180deg, #f6efe1 0%, #eee1cb 100%);
+  border-radius: 24px;
+  padding: 18px;
   display: flex;
-  gap: 16px;
-  margin-bottom: 24px;
+  gap: 14px;
+  margin-bottom: 18px;
+  box-shadow: 0 14px 32px rgba(124, 90, 51, 0.08);
 }
 
 .card-cover {
-  width: 124px;
-  height: 124px;
+  width: 106px;
+  height: 106px;
+  border-radius: 4px;
   object-fit: cover;
   flex-shrink: 0;
+  box-shadow: 0 10px 18px rgba(124, 90, 51, 0.12);
 }
 
 .card-details {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .card-title {
-  margin: 0;
-  font-size: 16px;
+  margin: 6px 0 0;
+  font-size: 15px;
   font-weight: 900;
   color: #111111;
-  line-height: 1.2;
+  line-height: 1.35;
 }
 
 .card-artist {
-  margin-top: 10px;
-  font-size: 12px;
-  color: #111111;
+  margin-top: 8px;
+  font-size: 11px;
+  color: #333333;
 }
 
 .card-album {
-  margin-top: 6px;
-  font-size: 12px;
-  color: #4e45ff;
+  margin-top: 4px;
+  font-size: 11px;
+  color: #5f56ff;
 }
 
 .write-comment-btn {
   width: 100%;
-  margin-top: 12px;
-  height: 32px;
+  margin-top: auto;
+  height: 34px;
   border: none;
   border-radius: 999px;
-  background: #d9ceb8;
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 800;
+  background: rgba(214, 194, 153, 0.56);
+  color: #7b5838;
+  font-size: 12px;
+  font-weight: 700;
   cursor: pointer;
 }
 
 .comments-status,
 .comments-error {
-  margin: 0 24px 16px;
+  margin: 8px 0 16px;
   font-size: 13px;
   font-weight: 600;
 }
@@ -102,46 +107,48 @@
 .comment-list {
   list-style: none;
   margin: 0;
-  padding: 0 24px;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
 .comment-item {
-  background: #e4dac9;
-  border-radius: 14px;
-  padding: 18px 20px;
+  background: linear-gradient(180deg, #fbf6eb 0%, #f4e9d8 100%);
+  border-radius: 22px;
+  padding: 18px 18px 20px;
+  box-shadow: 0 10px 24px rgba(124, 90, 51, 0.07);
 }
 
 .comment-author-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 10px;
 }
 
 .comment-avatar {
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   display: grid;
   place-items: center;
   color: #ffffff;
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 800;
+  box-shadow: 0 8px 14px rgba(0, 0, 0, 0.08);
 }
 
 .comment-author {
-  font-size: 16px;
+  font-size: 15px;
   color: #7f5838;
 }
 
 .comment-text {
   font-size: 14px;
-  line-height: 1.6;
-  color: #7f5838;
-  font-weight: 700;
+  line-height: 1.7;
+  color: #6e4b2e;
+  font-weight: 600;
   margin: 0;
   word-break: keep-all;
 }

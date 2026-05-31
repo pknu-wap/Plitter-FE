@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { API_BASE_URL, parseJson } from "../lib/api";
 import "./CommentList.css";
-
-const API_BASE_URL = import.meta.env.PROD ? "/api" : "http://13.124.174.30:8080/api";
 
 function normalizeTrack(track) {
   if (!track) return null;
@@ -23,13 +22,6 @@ function avatarColor(name) {
   return palette[seed % palette.length];
 }
 
-async function parseJson(response) {
-  try {
-    return await response.json();
-  } catch {
-    return null;
-  }
-}
 
 export default function CommentList() {
   const location = useLocation();
@@ -96,6 +88,20 @@ export default function CommentList() {
 
     fetchComments();
   }, [accessToken, hasInitialLocalComments, recommendationId]);
+
+  if (!track) {
+    return (
+      <main className="comments-page">
+        <header className="comments-header">
+          <button type="button" className="brand-home-button" onClick={() => navigate("/")}>
+            PLITTER
+          </button>
+        </header>
+
+        <p className="comments-status">선택된 곡 정보가 없습니다. 다시 추천 흐름에서 진입해 주세요.</p>
+      </main>
+    );
+  }
 
   const handleWriteComment = () => {
     navigate("/lp", {

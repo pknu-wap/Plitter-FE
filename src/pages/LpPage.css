@@ -3,22 +3,21 @@
   max-width: 430px;
   min-height: 100dvh;
   margin: 0 auto;
-  padding: 22px 24px 32px;
-  background: #f2ede4;
+  padding: 26px 18px 34px;
+  background: #fff9f0;
   color: #111111;
-  box-sizing: border-box;
   text-align: left;
   font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
   position: relative;
 }
 
 .lp-header {
-  margin: 6px 0 22px;
-  font-size: 16px;
+  margin: 2px 0 18px;
+  font-size: 17px;
   line-height: 1;
-  letter-spacing: 0.4px;
+  letter-spacing: -0.02em;
   font-weight: 900;
-  color: #6b4428;
+  color: #74472d;
 }
 
 .brand-home-button {
@@ -43,7 +42,7 @@
 }
 
 .lp-empty button {
-  background: #dfd4bf;
+  background: #eadbc2;
   color: #6b4428;
   border: none;
   border-radius: 999px;
@@ -54,7 +53,7 @@
 
 .lp-stage {
   position: relative;
-  height: 286px;
+  height: 340px;
 }
 
 .lp-record-view {
@@ -65,34 +64,34 @@
 
 .lp-vinyl {
   position: absolute;
-  width: 252px;
-  height: 252px;
-  top: 11px;
-  left: 47%;
-  transform: translateX(-2%);
+  width: 216px;
+  height: 216px;
+  top: 72px;
+  left: 176px;
   object-fit: contain;
-  filter: drop-shadow(6px 6px 9px rgba(0, 0, 0, 0.25));
+  filter: drop-shadow(7px 12px 16px rgba(0, 0, 0, 0.22));
   animation: lp-spin 3.6s linear infinite;
 }
 
 .lp-album-cover {
   position: absolute;
-  width: 268px;
-  height: 268px;
-  left: 0;
-  top: 0;
+  width: 250px;
+  height: 250px;
+  left: 36px;
+  top: 46px;
   object-fit: cover;
-  box-shadow: 6px 6px 8px rgba(0, 0, 0, 0.22);
+  border-radius: 2px;
+  box-shadow: 0 18px 26px rgba(0, 0, 0, 0.15);
   z-index: 1;
 }
 
 @keyframes lp-spin {
   from {
-    transform: translateX(-2%) rotate(0turn);
+    transform: rotate(0turn);
   }
 
   to {
-    transform: translateX(-2%) rotate(1turn);
+    transform: rotate(1turn);
   }
 }
 
@@ -104,61 +103,72 @@
 }
 
 .post-it {
-  width: 100px;
-  min-height: 88px;
+  width: 96px;
+  min-height: 84px;
   padding: 12px 10px;
   position: absolute;
-  box-shadow: 4px 6px 10px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 12px 18px rgba(79, 53, 27, 0.18);
+  border-radius: 4px;
+  backdrop-filter: blur(1px);
 }
 
 .post-it p {
   margin: 0;
   font-size: 12px;
-  line-height: 1.5;
+  line-height: 1.45;
   font-weight: 700;
   color: #6b4428;
   word-break: keep-all;
 }
 
 .post-it-1 {
-  top: 10px;
-  left: 18px;
-  transform: rotate(-13deg);
+  top: 26px;
+  left: 34px;
+  transform: rotate(-12deg);
   background: #efe2b8;
 }
 
 .post-it-2 {
-  top: -6px;
-  right: -4px;
-  transform: rotate(17deg);
-  background: #edb0af;
+  top: 10px;
+  right: 22px;
+  transform: rotate(15deg);
+  background: #f0b9bc;
 }
 
 .post-it-3 {
-  top: 104px;
-  left: 178px;
-  transform: rotate(3deg);
-  background: #cfe58a;
+  top: 138px;
+  left: 214px;
+  transform: rotate(-4deg);
+  background: #d8f37d;
 }
 
 .post-it-4 {
-  top: 160px;
-  right: 6px;
+  top: 196px;
+  right: 20px;
   transform: rotate(18deg);
-  background: #efe2a8;
+  background: #f4e796;
 }
 
 .comment-pill {
-  margin: 8px auto 14px;
-  display: block;
+  margin: -2px auto 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-width: 62px;
   border: none;
   border-radius: 999px;
-  padding: 7px 14px;
-  background: #e7dfd0;
-  color: #7f6240;
+  padding: 8px 16px;
+  background: linear-gradient(180deg, #f2e8d9 0%, #ecdfc7 100%);
+  color: #8d714f;
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.comment-pill-static {
+  cursor: default;
 }
 
 .lp-track-preview {
@@ -167,21 +177,22 @@
 
 .lp-track-preview h2 {
   margin: 0;
-  font-size: 32px;
+  font-size: 22px;
   font-weight: 900;
-  line-height: 1.2;
+  line-height: 1.35;
   color: #111111;
   text-transform: uppercase;
+  letter-spacing: -0.04em;
 }
 
 .lp-track-preview p {
-  margin-top: 8px;
-  font-size: 12px;
-  color: #111111;
+  margin-top: 6px;
+  font-size: 13px;
+  color: #333333;
 }
 
 .player-bar-container {
-  margin-top: 14px;
+  margin-top: 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -189,10 +200,10 @@
 
 .progress-bar-bg {
   width: 100%;
-  height: 3px;
+  height: 2px;
   background: #c8c2b8;
   position: relative;
-  margin-top: 8px;
+  margin-top: 14px;
 }
 
 .progress-bar-fill {
@@ -213,7 +224,7 @@
 
 .time-info {
   width: 100%;
-  margin-top: 6px;
+  margin-top: 7px;
   display: flex;
   justify-content: space-between;
   font-size: 11px;
@@ -221,32 +232,33 @@
 }
 
 .play-btn {
-  margin-top: 10px;
-  width: 38px;
-  height: 38px;
+  margin-top: 12px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  border: 1px solid #d4cdc0;
-  background: #f8f6ef;
+  border: 1px solid #ded3c0;
+  background: #fffdf8;
   color: #111111;
-  font-size: 18px;
+  font-size: 19px;
   cursor: pointer;
   display: grid;
   place-items: center;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.11);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.08);
   padding-left: 1px;
 }
 
 .view-comments-btn {
-  margin-top: 24px;
+  margin-top: 22px;
   width: 100%;
   border: none;
-  border-radius: 30px;
+  border-radius: 999px;
   height: 56px;
-  background: #e4dac9;
+  background: linear-gradient(180deg, #f2e8d9 0%, #eadcc2 100%);
   color: #7f5838;
   font-size: 16px;
   font-weight: 800;
   cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
 .comment-sheet-overlay {
@@ -257,22 +269,24 @@
   justify-content: center;
   align-items: flex-end;
   z-index: 30;
+  backdrop-filter: blur(4px);
 }
 
 .comment-bottom-sheet {
   width: min(430px, 100vw);
-  background: rgba(245, 241, 234, 0.96);
-  border-top-left-radius: 18px;
-  border-top-right-radius: 18px;
-  padding: 12px 24px 24px;
-  backdrop-filter: blur(8px);
+  background: rgba(249, 242, 232, 0.97);
+  border-top-left-radius: 28px;
+  border-top-right-radius: 28px;
+  padding: 10px 18px 24px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 -18px 34px rgba(58, 42, 23, 0.12);
 }
 
 .sheet-handle {
-  width: 56px;
-  height: 6px;
+  width: 52px;
+  height: 5px;
   border-radius: 999px;
-  background: #d4cec2;
+  background: #ddd2c1;
   display: block;
   margin: 0 auto 14px;
 }
@@ -281,20 +295,27 @@
   display: flex;
   gap: 14px;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
+  padding: 14px;
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(255, 251, 244, 0.72), rgba(242, 231, 211, 0.8)),
+    radial-gradient(circle at top right, rgba(0, 0, 0, 0.08), transparent 35%);
 }
 
 .sheet-album-cover {
-  width: 96px;
-  height: 96px;
+  width: 110px;
+  height: 110px;
+  border-radius: 4px;
   object-fit: cover;
   flex-shrink: 0;
+  box-shadow: 0 12px 20px rgba(58, 42, 23, 0.1);
 }
 
 .sheet-track-text h3 {
   margin: 0;
-  font-size: 30px;
-  line-height: 1.1;
+  font-size: 17px;
+  line-height: 1.35;
   font-weight: 900;
   color: #111111;
   text-transform: uppercase;
@@ -303,67 +324,67 @@
 .sheet-track-text p {
   margin-top: 8px;
   font-size: 12px;
-  color: #111111;
+  color: #333333;
 }
 
 .sheet-track-text span {
-  margin-top: 6px;
+  margin-top: 5px;
   display: block;
   font-size: 12px;
-  color: #4e45ff;
+  color: #5f56ff;
 }
 
 .input-group label {
   display: block;
   margin-bottom: 8px;
-  font-size: 30px;
+  font-size: 18px;
   color: #6b4428;
   font-weight: 800;
 }
 
 .input-group textarea {
   width: 100%;
-  min-height: 86px;
+  min-height: 88px;
   resize: none;
   border: none;
-  border-radius: 12px;
+  border-radius: 18px;
   padding: 14px;
   font-size: 13px;
   color: #6b4428;
-  background: #e7dfd0;
+  background: linear-gradient(180deg, #efe3cc 0%, #eadcc5 100%);
   outline: none;
   font-family: inherit;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .anonymous-row {
-  margin-top: 16px;
+  margin-top: 18px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
 .anonymous-row strong {
-  font-size: 30px;
+  font-size: 17px;
   color: #6b4428;
 }
 
 .anonymous-row p {
   margin-top: 6px;
-  color: #a89079;
+  color: #a38b73;
   font-size: 12px;
   line-height: 1.35;
 }
 
 .anonymous-toggle {
-  min-width: 52px;
-  height: 36px;
+  min-width: 54px;
+  height: 34px;
   border: none;
   border-radius: 999px;
-  background: #e7dfd0;
+  background: #eadcc4;
   color: #7f5838;
-  font-size: 20px;
+  font-size: 14px;
   font-weight: 800;
   cursor: pointer;
   padding: 0 14px;
@@ -377,10 +398,10 @@
 .recommend-btn {
   width: 100%;
   border: none;
-  margin-top: 16px;
+  margin-top: 18px;
   height: 48px;
   border-radius: 999px;
-  background: #bfa77f;
+  background: #c6ad7f;
   color: #ffffff;
   font-size: 16px;
   font-weight: 800;

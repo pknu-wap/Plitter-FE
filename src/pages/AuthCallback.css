@@ -1,0 +1,95 @@
+.auth-callback-page {
+  width: 100%;
+  max-width: 430px;
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: 44px 24px;
+  background: #fff9f0;
+  overflow: hidden;
+  position: relative;
+}
+
+.auth-callback-brand {
+  position: relative;
+  z-index: 1;
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: #6b4428;
+}
+
+.auth-callback-blobs {
+  position: absolute;
+  inset: 0;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(28px);
+  opacity: 0.92;
+  animation: blob-float 8s ease-in-out infinite;
+}
+
+.blob-yellow {
+  width: 168px;
+  height: 182px;
+  top: 190px;
+  left: 22px;
+  background: rgba(255, 234, 74, 0.82);
+}
+
+.blob-orange {
+  width: 164px;
+  height: 184px;
+  top: 48px;
+  right: -4px;
+  background: rgba(255, 121, 48, 0.76);
+  animation-delay: -1.5s;
+}
+
+.blob-blue {
+  width: 196px;
+  height: 196px;
+  top: 328px;
+  right: 10px;
+  background: rgba(70, 82, 255, 0.8);
+  animation-delay: -0.8s;
+}
+
+.blob-pink {
+  width: 146px;
+  height: 162px;
+  left: -18px;
+  bottom: 178px;
+  background: rgba(255, 53, 208, 0.72);
+  animation-delay: -2.2s;
+}
+
+.blob-green {
+  width: 88px;
+  height: 88px;
+  left: 82px;
+  bottom: 116px;
+  background: rgba(61, 255, 56, 0.86);
+}
+
+.blob-violet {
+  width: 176px;
+  height: 194px;
+  right: -18px;
+  bottom: -18px;
+  background: rgba(170, 62, 255, 0.78);
+  animation-delay: -3s;
+}
+
+@keyframes blob-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(0, -12px, 0) scale(1.04);
+  }
+}

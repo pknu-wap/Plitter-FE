@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import vinylImage from "../assets/lp-vinyl.png";
+import { API_BASE_URL, parseJson } from "../lib/api";
 import "./LpPage.css";
-
-const API_BASE_URL = import.meta.env.PROD ? "/api" : "http://13.124.174.30:8080/api";
 
 function normalizeTrack(track) {
   if (!track) return null;
@@ -30,13 +29,6 @@ function formatTime(seconds) {
   return `${minute}:${second}`;
 }
 
-async function parseJson(response) {
-  try {
-    return await response.json();
-  } catch {
-    return null;
-  }
-}
 
 export default function LpPage() {
   const location = useLocation();
@@ -253,6 +245,46 @@ export default function LpPage() {
       setIsCommentPopupOpen(false);
       setIsRecommended(true);
 
+      if (playlistId && displayTrack.albumCoverImageUrl) {
+        localStorage.setItem(`lastRecommendedCover:${playlistId}`, displayTrack.albumCoverImageUrl);
+        try {
+          const trackHistoryKey = `recommendedTracks:${playlistId}`;
+          const rawTrackHistory = localStorage.getItem(trackHistoryKey);
+          const parsedTrackHistory = rawTrackHistory ? JSON.parse(rawTrackHistory) : [];
+          const trackHistory = Array.isArray(parsedTrackHistory) ? parsedTrackHistory : [];
+          const nextTrackHistory = [
+            {
+              spotifyId: displayTrack.spotifyId,
+              title: displayTrack.title,
+              artistName: displayTrack.artistName,
+              albumCoverImageUrl: displayTrack.albumCoverImageUrl,
+              previewUrl: displayTrack.previewUrl || "",
+              albumName: displayTrack.albumName || "",
+            },
+            ...trackHistory,
+          ];
+          const uniqueTrackHistory = [];
+          const seenCover = new Set();
+          nextTrackHistory.forEach((track) => {
+            const cover = track?.albumCoverImageUrl || "";
+            if (!cover || seenCover.has(cover)) return;
+            seenCover.add(cover);
+            uniqueTrackHistory.push(track);
+          });
+          localStorage.setItem(trackHistoryKey, JSON.stringify(uniqueTrackHistory.slice(0, 10)));
+
+          const historyKey = `recommendedCovers:${playlistId}`;
+          const rawHistory = localStorage.getItem(historyKey);
+          const parsedHistory = rawHistory ? JSON.parse(rawHistory) : [];
+          const history = Array.isArray(parsedHistory) ? parsedHistory : [];
+          const nextHistory = [displayTrack.albumCoverImageUrl, ...history.filter(Boolean)];
+          const uniqueHistory = [...new Set(nextHistory)].slice(0, 10);
+          localStorage.setItem(historyKey, JSON.stringify(uniqueHistory));
+        } catch {
+          // Ignore storage parsing issue and continue.
+        }
+      }
+
       if (newRecommendationId && accessToken) {
         setRecommendationId(newRecommendationId);
         await fetchComments(newRecommendationId);
@@ -290,6 +322,7 @@ export default function LpPage() {
 
   const notes = comments.slice(0, 4);
   const hasNotes = notes.length > 0;
+  const canToggleComments = hasNotes || isRecommended;
   const progressRatio = duration > 0 ? Math.min(currentTime / duration, 1) : 0;
 
   if (!displayTrack) {
@@ -333,11 +366,13 @@ export default function LpPage() {
         ) : null}
       </section>
 
-      {(hasNotes || isRecommended) ? (
+      {canToggleComments ? (
         <button type="button" className="comment-pill" onClick={() => setShowComments((prev) => !prev)}>
           코멘트
         </button>
-      ) : null}
+      ) : (
+        <span className="comment-pill comment-pill-static">코멘트</span>
+      )}
 
       <section className="lp-track-preview">
         <h2>{displayTrack.title}</h2>

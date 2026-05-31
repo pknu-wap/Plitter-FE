@@ -1,18 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { API_BASE_URL, parseJson } from "../lib/api";
 import "./SongSearch.css";
 import searchIcon from "../assets/magnifyingglass.png";
 
-const API_BASE_URL = import.meta.env.PROD ? "/api" : "http://13.124.174.30:8080/api";
 const SEARCH_LIMIT = 10;
-
-async function parseJson(response) {
-  try {
-    return await response.json();
-  } catch {
-    return null;
-  }
-}
 
 export default function SongSearch() {
   const navigate = useNavigate();
