@@ -1,14 +1,22 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import kakaoBtn from "../assets/kakao_login.png";
 import "./Login.css";
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isGuestLoading, setIsGuestLoading] = useState(false);
+  const playlistId = new URLSearchParams(location.search).get("playlistId");
+  const redirectParam = new URLSearchParams(location.search).get("redirect");
+  const storedRedirectPath = localStorage.getItem("postLoginRedirect") || "";
+  const shareRedirectPath = redirectParam || storedRedirectPath || (playlistId ? `/search?playlistId=${encodeURIComponent(playlistId)}` : "");
+  const redirectPath = shareRedirectPath || "/search";
+  const hasPlaylistContext = shareRedirectPath.includes("playlistId=");
 
   const handleKakaoLogin = async () => {
     try {
+      localStorage.setItem("postLoginRedirect", redirectPath);
       const response = await fetch("/api/auth/kakao/login");
 
       if (!response.ok) {
@@ -30,6 +38,11 @@ export default function Login() {
   
   // *** 게스트 토큰 및 랜덤 닉네임 발급 api ***
   const handleGuestLogin = async () => {
+    if (!hasPlaylistContext) {
+      alert("게스트 추천은 플레이리스트 공유링크에서만 시작할 수 있어요.");
+      return;
+    }
+
     setIsGuestLoading(true);
 
     try {
@@ -62,9 +75,10 @@ export default function Login() {
       // 4. 이후 추천 등록 API에서 사용할 게스트 정보는 localStorage에 보관
       localStorage.setItem("guestToken", issuedGuestToken);
       localStorage.setItem("guestNickname", issuedGuestNickname);
+      localStorage.removeItem("postLoginRedirect");
 
-      // 5. 게스트도 노래 검색 후 추천해야 하므로 SongSearch 페이지로 이동
-      navigate("/search");
+      // 5. 로그인 이후 목적지로 이동
+      navigate(shareRedirectPath);
     } catch (error) {
       console.error("게스트 로그인 실패:", error);
       alert(error.message || "게스트 로그인 중 오류가 발생했습니다.");
