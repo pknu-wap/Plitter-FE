@@ -47,11 +47,23 @@ export default function LpPage() {
             return;
         }
 
+        const authToken =
+            localStorage.getItem("accessToken") || localStorage.getItem("guestToken");
+
+        if (!authToken) {
+            alert("로그인 또는 게스트 선택 후 미리듣기를 사용할 수 있습니다.");
+            return;
+        }
+
         try {
             // 백엔드 embedUrl
-            const response = await fetch(
-                `http://13.124.174.30:8080/api/tracks/${track.spotifyId}/play`
-            );
+            const response = await fetch(`/api/tracks/${track.spotifyId}/play`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                    "Content-Type": "application/json",
+                },
+            });
             const data = await response.json();
 
             if (response.ok && data.response?.embedUrl) {
