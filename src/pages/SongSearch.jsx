@@ -4,6 +4,7 @@ import "./SongSearch.css";
 import searchIcon from "../assets/magnifyingglass.png";
 
 const API_BASE_URL = import.meta.env.PROD ? "/api" : "http://13.124.174.30:8080/api";
+const SEARCH_LIMIT = 10;
 
 async function parseJson(response) {
   try {
@@ -22,10 +23,23 @@ export default function SongSearch() {
   const [error, setError] = useState("");
   const [hasSearched, setHasSearched] = useState(false);
 
+  const accessToken = localStorage.getItem("accessToken") || "";
+  const guestToken = localStorage.getItem("guestToken") || "";
+
   const playlistId = useMemo(() => {
     const params = new URLSearchParams(location.search);
-    return params.get("playlistId") || "1";
+    return params.get("playlistId");
   }, [location.search]);
+  const playlistContextError = !playlistId ? "공유된 플레이리스트 링크로 접속해 주세요." : "";
+
+  useEffect(() => {
+    if (!playlistId) return;
+
+    if (!accessToken && !guestToken) {
+      localStorage.setItem("postLoginRedirect", `/search?playlistId=${encodeURIComponent(playlistId)}`);
+      navigate(`/login?playlistId=${encodeURIComponent(playlistId)}`, { replace: true });
+    }
+  }, [accessToken, guestToken, navigate, playlistId]);
 
   const searchTracks = async (term) => {
     const normalized = term.trim();
@@ -41,7 +55,7 @@ export default function SongSearch() {
     setError("");
 
     try {
-      const query = new URLSearchParams({ keyword: normalized, limit: "20" });
+      const query = new URLSearchParams({ keyword: normalized, limit: String(SEARCH_LIMIT) });
       const response = await fetch(`${API_BASE_URL}/tracks/search?${query.toString()}`);
       const payload = await parseJson(response);
 
@@ -77,6 +91,11 @@ export default function SongSearch() {
   }, [keyword]);
 
   const handleSelectTrack = (track) => {
+    if (!playlistId) {
+      alert("플레이리스트 정보가 없습니다. 공유 링크로 다시 접속해 주세요.");
+      return;
+    }
+
     navigate("/lp", {
       state: {
         track,
@@ -88,7 +107,11 @@ export default function SongSearch() {
 
   return (
     <main className="song-search-page">
-      <header className="song-search-header">PLITTER</header>
+      <header className="song-search-header">
+        <button type="button" className="brand-home-button" onClick={() => navigate("/")}>
+          PLITTER
+        </button>
+      </header>
 
       <section className="search-box" aria-label="track-search">
         <img src={searchIcon} alt="검색" className="search-icon" />
@@ -125,6 +148,7 @@ export default function SongSearch() {
 
       {isLoading ? <p className="song-search-status">검색 중입니다...</p> : null}
       {error ? <p className="song-search-error">{error}</p> : null}
+      {!error && playlistContextError ? <p className="song-search-error">{playlistContextError}</p> : null}
 
       {!isLoading && !error && hasSearched && searchResults.length === 0 ? (
         <p className="song-search-status">검색 결과가 없습니다.</p>
