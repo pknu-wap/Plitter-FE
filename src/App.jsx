@@ -6,6 +6,7 @@ import AuthCallback from "./pages/AuthCallback";
 import SongSearch from "./pages/SongSearch";
 import LandingPage from "./pages/LandingPage";
 import RealMain from "./pages/RealMain";
+import ProfileShare from "./pages/ProfileShare";
 
 function AuthTokenHandler() {
   const location = useLocation();
@@ -48,6 +49,9 @@ function App() {
         <Route path="/search" element={<SongSearch />} />
         <Route path="/landing" element={<LandingPage />} />
         <Route path="/realmain" element={<RealMain />} />
+        <Route path="/profile-share" element={<ProfileShare />} />
+          
+          
       </Routes>
     </BrowserRouter>
   );

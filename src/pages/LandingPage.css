@@ -230,12 +230,10 @@ body {
   transform: scale(0.99);
 }
 
-/* START 완료 후 다음 화면으로 넘어가는 전환 */
 .landing-page.page-dropping {
   pointer-events: none;
 }
 
-/* START 버튼은 먼저 사라짐 */
 .landing-page.page-dropping .start-slider {
   animation: startSliderDisappear 0.45s ease forwards;
 }

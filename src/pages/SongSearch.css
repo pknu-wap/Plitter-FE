@@ -1,9 +1,9 @@
 .song-search-page {
   width: 100%;
-  max-width: 430px;
-  min-height: 100dvh;
+  max-width: 100%;
+  min-height: 100%;
   margin: 0 auto;
-  padding: 45px 24px 32px;
+  padding: 18.5px 24px 32px;
   background: #fff9f0;
   font-family: Pretendard, sans-serif;
   color: #111111;
