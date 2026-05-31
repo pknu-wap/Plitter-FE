@@ -26,21 +26,8 @@ function AuthTokenHandler() {
     localStorage.removeItem("guestNickname");
 
     const postLoginRedirect = localStorage.getItem("postLoginRedirect");
-    if (postLoginRedirect) {
-      localStorage.removeItem("postLoginRedirect");
-      navigate(postLoginRedirect, { replace: true });
-      return;
-    }
-
-    searchParams.delete("accessToken");
-
-    navigate(
-      {
-        pathname: location.pathname,
-        search: searchParams.toString() ? `?${searchParams.toString()}` : "",
-      },
-      { replace: true },
-    );
+    localStorage.removeItem("postLoginRedirect");
+    navigate(postLoginRedirect || "/main", { replace: true });
   }, [location.pathname, location.search, navigate]);
 
   return null;
