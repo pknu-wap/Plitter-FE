@@ -67,12 +67,12 @@ body {
 
 .hero-your {
   text-align: center;
-  margin-top: 10px;
+  margin-top: 22px;
 }
 
 .hero-description {
   position: absolute;
-  top: 88px;
+  top: 93px;
   left: 0;
   right: 0;
   z-index: 8;

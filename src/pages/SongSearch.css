@@ -11,13 +11,12 @@
   text-align: left;
 }
 
-/* 제목 */
-.song-search-page h1 {
-  margin: 0 0 20px;
-  font-size: 16px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  color: #111111;
+.plitter-logo {
+  display: block;
+  width: 107px;
+  height: auto;
+  object-fit: contain;
+  margin-bottom: 12px;
 }
 
 /* 검색창 영역 */
@@ -67,6 +66,33 @@
   font-weight: 700;
   cursor: pointer;
   flex-shrink: 0;
+}
+
+.empty-search-guide {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  top: 43%;
+  transform: translateY(-50%);
+  text-align: center;
+}
+
+.song-search-page .empty-search-guide h2 {
+  margin: 0 0 8px;
+  color: #bca57c;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: -0.6px;
+}
+
+.song-search-page .empty-search-guide p {
+  margin: 0;
+  color: #bca57c;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.4px;
 }
 
 .loading-text {
