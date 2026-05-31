@@ -34,6 +34,7 @@ async function parseJson(response) {
 export default function CommentList() {
   const location = useLocation();
   const navigate = useNavigate();
+  const accessToken = localStorage.getItem("accessToken") || "";
 
   const [track, setTrack] = useState(normalizeTrack(location.state?.track));
   const [comments, setComments] = useState(Array.isArray(location.state?.localComments) ? location.state.localComments : []);
@@ -42,16 +43,27 @@ export default function CommentList() {
 
   const recommendationId = location.state?.recommendationId || null;
   const playlistId = location.state?.playlistId || "1";
+  const hasInitialLocalComments = Array.isArray(location.state?.localComments) && location.state.localComments.length > 0;
 
   useEffect(() => {
     const fetchComments = async () => {
       if (!recommendationId) return;
+      if (!accessToken) {
+        if (!hasInitialLocalComments) {
+          setError("코멘트 전체 조회는 로그인 사용자에게 제공됩니다.");
+        }
+        return;
+      }
 
       setIsLoading(true);
       setError("");
 
       try {
-        const response = await fetch(`${API_BASE_URL}/playlists/recommendations/${recommendationId}`);
+        const response = await fetch(`${API_BASE_URL}/playlists/recommendations/${recommendationId}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
         const payload = await parseJson(response);
 
         if (!response.ok || payload?.code !== "SUCCESS") {
@@ -83,7 +95,7 @@ export default function CommentList() {
     };
 
     fetchComments();
-  }, [recommendationId]);
+  }, [accessToken, hasInitialLocalComments, recommendationId]);
 
   const handleWriteComment = () => {
     navigate("/lp", {
@@ -101,7 +113,11 @@ export default function CommentList() {
 
   return (
     <main className="comments-page">
-      <header className="comments-header">PLITTER</header>
+      <header className="comments-header">
+        <button type="button" className="brand-home-button" onClick={() => navigate("/")}>
+          PLITTER
+        </button>
+      </header>
 
       <section className="track-info-card">
         <img src={track?.albumCoverImageUrl} alt={track?.title || "앨범 커버"} className="card-cover" />
