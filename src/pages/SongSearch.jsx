@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { API_BASE_URL, parseJson } from "../lib/api";
-import "./SongSearch.css";
 import searchIcon from "../assets/magnifyingglass.png";
+import "./SongSearch.css";
 
 const SEARCH_LIMIT = 10;
 

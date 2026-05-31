@@ -3,8 +3,9 @@
 }
 
 .main-page {
+  position: relative;
   width: 100%;
-  max-width: 430px;
+  max-width: 100%;
   min-height: 100dvh;
   margin: 0 auto;
   background-color: #fff9f0;
@@ -15,7 +16,7 @@
 
 .main-header {
   height: clamp(56px, 14vw, 68px);
-  padding: 57px 24px 32px;
+  padding: 25px 24px 32px;
   display: flex;
   align-items: center;
   justify-content: space-between;
