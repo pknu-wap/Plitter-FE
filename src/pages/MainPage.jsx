@@ -2,9 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import VinylCarousel from "../components/VinylCarousel";
 import { dummyTracks } from "../data/dummyTracks";
+import { API_BASE_URL } from "../lib/api";
 import "./MainPage.css";
-
-const API_BASE_URL = import.meta.env.PROD ? "/api" : "http://13.124.174.30:8080";
 
 export default function MainPage() {
   const [, setSelectedTrack] = useState(dummyTracks[0]);
@@ -20,7 +19,7 @@ export default function MainPage() {
     }
 
     try {
-      await fetch("http://localhost:8080/auth/logout", {
+      await fetch(`${API_BASE_URL}/auth/logout`, {
         method: "POST",
         headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
         credentials: "include",

@@ -2,25 +2,37 @@
 
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import "./AuthCallback.css";
 
 export default function AuthCallback() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const code = new URL(window.location.href).searchParams.get("code") // 인가 코드
-    
-    console.log("인가코드:", code);
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+    const hasAccessToken = params.get("accessToken");
+    const fallbackPath = code ? "/main" : "/login";
 
-    if (code) {
-      navigate("/main");
-    } else { // 인가코드 없으면 로그인 페이지로
-      //navigate("/");
-    }
+    const timer = window.setTimeout(() => {
+      if (!hasAccessToken) {
+        navigate(fallbackPath, { replace: true });
+      }
+    }, 1200);
+
+    return () => window.clearTimeout(timer);
   }, [navigate]);
 
   return (
-    <div>
-      <h2> kakao login..</h2>
-    </div>
+    <main className="auth-callback-page" aria-label="로그인 처리 중">
+      <div className="auth-callback-brand">PLITTER</div>
+      <div className="auth-callback-blobs" aria-hidden="true">
+        <span className="blob blob-yellow" />
+        <span className="blob blob-orange" />
+        <span className="blob blob-blue" />
+        <span className="blob blob-pink" />
+        <span className="blob blob-green" />
+        <span className="blob blob-violet" />
+      </div>
+    </main>
   );
 }
