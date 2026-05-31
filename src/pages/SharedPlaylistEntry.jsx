@@ -210,7 +210,6 @@ export default function SharedPlaylistEntry() {
   const handlePointerDown = (event) => {
     if (trackCount <= 1) return;
 
-    event.currentTarget.setPointerCapture?.(event.pointerId);
     pointerStartXRef.current = event.clientX;
     hasDraggedRef.current = false;
     setIsDragging(true);
@@ -229,7 +228,6 @@ export default function SharedPlaylistEntry() {
 
   const handlePointerUp = (event) => {
     if (!isDragging) return;
-    event.currentTarget.releasePointerCapture?.(event.pointerId);
     setIsDragging(false);
   };
 
