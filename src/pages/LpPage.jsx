@@ -8,12 +8,14 @@ function normalizeTrack(track) {
   if (!track) return null;
 
   return {
+    recommendationId: track.recommendationId ?? null,
     spotifyId: track.spotifyId,
     title: track.title || "제목 없음",
     artistName: track.artistName || track.artist || "아티스트 정보 없음",
     albumCoverImageUrl: track.albumCoverImageUrl || track.albumImage || "",
     previewUrl: track.previewUrl || "",
     albumName: track.albumName || track.album || "",
+    commentCount: track.commentCount ?? 0,
   };
 }
 
@@ -50,9 +52,9 @@ export default function LpPage() {
   const [isRecommended, setIsRecommended] = useState(Boolean(location.state?.isRecommended));
   const [showComments, setShowComments] = useState(true);
   const [comments, setComments] = useState(Array.isArray(location.state?.localComments) ? location.state.localComments : []);
-  const [commentCount, setCommentCount] = useState(location.state?.commentCount || comments.length || 0);
+  const [commentCount, setCommentCount] = useState(location.state?.commentCount ?? initialTrack?.commentCount ?? comments.length ?? 0);
 
-  const [recommendationId, setRecommendationId] = useState(location.state?.recommendationId || null);
+  const [recommendationId, setRecommendationId] = useState(location.state?.recommendationId ?? initialTrack?.recommendationId ?? null);
   const [isCommentsLoading, setIsCommentsLoading] = useState(false);
 
   const accessToken = localStorage.getItem("accessToken") || "";
@@ -108,15 +110,20 @@ export default function LpPage() {
   }, [displayTrack?.previewUrl]);
 
   const fetchComments = useCallback(async (id) => {
-    if (!id || !accessToken) return;
+    if (!id) return;
 
     setIsCommentsLoading(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/playlists/recommendations/${id}`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+      const detailPath = accessToken
+        ? `${API_BASE_URL}/playlists/recommendations/${id}`
+        : `${API_BASE_URL}/playlists/recommendations/${id}/public`;
+      const response = await fetch(detailPath, {
+        headers: accessToken
+          ? {
+            Authorization: `Bearer ${accessToken}`,
+          }
+          : {},
       });
       const payload = await parseJson(response);
 
@@ -135,11 +142,13 @@ export default function LpPage() {
         setDisplayTrack((prevTrack) =>
           normalizeTrack({
             ...prevTrack,
+            recommendationId: content.recommendationId,
             spotifyId: content.spotifyId,
             title: content.title,
             artistName: content.artist,
             albumCoverImageUrl: content.albumCoverImageUrl,
             previewUrl: content.previewUrl,
+            commentCount: fetchedComments.length,
           }),
         );
       }
@@ -285,7 +294,7 @@ export default function LpPage() {
         }
       }
 
-      if (newRecommendationId && accessToken) {
+      if (newRecommendationId) {
         setRecommendationId(newRecommendationId);
         await fetchComments(newRecommendationId);
       } else {

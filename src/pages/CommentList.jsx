@@ -7,12 +7,14 @@ function normalizeTrack(track) {
   if (!track) return null;
 
   return {
+    recommendationId: track.recommendationId ?? null,
     spotifyId: track.spotifyId,
     title: track.title || "제목 없음",
     artistName: track.artistName || track.artist || "아티스트 정보 없음",
     albumCoverImageUrl: track.albumCoverImageUrl || track.albumImage || "",
     albumName: track.albumName || track.album || "",
     previewUrl: track.previewUrl || "",
+    commentCount: track.commentCount ?? 0,
   };
 }
 
@@ -33,28 +35,26 @@ export default function CommentList() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const recommendationId = location.state?.recommendationId || null;
+  const recommendationId = location.state?.recommendationId ?? track?.recommendationId ?? null;
   const playlistId = location.state?.playlistId || "1";
-  const hasInitialLocalComments = Array.isArray(location.state?.localComments) && location.state.localComments.length > 0;
 
   useEffect(() => {
     const fetchComments = async () => {
       if (!recommendationId) return;
-      if (!accessToken) {
-        if (!hasInitialLocalComments) {
-          setError("코멘트 전체 조회는 로그인 사용자에게 제공됩니다.");
-        }
-        return;
-      }
 
       setIsLoading(true);
       setError("");
 
       try {
-        const response = await fetch(`${API_BASE_URL}/playlists/recommendations/${recommendationId}`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
+        const detailPath = accessToken
+          ? `${API_BASE_URL}/playlists/recommendations/${recommendationId}`
+          : `${API_BASE_URL}/playlists/recommendations/${recommendationId}/public`;
+        const response = await fetch(detailPath, {
+          headers: accessToken
+            ? {
+              Authorization: `Bearer ${accessToken}`,
+            }
+            : {},
         });
         const payload = await parseJson(response);
 
@@ -71,11 +71,13 @@ export default function CommentList() {
         if (content) {
           setTrack(
             normalizeTrack({
+              recommendationId: content.recommendationId,
               spotifyId: content.spotifyId,
               title: content.title,
               artistName: content.artist,
               albumCoverImageUrl: content.albumCoverImageUrl,
               previewUrl: content.previewUrl,
+              commentCount: fetchedComments.length,
             }),
           );
         }
@@ -87,7 +89,7 @@ export default function CommentList() {
     };
 
     fetchComments();
-  }, [accessToken, hasInitialLocalComments, recommendationId]);
+  }, [accessToken, recommendationId]);
 
   if (!track) {
     return (

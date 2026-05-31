@@ -27,12 +27,14 @@ function getStoredRecommendedTracks(playlistId) {
 
 function normalizeTrack(track, fallbackCover) {
   return {
+    recommendationId: track?.recommendationId ?? null,
     spotifyId: track?.spotifyId || "",
     title: track?.title || "추천된 곡",
     artistName: track?.artistName || track?.artist || "아티스트 정보 없음",
     albumCoverImageUrl: track?.albumCoverImageUrl || fallbackCover || "",
     previewUrl: track?.previewUrl || "",
     albumName: track?.albumName || track?.album || "",
+    commentCount: track?.commentCount ?? 0,
   };
 }
 
@@ -175,6 +177,8 @@ export default function SharedPlaylistEntry() {
         track,
         playlistId: normalizedPlaylistId,
         isRecommended: true,
+        recommendationId: track.recommendationId ?? null,
+        commentCount: track.commentCount ?? 0,
       },
     });
   };
