@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import vinylImage from "../assets/lp-vinyl.png";
 import "./LpPage.css";
@@ -72,7 +72,7 @@ export default function LpPage() {
 
   const playlistId = useMemo(() => {
     const params = new URLSearchParams(location.search);
-    return location.state?.playlistId || params.get("playlistId") || "1";
+    return location.state?.playlistId || params.get("playlistId");
   }, [location.search, location.state?.playlistId]);
 
   useEffect(() => {
@@ -115,13 +115,17 @@ export default function LpPage() {
     };
   }, [displayTrack?.previewUrl]);
 
-  const fetchComments = async (id) => {
-    if (!id) return;
+  const fetchComments = useCallback(async (id) => {
+    if (!id || !accessToken) return;
 
     setIsCommentsLoading(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/playlists/recommendations/${id}`);
+      const response = await fetch(`${API_BASE_URL}/playlists/recommendations/${id}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
       const payload = await parseJson(response);
 
       if (!response.ok || payload?.code !== "SUCCESS") {
@@ -150,7 +154,7 @@ export default function LpPage() {
     } finally {
       setIsCommentsLoading(false);
     }
-  };
+  }, [accessToken]);
 
   useEffect(() => {
     if (recommendationId) {
@@ -162,7 +166,7 @@ export default function LpPage() {
     }
 
     return undefined;
-  }, [recommendationId]);
+  }, [fetchComments, recommendationId]);
 
   const handleTogglePlay = async () => {
     if (!audioRef.current) {
@@ -197,7 +201,17 @@ export default function LpPage() {
 
     if (!isKakaoUser && !isGuestUser) {
       alert("로그인 또는 게스트 입장 후 추천할 수 있습니다.");
-      navigate("/login");
+      if (playlistId) {
+        localStorage.setItem("postLoginRedirect", `/search?playlistId=${encodeURIComponent(playlistId)}`);
+        navigate(`/login?playlistId=${encodeURIComponent(playlistId)}`);
+      } else {
+        navigate("/login");
+      }
+      return;
+    }
+
+    if (!playlistId) {
+      alert("플레이리스트 정보가 없습니다. 공유 링크에서 다시 시작해 주세요.");
       return;
     }
 
@@ -239,7 +253,7 @@ export default function LpPage() {
       setIsCommentPopupOpen(false);
       setIsRecommended(true);
 
-      if (newRecommendationId) {
+      if (newRecommendationId && accessToken) {
         setRecommendationId(newRecommendationId);
         await fetchComments(newRecommendationId);
       } else {
@@ -281,7 +295,11 @@ export default function LpPage() {
   if (!displayTrack) {
     return (
       <main className="lp-page">
-        <header className="lp-header">PLITTER</header>
+        <header className="lp-header">
+          <button type="button" className="brand-home-button" onClick={() => navigate("/")}>
+            PLITTER
+          </button>
+        </header>
         <section className="lp-empty">
           <p>선택된 곡이 없습니다.</p>
           <button type="button" onClick={() => navigate("/search")}>검색 페이지로 이동</button>
@@ -292,7 +310,11 @@ export default function LpPage() {
 
   return (
     <main className="lp-page">
-      <header className="lp-header">PLITTER</header>
+      <header className="lp-header">
+        <button type="button" className="brand-home-button" onClick={() => navigate("/")}>
+          PLITTER
+        </button>
+      </header>
 
       <section className="lp-stage">
         <div className="lp-record-view">

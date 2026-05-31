@@ -21,6 +21,17 @@
   color: #6b4428;
 }
 
+.brand-home-button {
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  padding: 0;
+  cursor: pointer;
+}
+
 .lp-empty {
   margin-top: 120px;
   text-align: center;
