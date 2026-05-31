@@ -20,7 +20,7 @@ export default function MainPage() {
     }
 
     try {
-      await fetch("http://localhost:8080/auth/logout", {
+      await fetch("http://13.124.174.30:8080/api/auth/logout", {
         method: "POST",
         headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
         credentials: "include",
