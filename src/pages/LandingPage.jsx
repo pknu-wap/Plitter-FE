@@ -12,6 +12,8 @@ import ellipse36 from "../assets/Ellipse 36.png";
 import ellipse37 from "../assets/Ellipse 37.png";
 import number18 from "../assets/NUMBER 18.png";
 
+import plitterLogo from "../assets/Plitter.png";
+
 export default function LandingPage() {
   const navigate = useNavigate();
 
@@ -26,7 +28,7 @@ export default function LandingPage() {
   return (
     <main className="landing-page">
       <header className="landing-header">
-        <h1>FIND YOUR NUMBER 18</h1>
+          <img src={plitterLogo} alt="PLITTER" className="plitter-logo" />
       </header>
 
       <section className="landing-hero">

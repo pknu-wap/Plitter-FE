@@ -29,14 +29,16 @@ body {
   overflow: hidden;
 }
 
-.landing-header h1 {
-  margin: 0;
-  text-align: left;
-  color: #111111;
-  font-size: 16px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  line-height: 1.2;
+.landing-header {
+  position: relative;
+  z-index: 30;
+}
+
+.plitter-logo {
+  display: block;
+  width: 107px;
+  height: auto;
+  object-fit: contain;
 }
 
 .landing-hero {
