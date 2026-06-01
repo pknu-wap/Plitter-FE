@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { BrowserRouter, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { API_BASE_URL, parseJson } from "./lib/api";
 import AuthCallback from "./pages/AuthCallback";
+
 import CommentList from "./pages/CommentList";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
@@ -10,6 +11,8 @@ import ProfileShare from "./pages/ProfileShare";
 import RealMain from "./pages/RealMain";
 import SharedPlaylistEntry from "./pages/SharedPlaylistEntry";
 import SongSearch from "./pages/SongSearch";
+import CharacterLoading from "./pages/CharacterLoading";
+import CharacterResult from "./pages/CharacterResult";
 
 function toPlaylistPathFromResponseContent(content) {
   if (content?.playlistId) {
@@ -176,6 +179,8 @@ function App() {
         <Route path="/playlist/:playlistId" element={<SharedPlaylistEntry />} />
         <Route path="/lp" element={<LpPage />} />
         <Route path="/comments" element={<CommentList />} />
+        <Route path="/loading" element={<CharacterLoading />} />
+        <Route path="/result" element={<CharacterResult />} />
       </Routes>
     </BrowserRouter>
   );
