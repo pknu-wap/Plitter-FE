@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import { API_BASE_URL, parseJson } from "../lib/api";
 import "./LandingPage.css";
 
@@ -16,8 +15,6 @@ import number18 from "../assets/NUMBER 18.png";
 import plitterLogo from "../assets/Plitter.png";
 
 export default function LandingPage() {
-  const navigate = useNavigate();
-
   const handleKakaoLogin = async () => {
     try {
       localStorage.setItem("postLoginRedirect", "/main");
@@ -33,10 +30,6 @@ export default function LandingPage() {
       console.error("카카오 로그인 실패:", error);
       alert(error.message || "카카오 로그인 중 오류가 발생했습니다.");
     }
-  };
-
-  const handleGuestStart = () => {
-    navigate("/search");
   };
 
   return (
@@ -81,14 +74,6 @@ export default function LandingPage() {
         >
           <span className="kakao-icon" />
           <span className="kakao-login-label">카카오계정으로 로그인</span>
-        </button>
-
-        <button
-          type="button"
-          className="guest-button"
-          onClick={handleGuestStart}
-        >
-          게스트로 추천만 할게요→
         </button>
       </section>
     </main>
