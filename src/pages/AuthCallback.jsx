@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import plitterLogo from "../assets/Plitter.png";
 import "./AuthCallback.css";
 
 export default function AuthCallback() {
@@ -24,7 +25,7 @@ export default function AuthCallback() {
 
   return (
     <main className="auth-callback-page" aria-label="로그인 처리 중">
-      <div className="auth-callback-brand">PLITTER</div>
+      <img src={plitterLogo} alt="PLITTER" className="auth-callback-brand-image" />
       <div className="auth-callback-blobs" aria-hidden="true">
         <span className="blob blob-yellow" />
         <span className="blob blob-orange" />

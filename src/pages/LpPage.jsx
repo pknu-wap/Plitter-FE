@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import plitterLogo from "../assets/Plitter.png";
 import vinylImage from "../assets/lp-vinyl.png";
 import { API_BASE_URL, parseJson } from "../lib/api";
 import "./LpPage.css";
@@ -335,13 +336,13 @@ export default function LpPage() {
   const progressRatio = duration > 0 ? Math.min(currentTime / duration, 1) : 0;
 
   if (!displayTrack) {
-    return (
-      <main className="lp-page">
-        <header className="lp-header">
-          <button type="button" className="brand-home-button" onClick={() => navigate("/")}>
-            PLITTER
-          </button>
-        </header>
+      return (
+        <main className="lp-page">
+          <header className="lp-header">
+            <button type="button" className="brand-home-button" onClick={() => navigate("/")}>
+              <img src={plitterLogo} alt="PLITTER" className="header-logo-image" />
+            </button>
+          </header>
         <section className="lp-empty">
           <p>선택된 곡이 없습니다.</p>
           <button type="button" onClick={() => navigate("/search")}>검색 페이지로 이동</button>
@@ -354,7 +355,7 @@ export default function LpPage() {
     <main className="lp-page">
       <header className="lp-header">
         <button type="button" className="brand-home-button" onClick={() => navigate("/")}>
-          PLITTER
+          <img src={plitterLogo} alt="PLITTER" className="header-logo-image" />
         </button>
       </header>
 

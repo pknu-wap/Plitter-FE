@@ -28,16 +28,21 @@
 }
 
 .shared-brand {
-  font-size: 17px;
-  font-weight: 900;
-  color: #74472d;
-  letter-spacing: -0.02em;
+  display: inline-flex;
+  align-items: center;
 }
 
 .shared-my-list-button {
   font-size: 12px;
   color: #9f8563;
   font-weight: 700;
+}
+
+.header-logo-image {
+  display: block;
+  width: 107px;
+  height: auto;
+  object-fit: contain;
 }
 
 .shared-entry-copy {

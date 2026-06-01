@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import plitterLogo from "../assets/Plitter.png";
 import { API_BASE_URL, parseJson } from "../lib/api";
 import "./CommentList.css";
 
@@ -96,7 +97,7 @@ export default function CommentList() {
       <main className="comments-page">
         <header className="comments-header">
           <button type="button" className="brand-home-button" onClick={() => navigate("/")}>
-            PLITTER
+            <img src={plitterLogo} alt="PLITTER" className="header-logo-image" />
           </button>
         </header>
 
@@ -123,7 +124,7 @@ export default function CommentList() {
     <main className="comments-page">
       <header className="comments-header">
         <button type="button" className="brand-home-button" onClick={() => navigate("/")}>
-          PLITTER
+          <img src={plitterLogo} alt="PLITTER" className="header-logo-image" />
         </button>
       </header>
 
