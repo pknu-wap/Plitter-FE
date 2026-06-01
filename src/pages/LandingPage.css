@@ -181,7 +181,6 @@ body {
 }
 
 .kakao-login-button {
-  position: relative;
   width: 100%;
   height: 45px;
   border: none;
@@ -191,14 +190,14 @@ body {
   font-size: 16px;
   font-weight: 800;
   cursor: pointer;
-
   display: flex;
   align-items: center;
+  justify-content: center;
+  gap: 12px;
 }
 
 .kakao-icon {
-  position: absolute;
-  left: 24px;
+  position: relative;
   width: 18px;
   height: 14px;
   border-radius: 50%;
@@ -217,9 +216,6 @@ body {
 }
 
 .kakao-login-label {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
   white-space: nowrap;
 }
 
