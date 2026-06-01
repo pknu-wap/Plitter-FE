@@ -27,12 +27,11 @@
   z-index: 2;
 }
 
-.result-header h1 {
-  margin: 0;
-  color: #7a4d30;
-  font-size: 20px;
-  font-weight: 900;
-  letter-spacing: -0.5px;
+.character-logo {
+  width: 140px;
+  height: auto;
+  margin-left: 24px;
+  display: block;
 }
 
 .result-content {
@@ -43,7 +42,7 @@
 }
 
 .result-title {
-  margin: 0 0 26px;
+  margin: 134px 0 25px;
   font-size: 16px;
   font-weight: 800;
   color: #000;
@@ -65,33 +64,45 @@
 }
 
 .character-name-button {
-  min-width: 170px;
-  height: 34px;
-  padding: 0 24px;
-  border: none;
+  min-width: 190px;
+  height: 44px;
+  padding: 0 8px;
+  border: 1px solid rgba(255, 255, 255, 0.65);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   color: #111;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 800;
-  box-shadow: 0 4px 18px rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.18);
 }
 
 .tag-list {
+  width: fit-content;
+  max-width: calc(100% - 48px);
+  margin: 34px auto 0;
+  padding: 10px 22px;
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 34px;
+  gap: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.16);
 }
 
 .tag-list span {
-  padding: 6px 8px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.35);
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
   color: #111;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
+  white-space: nowrap;
 }
 
 .go-playlist-button {
@@ -101,9 +112,11 @@
   bottom: 40px;
   z-index: 2;
   height: 58px;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.55);
   border-radius: 999px;
-  background: rgba(238, 221, 190, 0.72);
+  background: rgba(238, 221, 190, 0.2);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   color: #8c6b49;
   font-size: 14px;
   font-weight: 800;

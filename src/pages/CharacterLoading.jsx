@@ -1,10 +1,42 @@
+import { useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import plitterLogo from "../assets/Plitter.png";
 import "./CharacterLoading.css";
 
-export default function CharacterCreatePage() {
+export default function CharacterLoading() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const playlistId = searchParams.get("playlistId");
+  const recreate = searchParams.get("recreate");
+
+  useEffect(() => {
+    if (!playlistId) {
+      alert("플레이리스트 정보를 찾을 수 없습니다.");
+      navigate("/main", { replace: true });
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      if (recreate) {
+        navigate(`/character-result?playlistId=${playlistId}&recreate=true`, {
+          replace: true,
+        });
+        return;
+      }
+
+      navigate(`/character-result?playlistId=${playlistId}`, {
+        replace: true,
+      });
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [playlistId, recreate, navigate]);
+
   return (
     <main className="character-create-page">
       <header className="character-header">
-        <h1>PLITTER</h1>
+        <img src={plitterLogo} alt="PLITTER" className="character-logo" />
       </header>
 
       <div className="gradient-blob blob-orange" />
@@ -14,7 +46,6 @@ export default function CharacterCreatePage() {
       <div className="gradient-blob blob-green" />
       <div className="gradient-blob blob-purple" />
 
-      {/* 나중에 캐릭터 생성 UI 들어갈 자리 */}
       <section className="character-content"></section>
     </main>
   );

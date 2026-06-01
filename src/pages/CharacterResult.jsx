@@ -1,6 +1,7 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { characterResults } from "../data/CharacterResults";
 import "./CharacterResult.css";
+import plitterLogo from "../assets/Plitter.png";
 
 export default function CharacterResult() {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ export default function CharacterResult() {
       style={{ background: result.background }}
     >
       <header className="result-header">
-        <h1>PLITTER</h1>
+        <img src={plitterLogo} alt="PLITTER" className="character-logo"/>
       </header>
 
       <section className="result-content">
