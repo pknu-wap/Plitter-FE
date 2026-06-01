@@ -86,7 +86,7 @@ export default function LandingPage() {
 
   return (
     <main
-      className={"landing-page"}
+      className={"realmain-page"}
       onPointerMove={handleSliderMove}
       onPointerUp={handleSliderUp}
       onPointerCancel={handleSliderUp}
