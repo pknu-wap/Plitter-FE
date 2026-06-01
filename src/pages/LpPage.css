@@ -55,6 +55,75 @@
   font-weight: 700;
   cursor: pointer;
 }
+.spotify-player-panel {
+  max-height: 0;
+  margin: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transform: translateY(-18px) scale(0.98);
+  transition:
+    max-height 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+    margin 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.24s ease,
+    transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: max-height, opacity, transform;
+}
+
+.spotify-player-panel.visible {
+  max-height: 150px;
+  margin: 0 0 18px;
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* 에어팟 외곽 */
+.airpods-player-shell {
+  position: relative;
+  padding: 30px 14px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  border-radius: 44px;
+  background: linear-gradient(180deg, #fffefd 0%, #f7f3ea 58%, #efe8dc 100%);
+}
+
+.airpods-lid-line {
+  position: absolute;
+  top: 9px;
+  left: 18%;
+  right: 18%;
+  height: 1px;
+  border-radius: 999px;
+  background: rgba(48, 45, 39, 0.16);
+}
+
+/* 에어팟 불빛 */
+.airpods-led {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #64d777;
+  box-shadow: 0 0 10px rgba(100, 215, 119, 0.78);
+  transform: translateX(-50%);
+  animation: airpods-led-blink 1.8s ease-in-out infinite;
+  z-index: 1;
+}
+
+/* 에어팟 led 애니메이션 */
+@keyframes airpods-led-blink {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 10px rgba(100, 215, 119, 0.78);
+  }
+
+  50% {
+    opacity: 0.35;
+    box-shadow: 0 0 3px rgba(100, 215, 119, 0.35);
+  }
+}
 
 .lp-stage {
   position: relative;

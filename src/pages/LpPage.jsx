@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import plitterLogo from "../assets/Plitter.png";
 import vinylImage from "../assets/lp-vinyl.png";
@@ -36,14 +36,14 @@ function formatTime(seconds) {
 export default function LpPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const audioRef = useRef(null);
 
   const initialTrack = normalizeTrack(location.state?.track);
 
   const [displayTrack, setDisplayTrack] = useState(initialTrack);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [duration, setDuration] = useState(30);
-  const [currentTime, setCurrentTime] = useState(0);
+  const [embedUrl, setEmbedUrl] = useState("");
+  const [isPlayerVisible, setIsPlayerVisible] = useState(false);
+  const [isPlayerLoading, setIsPlayerLoading] = useState(false);
 
   const [isCommentPopupOpen, setIsCommentPopupOpen] = useState(Boolean(location.state?.openRecommendSheet));
   const [commentText, setCommentText] = useState(location.state?.commentText || "");
@@ -69,46 +69,6 @@ export default function LpPage() {
     const params = new URLSearchParams(location.search);
     return location.state?.playlistId || params.get("playlistId");
   }, [location.search, location.state?.playlistId]);
-
-  useEffect(() => {
-    if (!displayTrack?.previewUrl) {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-      return;
-    }
-
-    const audio = new Audio(displayTrack.previewUrl);
-
-    const handleLoadedMetadata = () => {
-      if (Number.isFinite(audio.duration) && audio.duration > 0) {
-        setDuration(audio.duration);
-      }
-    };
-
-    const handleTimeUpdate = () => {
-      setCurrentTime(audio.currentTime || 0);
-    };
-
-    const handleEnded = () => {
-      setIsPlaying(false);
-      setCurrentTime(0);
-    };
-
-    audio.addEventListener("loadedmetadata", handleLoadedMetadata);
-    audio.addEventListener("timeupdate", handleTimeUpdate);
-    audio.addEventListener("ended", handleEnded);
-    audioRef.current = audio;
-
-    return () => {
-      audio.pause();
-      audio.currentTime = 0;
-      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
-      audio.removeEventListener("timeupdate", handleTimeUpdate);
-      audio.removeEventListener("ended", handleEnded);
-    };
-  }, [displayTrack?.previewUrl]);
 
   const fetchComments = useCallback(async (id) => {
     if (!id) return;
@@ -171,22 +131,74 @@ export default function LpPage() {
   }, [fetchComments, recommendationId]);
 
   const handleTogglePlay = async () => {
-    if (!audioRef.current) {
-      alert("이 곡은 미리듣기를 지원하지 않습니다.");
+    console.log("[LpPage] play button clicked", {
+      spotifyId: displayTrack?.spotifyId,
+      hasAccessToken: Boolean(accessToken),
+      hasGuestToken: Boolean(guestToken),
+      hasEmbedUrl: Boolean(embedUrl),
+      isPlayerVisible,
+    });
+
+    if (!displayTrack?.spotifyId) {
+      alert("재생할 곡 정보가 없습니다.");
       return;
     }
 
-    if (isPlaying) {
-      audioRef.current.pause();
-      setIsPlaying(false);
+    const authToken = accessToken || guestToken;
+
+    if (!authToken) {
+      alert("로그인 또는 게스트 입장 후 미리듣기를 사용할 수 있습니다.");
       return;
     }
+
+    // Spotify iframe은 유지, 버튼 상태만 바꿈
+    if (isPlayerVisible && embedUrl) {
+      setIsPlaying((prev) => !prev);
+      return;
+    }
+
+    setIsPlayerLoading(true);
 
     try {
-      await audioRef.current.play();
+      const playUrl = `${API_BASE_URL}/tracks/${displayTrack.spotifyId}/play`;
+      console.log("[LpPage] play api request", playUrl);
+
+      const response = await fetch(playUrl, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const payload = await parseJson(response);
+      console.log("[LpPage] play api response", {
+        ok: response.ok,
+        status: response.status,
+        payload,
+      });
+
+      const nextEmbedUrl = payload?.response?.embedUrl || payload?.content?.embedUrl;
+
+      if (!response.ok || !nextEmbedUrl) {
+        alert(payload?.message || "플레이어를 불러오지 못했습니다.");
+        return;
+      }
+
+      setIsPlayerVisible(false);
+      setEmbedUrl(nextEmbedUrl);
+
+      // iframe이 먼저 렌더링된 뒤 visible 클래스를 붙여야 내려오는 애니메이션이 보인다.
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setIsPlayerVisible(true);
+        });
+      });
       setIsPlaying(true);
     } catch {
-      alert("재생에 실패했습니다.");
+      alert("플레이어 요청 중 네트워크 오류가 발생했습니다.");
+    } finally {
+      setIsPlayerLoading(false);
     }
   };
 
@@ -333,7 +345,9 @@ export default function LpPage() {
   const notes = comments.slice(0, 4);
   const hasNotes = notes.length > 0;
   const canToggleComments = hasNotes || isRecommended;
-  const progressRatio = duration > 0 ? Math.min(currentTime / duration, 1) : 0;
+  const previewDuration = 30;
+  const previewCurrentTime = isPlayerVisible ? previewDuration : 0;
+  const progressRatio = previewCurrentTime / previewDuration;
 
   if (!displayTrack) {
       return (
@@ -358,6 +372,28 @@ export default function LpPage() {
           <img src={plitterLogo} alt="PLITTER" className="header-logo-image" />
         </button>
       </header>
+      
+      {/* 스포티파이 embed 플레이어 */}
+      {embedUrl ? (
+        <section
+          className={`spotify-player-panel ${isPlayerVisible ? "visible" : ""}`}
+          aria-label="Spotify preview player"
+        >
+          <div className="airpods-player-shell">
+            <span className="airpods-lid-line" aria-hidden="true" />
+            <span className="airpods-led" aria-hidden="true" />
+            <iframe
+              src={embedUrl}
+              width="100%"
+              height="80"
+              frameBorder="0"
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+              loading="lazy"
+              title={`${displayTrack.title} Spotify player`}
+            />
+          </div>
+        </section>
+      ) : null}
 
       <section className="lp-stage">
         <div className="lp-record-view">
@@ -396,12 +432,12 @@ export default function LpPage() {
         </div>
 
         <div className="time-info">
-          <span>{formatTime(currentTime)}</span>
-          <span>{formatTime(duration)}</span>
+          <span>{formatTime(previewCurrentTime)}</span>
+          <span>{formatTime(previewDuration)}</span>
         </div>
 
-        <button type="button" className="play-btn" onClick={handleTogglePlay}>
-          {isPlaying ? "❚❚" : "▶"}
+        <button type="button" className="play-btn" onClick={handleTogglePlay} disabled={isPlayerLoading}>
+          {isPlayerLoading ? "…" : isPlaying ? "❚❚" : "▶"}
         </button>
 
         {isRecommended || hasNotes || recommendationId ? (
