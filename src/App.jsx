@@ -11,6 +11,23 @@ import RealMain from "./pages/RealMain";
 import SharedPlaylistEntry from "./pages/SharedPlaylistEntry";
 import SongSearch from "./pages/SongSearch";
 
+function toPlaylistPathFromResponseContent(content) {
+  if (content?.playlistId) {
+    return `/playlist/${content.playlistId}`;
+  }
+
+  if (typeof content?.shareUrl === "string" && content.shareUrl) {
+    try {
+      const shareUrl = new URL(content.shareUrl);
+      return shareUrl.pathname || "/profile-share";
+    } catch {
+      return content.shareUrl.startsWith("/") ? content.shareUrl : "/profile-share";
+    }
+  }
+
+  return null;
+}
+
 async function resolveMyPlaylistPath(accessToken) {
   const authHeaders = {
     Authorization: `Bearer ${accessToken}`,
@@ -24,10 +41,9 @@ async function resolveMyPlaylistPath(accessToken) {
   if (
     checkResponse.ok &&
     checkPayload?.code === "SUCCESS" &&
-    checkPayload?.content?.exists &&
-    checkPayload?.content?.playlistId
+    checkPayload?.content?.hasPlaylist
   ) {
-    return `/playlist/${checkPayload.content.playlistId}`;
+    return toPlaylistPathFromResponseContent(checkPayload.content) || "/profile-share";
   }
 
   const createResponse = await fetch(`${API_BASE_URL}/playlists`, {
@@ -38,10 +54,24 @@ async function resolveMyPlaylistPath(accessToken) {
 
   if (
     createResponse.ok &&
-    createPayload?.code === "SUCCESS" &&
-    createPayload?.content?.playlistId
+    createPayload?.code === "SUCCESS"
   ) {
-    return `/playlist/${createPayload.content.playlistId}`;
+    return toPlaylistPathFromResponseContent(createPayload.content) || "/profile-share";
+  }
+
+  if (createPayload?.code === "PLAYLIST_ALREADY_EXISTS") {
+    const retryCheckResponse = await fetch(`${API_BASE_URL}/playlists/check`, {
+      headers: authHeaders,
+    });
+    const retryCheckPayload = await parseJson(retryCheckResponse);
+
+    if (
+      retryCheckResponse.ok &&
+      retryCheckPayload?.code === "SUCCESS" &&
+      retryCheckPayload?.content?.hasPlaylist
+    ) {
+      return toPlaylistPathFromResponseContent(retryCheckPayload.content) || "/profile-share";
+    }
   }
 
   return "/profile-share";

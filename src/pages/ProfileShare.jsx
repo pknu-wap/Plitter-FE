@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import plitterLogo from "../assets/Plitter.png";
+import { API_BASE_URL, parseJson } from "../lib/api";
 import "./ProfileShare.css";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function ProfileShare() {
   const navigate = useNavigate();
@@ -33,7 +33,7 @@ export default function ProfileShare() {
 
     setPlaylistName(finalPlaylistName);
 
-    const response = await fetch(`${API_BASE_URL}/api/playlists`, {
+    const response = await fetch(`${API_BASE_URL}/playlists`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -42,7 +42,7 @@ export default function ProfileShare() {
       body: JSON.stringify({}),
     });
 
-    const data = await response.json();
+    const data = await parseJson(response);
 
     console.log("플레이리스트 생성 응답:", data);
 
