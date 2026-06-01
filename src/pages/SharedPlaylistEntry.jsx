@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import plitterLogo from "../assets/Plitter.png";
 import { API_BASE_URL, parseJson } from "../lib/api";
 import "./SharedPlaylistEntry.css";
 
@@ -250,7 +251,7 @@ export default function SharedPlaylistEntry() {
     <main className="shared-entry-page">
       <header className="shared-entry-header">
         <button type="button" className="shared-brand" onClick={() => navigate("/")}>
-          PLITTER
+          <img src={plitterLogo} alt="PLITTER" className="header-logo-image" />
         </button>
         {accessToken ? (
           <button type="button" className="shared-my-list-button" onClick={() => navigate("/main")}>

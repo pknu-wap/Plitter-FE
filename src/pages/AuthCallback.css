@@ -10,13 +10,13 @@
   position: relative;
 }
 
-.auth-callback-brand {
+.auth-callback-brand-image {
   position: relative;
   z-index: 1;
-  font-size: 24px;
-  font-weight: 900;
-  letter-spacing: -0.04em;
-  color: #6b4428;
+  display: block;
+  width: 107px;
+  height: auto;
+  object-fit: contain;
 }
 
 .auth-callback-blobs {

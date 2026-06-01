@@ -22,12 +22,17 @@
 .brand-home-button {
   border: none;
   background: transparent;
-  color: inherit;
-  font-size: inherit;
-  font-weight: inherit;
-  letter-spacing: inherit;
   padding: 0;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+
+.header-logo-image {
+  display: block;
+  width: 107px;
+  height: auto;
+  object-fit: contain;
 }
 
 .search-box {
