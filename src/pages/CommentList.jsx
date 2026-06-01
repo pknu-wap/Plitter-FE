@@ -59,7 +59,6 @@ export default function CommentList() {
   const [error, setError] = useState("");
 
   const recommendationId = location.state?.recommendationId ?? track?.recommendationId ?? null;
-  const playlistId = location.state?.playlistId || "1";
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -128,20 +127,6 @@ export default function CommentList() {
     );
   }
 
-  const handleWriteComment = () => {
-    navigate("/lp", {
-      state: {
-        track,
-        recommendationId,
-        playlistId,
-        isRecommended: true,
-        openRecommendSheet: true,
-        localComments: comments,
-        commentCount: comments.length,
-      },
-    });
-  };
-
   return (
     <main className="comments-page">
       <header className="comments-header">
@@ -156,9 +141,6 @@ export default function CommentList() {
         <div className="card-details">
           <h2 className="card-title">{track?.title}</h2>
           <p className="card-artist">{track?.artistName}</p>
-          <button type="button" className="write-comment-btn" onClick={handleWriteComment}>
-            코멘트 작성하기 →
-          </button>
         </div>
       </section>
 
