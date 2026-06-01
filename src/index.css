@@ -1,4 +1,9 @@
 :root {
+  --app-page-max-width: 540px;
+  --app-page-padding-x: 24px;
+  --app-page-padding-top: 25px;
+  --app-page-padding-bottom: 34px;
+  --app-page-bg: #fff9f0;
   font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
   color: #111111;
   background: #e1ddd5;
