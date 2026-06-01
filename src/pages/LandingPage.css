@@ -19,10 +19,10 @@ body {
 .landing-page {
   position: relative;
   width: 100%;
-  max-width: 393px;
-  min-height: 852px;
+  max-width: 540px;
+  min-height: 100vh;
   margin: 0 auto;
-  padding: 32px 24px 32px;
+  padding: 25px 24px 0;
   background-color: #fff9f0;
   font-family: Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   color: #000;
@@ -43,7 +43,8 @@ body {
 
 .landing-hero {
   position: relative;
-  margin-top: 44px;
+  margin-top: 35px;
+  min-height: 700px;
 }
 
 .hero-text {
@@ -55,7 +56,7 @@ body {
 .hero-your {
   margin: 0;
   color: #000;
-  font-size: 123px;
+  font-size: 118px;
   font-weight: 900;
   line-height: 0.78;
   letter-spacing: -1px;
@@ -67,12 +68,12 @@ body {
 
 .hero-your {
   text-align: center;
-  margin-top: 18px;
+  margin-top: 22px;
 }
 
 .hero-description {
   position: absolute;
-  top: 95px;
+  top: 93px;
   left: 0;
   right: 0;
   z-index: 8;
@@ -81,17 +82,14 @@ body {
   font-size: 13px;
   font-weight: 800;
   text-align: center;
-  white-space: nowrap;
 }
 
 .vinyl-record {
   position: relative;
   z-index: 4;
-  width: 396px;
-  height: 401px;
-  margin: -22px 0 0;
-  left: 50%;
-  transform: translateX(-50%);
+  width: 369px;
+  height: 374px;
+  margin: -30px auto 0;
 }
 
 .lp-layer,
@@ -107,44 +105,44 @@ body {
 }
 
 .lp-ellipse-25 {
-  width: 388px;
-  height: 388px;
+  width: 361px;
+  height: 361px;
   z-index: 1;
 }
 
 .lp-ellipse-14 {
-  width: 396px;
-  height: 401px;
+  width: 369px;
+  height: 374px;
   z-index: 2;
 }
 
 .lp-ellipse-37 {
-  width: 385px;
-  height: 384px;
+  width: 359px;
+  height: 358px;
   z-index: 3;
 }
 
 .lp-ellipse-33 {
-  width: 322px;
-  height: 322px;
+  width: 300px;
+  height: 300px;
   z-index: 4;
 }
 
 .lp-ellipse-35 {
-  width: 267px;
-  height: 267px;
+  width: 249px;
+  height: 249px;
   z-index: 5;
 }
 
 .lp-ellipse-36 {
-  width: 211px;
-  height: 211px;
+  width: 197px;
+  height: 197px;
   z-index: 6;
 }
 
 .lp-ellipse-34 {
-  width: 165px;
-  height: 165px;
+  width: 154px;
+  height: 154px;
   z-index: 7;
 }
 
