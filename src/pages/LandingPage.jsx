@@ -17,7 +17,6 @@ import plitterLogo from "../assets/Plitter.png";
 export default function LandingPage() {
   const handleKakaoLogin = async () => {
     try {
-      localStorage.setItem("postLoginRedirect", "/main");
       const response = await fetch(`${API_BASE_URL}/auth/kakao/login`);
       const payload = await parseJson(response);
 
