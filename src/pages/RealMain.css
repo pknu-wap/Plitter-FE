@@ -16,7 +16,7 @@ body {
   background-color: #fff9f0;
 }
 
-.landing-page {
+.realmain-page {
   position: relative;
   width: 100%;
   max-width: 540px;
@@ -29,26 +29,26 @@ body {
   overflow: hidden;
 }
 
-.plitter-logo {
+.realmain-page .plitter-logo {
   display: block;
   width: 107px;
   height: auto;
   object-fit: contain;
 }
 
-.landing-hero {
+.realmain-page .landing-hero {
   position: relative;
   margin-top: 35px;
   min-height: 700px;
 }
 
-.hero-text {
+.realmain-page .hero-text {
   position: relative;
   z-index: 6;
 }
 
-.hero-find,
-.hero-your {
+.realmain-page .hero-find,
+.realmain-page .hero-your {
   margin: 0;
   color: #000;
   font-size: 118px;
@@ -57,16 +57,16 @@ body {
   letter-spacing: -1px;
 }
 
-.hero-find {
+.realmain-page .hero-find {
   text-align: center;
 }
 
-.hero-your {
+.realmain-page .hero-your {
   text-align: center;
   margin-top: 22px;
 }
 
-.hero-description {
+.realmain-page .hero-description {
   position: absolute;
   top: 93px;
   left: 0;
@@ -80,7 +80,7 @@ body {
 }
 
 /* 앞쪽 주황/빨강 LP */
-.vinyl-record {
+.realmain-page .vinyl-record {
   position: relative;
   z-index: 7;
   width: 369px;
@@ -93,10 +93,10 @@ body {
   animation-delay: 0.65s;
 }
 
-.lp-layer,
-.lp-number,
-.lp-center,
-.lp-dot {
+.realmain-page .lp-layer,
+.realmain-page .lp-number,
+.realmain-page .lp-center,
+.realmain-page .lp-dot {
   position: absolute;
   display: block;
   pointer-events: none;
@@ -105,69 +105,69 @@ body {
   transform: translate(-50%, -50%);
 }
 
-.lp-ellipse-25 {
+.realmain-page .lp-ellipse-25 {
   width: 361px;
   height: 361px;
   z-index: 1;
 }
 
-.lp-ellipse-14 {
+.realmain-page .lp-ellipse-14 {
   width: 369px;
   height: 374px;
   z-index: 2;
 }
 
-.lp-ellipse-37 {
+.realmain-page .lp-ellipse-37 {
   width: 359px;
   height: 358px;
   z-index: 3;
 }
 
-.lp-ellipse-33 {
+.realmain-page .lp-ellipse-33 {
   width: 300px;
   height: 300px;
   z-index: 4;
 }
 
-.lp-ellipse-35 {
+.realmain-page .lp-ellipse-35 {
   width: 249px;
   height: 249px;
   z-index: 5;
 }
 
-.lp-ellipse-36 {
+.realmain-page .lp-ellipse-36 {
   width: 197px;
   height: 197px;
   z-index: 6;
 }
 
-.lp-ellipse-34 {
+.realmain-page .lp-ellipse-34 {
   width: 154px;
   height: 154px;
   z-index: 7;
 }
 
-.lp-number {
+.realmain-page .lp-number {
   top: 32%;
   width: 113px;
   height: 15px;
   z-index: 8;
 }
 
-.lp-center {
+.realmain-page .lp-center {
   width: 84px;
   height: 84px;
   z-index: 9;
 }
 
-.lp-dot {
+.realmain-page .lp-dot {
   width: 8px;
   height: 8px;
   z-index: 10;
 }
 
 /* 노랑이 + 파랑이 */
-.vinyl-record-back {
+.realmain-page .vinyl-record-back {
   position: absolute;
   left: 50%;
   top: 250px;
@@ -179,7 +179,7 @@ body {
   pointer-events: none;
 }
 
-.vinyl-record-back .lp-layer {
+.realmain-page .vinyl-record-back .lp-layer {
   position: absolute;
   left: 50%;
   top: 100px;
@@ -188,7 +188,7 @@ body {
 }
 
 /* 노랑이 */
-.lp-ellipse-27 {
+.realmain-page .lp-ellipse-27 {
   top: 74px;
   width: 307px;
   height: 312px;
@@ -201,7 +201,7 @@ body {
 }
 
 /* 파랑이 */
-.lp-ellipse-28 {
+.realmain-page .lp-ellipse-28 {
   top: 75px;
   width: 285px;
   height: 290px;
@@ -213,7 +213,7 @@ body {
   animation-delay: 0.1s;
 }
 
-.lp-ellipse-29 {
+.realmain-page .lp-ellipse-29 {
   margin-top: 100px;
   width: 245px;
   height: 250px;
@@ -261,7 +261,7 @@ body {
 }
 
 /* START 슬라이더 */
-.start-slider {
+.realmain-page .start-slider {
   position: absolute;
   left: 50%;
   top: 575px;
@@ -290,7 +290,7 @@ body {
 }
 
 /* 동그라미 */
-.start-slider-thumb {
+.realmain-page .start-slider-thumb {
   position: relative;
   z-index: 2;
 
@@ -309,11 +309,11 @@ body {
   touch-action: none;
 }
 
-.start-slider-thumb:active {
+.realmain-page .start-slider-thumb:active {
   cursor: grabbing;
 }
 
-.start-slider-text {
+.realmain-page .start-slider-text {
   position: absolute;
   left: 53px;
   top: 50%;

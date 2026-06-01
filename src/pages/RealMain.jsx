@@ -32,6 +32,7 @@ export default function LandingPage() {
 
   const handleKakaoLogin = async () => {
     try {
+      localStorage.setItem("postLoginRedirect", "/main");
       const response = await fetch(`${API_BASE_URL}/auth/kakao/login`);
       const payload = await parseJson(response);
 
@@ -85,7 +86,7 @@ export default function LandingPage() {
 
   return (
     <main
-      className={"landing-page"}
+      className={"realmain-page"}
       onPointerMove={handleSliderMove}
       onPointerUp={handleSliderUp}
       onPointerCancel={handleSliderUp}

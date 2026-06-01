@@ -11,7 +11,7 @@ export default function Login() {
   const redirectParam = new URLSearchParams(location.search).get("redirect");
   const storedRedirectPath = localStorage.getItem("postLoginRedirect") || "";
   const shareRedirectPath = redirectParam || storedRedirectPath || (playlistId ? `/search?playlistId=${encodeURIComponent(playlistId)}` : "");
-  const redirectPath = shareRedirectPath || "/search";
+  const redirectPath = shareRedirectPath || "/main";
   const hasPlaylistContext = shareRedirectPath.includes("playlistId=");
 
   const handleKakaoLogin = async () => {

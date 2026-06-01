@@ -22,7 +22,7 @@ body {
   max-width: 540px;
   min-height: 100vh;
   margin: 0 auto;
-  padding: 25px 24px 32px;
+  padding: 25px 24px 0;
   background-color: #fff9f0;
   font-family: Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   color: #000;
@@ -44,6 +44,7 @@ body {
 .landing-hero {
   position: relative;
   margin-top: 35px;
+  min-height: 700px;
 }
 
 .hero-text {
@@ -166,15 +167,15 @@ body {
 
 .landing-login-section {
   position: absolute;
-  left: 36px;
-  right: 36px;
-  bottom: 20px;
+  left: 24px;
+  right: 24px;
+  bottom: 74px;
   z-index: 20;
   text-align: center;
 }
 
 .login-guide {
-  margin: 0 0 8px;
+  margin: 0 0 10px;
   color: #9ca3af;
   font-size: 14px;
   font-weight: 500;
@@ -213,6 +214,12 @@ body {
   height: 7px;
   background-color: #111;
   transform: rotate(35deg);
+}
+
+.kakao-login-label {
+  position: static;
+  transform: none;
+  white-space: nowrap;
 }
 
 .guest-button {
