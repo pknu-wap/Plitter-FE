@@ -1,0 +1,142 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #eeeeee;
+  font-family: Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+
+.profile-share-page {
+  position: relative;
+  width: 100%;
+  max-width: var(--app-page-max-width);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 0 var(--app-page-padding-x) var(--app-page-padding-bottom);
+  background-color: var(--app-page-bg);
+  overflow: hidden;
+  color: #111111;
+}
+
+/* 헤더 */
+.profile-share-header {
+  margin-top: 25px;
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.profile-share-logo {
+  display: block;
+  width: 146px;
+  height: auto;
+  object-fit: contain;
+}
+
+/* 중간 멘트 */
+.share-main-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: calc(100vh - 210px);
+  padding-top: 280px;
+}
+
+.share-main-text {
+  margin: 0;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: -0.6px;
+  color: #000;
+}
+
+.share-glow {
+  width: 330px;
+  height: 42px;
+  margin-top: 24px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 128, 88, 0.55) 0%,
+    rgba(255, 158, 121, 0.35) 35%,
+    rgba(255, 206, 180, 0.16) 60%,
+    rgba(255, 249, 240, 0) 75%
+  );
+  filter: blur(5px);
+}
+
+.share-player-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 126px;
+  margin-top: 101px;
+}
+
+.share-player-line .line {
+  width: 49px;
+  height: 3px;
+  background-color: #eee6d8;
+  border-radius: 999px;
+}
+
+.share-player-line .slider {
+  width: 38px;
+  height: 7px;
+  margin: 0 -2px;
+  background-color: #fffaf1;
+  border: 2px solid #e5ddcf;
+  border-radius: 999px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  z-index: 1;
+}
+
+.playlist-title {
+  margin: 36px 0 105px;
+  color: #c3a779;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.8px;
+}
+
+/* 하단 버튼 */
+.share-bottom-area {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: 68px;
+}
+
+.copy-link-button {
+  width: 100%;
+  height: 56px;
+  border: none;
+  border-radius: 14px;
+  background-color: #f1eadc;
+  color: #c3a779;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  cursor: pointer;
+}
+
+.copy-link-button:active {
+  transform: scale(0.99);
+}
+
+.copy-link-button.copied {
+  background-color: #eadfca;
+}

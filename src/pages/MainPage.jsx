@@ -2,11 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import VinylCarousel from "../components/VinylCarousel";
 import { dummyTracks } from "../data/dummyTracks";
+import { API_BASE_URL } from "../lib/api";
 import "./MainPage.css";
-
-const API_BASE_URL = import.meta.env.PROD
-  ? "/api"
-  : "http://13.124.174.30:8080";
 
 const REQUIRED_RECOMMENDATION_COUNT = 3;
 

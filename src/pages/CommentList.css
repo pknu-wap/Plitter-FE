@@ -1,0 +1,159 @@
+.comments-page {
+  width: 100%;
+  max-width: var(--app-page-max-width);
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: var(--app-page-padding-top) var(--app-page-padding-x) var(--app-page-padding-bottom);
+  background: var(--app-page-bg);
+  color: #111111;
+  text-align: left;
+  font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+}
+
+.comments-header {
+  margin: 2px 0 22px;
+  font-size: 17px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-weight: 900;
+  color: #74472d;
+}
+
+.brand-home-button {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+
+.header-logo-image {
+  display: block;
+  width: 107px;
+  height: auto;
+  object-fit: contain;
+}
+
+.track-info-card {
+  background: linear-gradient(180deg, #f6efe1 0%, #eee1cb 100%);
+  border-radius: 24px;
+  padding: 18px;
+  display: flex;
+  gap: 14px;
+  margin-bottom: 18px;
+  box-shadow: 0 14px 32px rgba(124, 90, 51, 0.08);
+}
+
+.card-cover {
+  width: 106px;
+  height: 106px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 10px 18px rgba(124, 90, 51, 0.12);
+}
+
+.card-details {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-title {
+  margin: 6px 0 0;
+  font-size: 15px;
+  font-weight: 900;
+  color: #111111;
+  line-height: 1.35;
+}
+
+.card-artist {
+  margin-top: 8px;
+  font-size: 11px;
+  color: #333333;
+}
+
+.card-album {
+  margin-top: 4px;
+  font-size: 11px;
+  color: #5f56ff;
+}
+
+.write-comment-btn {
+  width: 100%;
+  margin-top: auto;
+  height: 34px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(214, 194, 153, 0.56);
+  color: #7b5838;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.comments-status,
+.comments-error {
+  margin: 8px 0 16px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.comments-status {
+  color: #8a6b45;
+}
+
+.comments-error {
+  color: #ca4a4a;
+}
+
+.comment-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.comment-item {
+  background: linear-gradient(180deg, #fbf6eb 0%, #f4e9d8 100%);
+  border-radius: 22px;
+  padding: 18px 18px 20px;
+  box-shadow: 0 10px 24px rgba(124, 90, 51, 0.07);
+}
+
+.comment-author-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.comment-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+  font-size: 17px;
+  font-weight: 800;
+  box-shadow: 0 8px 14px rgba(0, 0, 0, 0.08);
+}
+
+.comment-author {
+  font-size: 15px;
+  color: #7f5838;
+}
+
+.comment-text {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #6e4b2e;
+  font-weight: 600;
+  margin: 0;
+  word-break: keep-all;
+}
