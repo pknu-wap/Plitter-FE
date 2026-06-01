@@ -5,7 +5,6 @@ import CommentList from "./pages/CommentList";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import LpPage from "./pages/LpPage";
-import MainPage from "./pages/MainPage";
 import ProfileShare from "./pages/ProfileShare";
 import RealMain from "./pages/RealMain";
 import SharedPlaylistEntry from "./pages/SharedPlaylistEntry";
@@ -43,7 +42,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/guest" element={<div>after guest login</div>} />
         <Route path="/auth/callback" element={<AuthCallback />} />
-        <Route path="/main" element={<MainPage />} />
+        <Route path="/main" element={<LandingPage />} />
         <Route path="/search" element={<SongSearch />} />
         <Route path="/landing" element={<LandingPage />} />
         <Route path="/realmain" element={<RealMain />} />
