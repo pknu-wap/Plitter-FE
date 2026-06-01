@@ -2,6 +2,11 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import plitterLogo from "../assets/Plitter.png";
 import vinylImage from "../assets/lp-vinyl.png";
+import playIcon from "../assets/Polygon 1.png";
+import playCircle from "../assets/Ellipse 12.png";
+import commentPopup from "../assets/Rectangle 236.png";
+import commentBox from "../assets/Rectangle 237.png";
+import playBar from "../assets/Group 3.png";
 import { API_BASE_URL, parseJson } from "../lib/api";
 import "./LpPage.css";
 
@@ -365,12 +370,11 @@ export default function LpPage() {
     });
   };
 
-  const notes = comments.slice(0, 4);
+  const notes = comments.slice(0, 5);
   const hasNotes = notes.length > 0;
   const canToggleComments = hasNotes;
   const previewDuration = 30;
   const previewCurrentTime = isPlayerVisible ? previewDuration : 0;
-  const progressRatio = previewCurrentTime / previewDuration;
 
   if (!displayTrack) {
       return (
@@ -436,12 +440,15 @@ export default function LpPage() {
       </section>
 
       {canToggleComments ? (
-        <button type="button" className="comment-pill" onClick={() => setShowComments((prev) => !prev)}>
-          {showComments ? "코멘트 ON" : "코멘트 OFF"}
+        <button
+          type="button"
+          className="comment-pill"
+          onClick={() => setShowComments((prev) => !prev)}
+          aria-label={showComments ? "코멘트 숨기기" : "코멘트 보이기"}
+        >
+          {showComments ? "코멘트" : ""}
         </button>
-      ) : (
-        <span className="comment-pill comment-pill-static">코멘트 OFF</span>
-      )}
+      ) : null}
 
       <section className="lp-track-preview">
         <h2>{displayTrack.title}</h2>
@@ -449,10 +456,7 @@ export default function LpPage() {
       </section>
 
       <section className="player-bar-container">
-        <div className="progress-bar-bg" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progressRatio * 100)}>
-          <div className="progress-bar-fill" style={{ width: `${progressRatio * 100}%` }} />
-          <span className="progress-thumb" style={{ left: `${progressRatio * 100}%` }} />
-        </div>
+        <img className="progress-bar-image" src={playBar} alt="재생 진행바" />
 
         <div className="time-info">
           <span>{formatTime(previewCurrentTime)}</span>
@@ -460,7 +464,14 @@ export default function LpPage() {
         </div>
 
         <button type="button" className="play-btn" onClick={handleTogglePlay} disabled={isPlayerLoading}>
-          {isPlayerLoading ? "…" : isPlaying ? "❚❚" : "▶"}
+          <img src={playCircle} alt="" className="play-btn-circle" aria-hidden="true" />
+          {isPlayerLoading ? (
+            <span className="play-btn-state">…</span>
+          ) : isPlaying ? (
+            <span className="play-btn-state">❚❚</span>
+          ) : (
+            <img src={playIcon} alt="재생" className="play-btn-icon" />
+          )}
         </button>
 
         {isRecommended || hasNotes || recommendationId ? (
@@ -500,7 +511,9 @@ export default function LpPage() {
             <div className="anonymous-row">
               <div>
                 <strong>익명 여부</strong>
-                <p>익명을 선택하면 랜덤 닉네임으로 추천됩니다.</p>
+                <p>익명을 선택하면 랜덤 닉네임으로,<br />
+                  선택하지 않으면 카카오톡 이름으로 추천됩니다.
+                </p>
               </div>
               <button
                 type="button"
