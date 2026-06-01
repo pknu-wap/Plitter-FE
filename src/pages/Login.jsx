@@ -11,12 +11,16 @@ export default function Login() {
   const redirectParam = new URLSearchParams(location.search).get("redirect");
   const storedRedirectPath = localStorage.getItem("postLoginRedirect") || "";
   const shareRedirectPath = redirectParam || storedRedirectPath || (playlistId ? `/search?playlistId=${encodeURIComponent(playlistId)}` : "");
-  const redirectPath = shareRedirectPath || "/main";
+  const redirectPath = shareRedirectPath || "";
   const hasPlaylistContext = shareRedirectPath.includes("playlistId=");
 
   const handleKakaoLogin = async () => {
     try {
-      localStorage.setItem("postLoginRedirect", redirectPath);
+      if (redirectPath) {
+        localStorage.setItem("postLoginRedirect", redirectPath);
+      } else {
+        localStorage.removeItem("postLoginRedirect");
+      }
       const response = await fetch("/api/auth/kakao/login");
 
       if (!response.ok) {

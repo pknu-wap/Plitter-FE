@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { BrowserRouter, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { API_BASE_URL, parseJson } from "./lib/api";
 import AuthCallback from "./pages/AuthCallback";
 import CommentList from "./pages/CommentList";
 import LandingPage from "./pages/LandingPage";
@@ -10,11 +11,49 @@ import RealMain from "./pages/RealMain";
 import SharedPlaylistEntry from "./pages/SharedPlaylistEntry";
 import SongSearch from "./pages/SongSearch";
 
+async function resolveMyPlaylistPath(accessToken) {
+  const authHeaders = {
+    Authorization: `Bearer ${accessToken}`,
+  };
+
+  const checkResponse = await fetch(`${API_BASE_URL}/playlists/check`, {
+    headers: authHeaders,
+  });
+  const checkPayload = await parseJson(checkResponse);
+
+  if (
+    checkResponse.ok &&
+    checkPayload?.code === "SUCCESS" &&
+    checkPayload?.content?.exists &&
+    checkPayload?.content?.playlistId
+  ) {
+    return `/playlist/${checkPayload.content.playlistId}`;
+  }
+
+  const createResponse = await fetch(`${API_BASE_URL}/playlists`, {
+    method: "POST",
+    headers: authHeaders,
+  });
+  const createPayload = await parseJson(createResponse);
+
+  if (
+    createResponse.ok &&
+    createPayload?.code === "SUCCESS" &&
+    createPayload?.content?.playlistId
+  ) {
+    return `/playlist/${createPayload.content.playlistId}`;
+  }
+
+  return "/profile-share";
+}
+
 function AuthTokenHandler() {
   const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
+    let cancelled = false;
+
     const searchParams = new URLSearchParams(location.search);
     const accessToken = searchParams.get("accessToken");
 
@@ -26,10 +65,67 @@ function AuthTokenHandler() {
 
     const postLoginRedirect = localStorage.getItem("postLoginRedirect");
     localStorage.removeItem("postLoginRedirect");
-    navigate(postLoginRedirect || "/main", { replace: true });
+
+    const redirectAfterLogin = async () => {
+      if (postLoginRedirect) {
+        navigate(postLoginRedirect, { replace: true });
+        return;
+      }
+
+      try {
+        const myPlaylistPath = await resolveMyPlaylistPath(accessToken);
+        if (!cancelled) {
+          navigate(myPlaylistPath, { replace: true });
+        }
+      } catch (error) {
+        console.error("내 플레이리스트 경로 확인 실패:", error);
+        if (!cancelled) {
+          navigate("/profile-share", { replace: true });
+        }
+      }
+    };
+
+    redirectAfterLogin();
+
+    return () => {
+      cancelled = true;
+    };
   }, [location.pathname, location.search, navigate]);
 
   return null;
+}
+
+function MainEntryPage() {
+  const navigate = useNavigate();
+  const accessToken = localStorage.getItem("accessToken") || "";
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!accessToken) return;
+
+    const redirectToMyPlaylist = async () => {
+      try {
+        const myPlaylistPath = await resolveMyPlaylistPath(accessToken);
+        if (!cancelled) {
+          navigate(myPlaylistPath, { replace: true });
+        }
+      } catch (error) {
+        console.error("메인 진입 경로 확인 실패:", error);
+        if (!cancelled) {
+          navigate("/profile-share", { replace: true });
+        }
+      }
+    };
+
+    redirectToMyPlaylist();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [accessToken, navigate]);
+
+  return <LandingPage />;
 }
 
 function App() {
@@ -42,7 +138,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/guest" element={<div>after guest login</div>} />
         <Route path="/auth/callback" element={<AuthCallback />} />
-        <Route path="/main" element={<LandingPage />} />
+        <Route path="/main" element={<MainEntryPage />} />
         <Route path="/search" element={<SongSearch />} />
         <Route path="/landing" element={<LandingPage />} />
         <Route path="/realmain" element={<RealMain />} />
