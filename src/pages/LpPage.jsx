@@ -15,9 +15,31 @@ function normalizeTrack(track) {
     artistName: track.artistName || track.artist || "아티스트 정보 없음",
     albumCoverImageUrl: track.albumCoverImageUrl || track.albumImage || "",
     previewUrl: track.previewUrl || "",
-    albumName: track.albumName || track.album || "",
     commentCount: track.commentCount ?? 0,
   };
+}
+
+function normalizeComment(comment) {
+  if (!comment) return null;
+
+  if (typeof comment === "string") {
+    return { recommenderName: "익명", comment };
+  }
+
+  const commentText = comment.comment || comment.content || comment.text || "";
+
+  if (!commentText) return null;
+
+  return {
+    recommenderName: comment.recommenderName || comment.nickname || comment.name || "익명",
+    comment: commentText,
+  };
+}
+
+function normalizeComments(comments) {
+  if (!Array.isArray(comments)) return [];
+
+  return comments.map(normalizeComment).filter(Boolean);
 }
 
 function formatTime(seconds) {
@@ -52,8 +74,10 @@ export default function LpPage() {
 
   const [isRecommended, setIsRecommended] = useState(Boolean(location.state?.isRecommended));
   const [showComments, setShowComments] = useState(true);
-  const [comments, setComments] = useState(Array.isArray(location.state?.localComments) ? location.state.localComments : []);
-  const [commentCount, setCommentCount] = useState(location.state?.commentCount ?? initialTrack?.commentCount ?? comments.length ?? 0);
+  const [comments, setComments] = useState(() => normalizeComments(location.state?.localComments));
+  const [commentCount, setCommentCount] = useState(
+    () => location.state?.commentCount ?? initialTrack?.commentCount ?? normalizeComments(location.state?.localComments).length,
+  );
 
   const [recommendationId, setRecommendationId] = useState(location.state?.recommendationId ?? initialTrack?.recommendationId ?? null);
   const [isCommentsLoading, setIsCommentsLoading] = useState(false);
@@ -93,7 +117,7 @@ export default function LpPage() {
       }
 
       const content = payload?.content;
-      const fetchedComments = Array.isArray(content?.comments) ? content.comments : [];
+      const fetchedComments = normalizeComments(content?.comments);
 
       setComments(fetchedComments);
       setCommentCount(fetchedComments.length);
@@ -281,7 +305,6 @@ export default function LpPage() {
               artistName: displayTrack.artistName,
               albumCoverImageUrl: displayTrack.albumCoverImageUrl,
               previewUrl: displayTrack.previewUrl || "",
-              albumName: displayTrack.albumName || "",
             },
             ...trackHistory,
           ];
@@ -344,7 +367,7 @@ export default function LpPage() {
 
   const notes = comments.slice(0, 4);
   const hasNotes = notes.length > 0;
-  const canToggleComments = hasNotes || isRecommended;
+  const canToggleComments = hasNotes;
   const previewDuration = 30;
   const previewCurrentTime = isPlayerVisible ? previewDuration : 0;
   const progressRatio = previewCurrentTime / previewDuration;
@@ -414,10 +437,10 @@ export default function LpPage() {
 
       {canToggleComments ? (
         <button type="button" className="comment-pill" onClick={() => setShowComments((prev) => !prev)}>
-          코멘트
+          {showComments ? "코멘트 ON" : "코멘트 OFF"}
         </button>
       ) : (
-        <span className="comment-pill comment-pill-static">코멘트</span>
+        <span className="comment-pill comment-pill-static">코멘트 OFF</span>
       )}
 
       <section className="lp-track-preview">
@@ -461,7 +484,6 @@ export default function LpPage() {
               <div className="sheet-track-text">
                 <h3>{displayTrack.title}</h3>
                 <p>{displayTrack.artistName}</p>
-                <span>앨범 {displayTrack.albumName || "-"}</span>
               </div>
             </div>
 
