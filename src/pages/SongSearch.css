@@ -1,10 +1,10 @@
 .song-search-page {
   width: 100%;
-  max-width: 430px;
+  max-width: var(--app-page-max-width);
   min-height: 100dvh;
   margin: 0 auto;
-  padding: 28px 18px 36px;
-  background: #fff9f0;
+  padding: var(--app-page-padding-top) var(--app-page-padding-x) 36px;
+  background: var(--app-page-bg);
   color: #111111;
   text-align: left;
   font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;

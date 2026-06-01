@@ -19,11 +19,11 @@ body {
 .profile-share-page {
   position: relative;
   width: 100%;
-  max-width: 100%;
+  max-width: var(--app-page-max-width);
   min-height: 100vh;
   margin: 0 auto;
-  padding: 0px 30px 34px;
-  background-color: #fff9f0;
+  padding: 0 var(--app-page-padding-x) var(--app-page-padding-bottom);
+  background-color: var(--app-page-bg);
   overflow: hidden;
   color: #111111;
 }
@@ -140,4 +140,3 @@ body {
 .copy-link-button.copied {
   background-color: #eadfca;
 }
-

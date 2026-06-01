@@ -1,10 +1,11 @@
 .auth-callback-page {
   width: 100%;
-  max-width: 430px;
+  max-width: var(--app-page-max-width);
   min-height: 100dvh;
   margin: 0 auto;
   padding: 44px 24px;
-  background: #fff9f0;
+  background: var(--app-page-bg);
+  font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
   overflow: hidden;
   position: relative;
 }
