@@ -63,6 +63,24 @@ function mergeTracks(nextTracks, prevTracks) {
   return dedupeTracksByCover([...nextTracks, ...prevTracks]);
 }
 
+function getPlaylistIdFromResponseContent(content) {
+  if (content?.playlistId) {
+    return String(content.playlistId).trim();
+  }
+
+  if (typeof content?.shareUrl === "string" && content.shareUrl) {
+    try {
+      const shareUrl = new URL(content.shareUrl, window.location.origin);
+      const matchedPath = shareUrl.pathname.match(/^\/playlist\/([^/]+)$/);
+      return matchedPath ? decodeURIComponent(matchedPath[1]).trim() : "";
+    } catch {
+      return "";
+    }
+  }
+
+  return "";
+}
+
 export default function SharedPlaylistEntry() {
   const navigate = useNavigate();
   const { playlistId } = useParams();
@@ -169,7 +187,7 @@ export default function SharedPlaylistEntry() {
         }
 
         if (!cancelled) {
-          setMyPlaylistId(String(payload.content.playlistId || "").trim());
+          setMyPlaylistId(getPlaylistIdFromResponseContent(payload.content));
         }
       } catch {
         if (!cancelled) {
