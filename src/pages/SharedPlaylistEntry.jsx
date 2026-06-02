@@ -63,6 +63,24 @@ function mergeTracks(nextTracks, prevTracks) {
   return dedupeTracksByCover([...nextTracks, ...prevTracks]);
 }
 
+function getPlaylistIdFromResponseContent(content) {
+  if (content?.playlistId) {
+    return String(content.playlistId).trim();
+  }
+
+  if (typeof content?.shareUrl === "string" && content.shareUrl) {
+    try {
+      const shareUrl = new URL(content.shareUrl, window.location.origin);
+      const matchedPath = shareUrl.pathname.match(/^\/playlist\/([^/]+)$/);
+      return matchedPath ? decodeURIComponent(matchedPath[1]).trim() : "";
+    } catch {
+      return "";
+    }
+  }
+
+  return "";
+}
+
 export default function SharedPlaylistEntry() {
   const navigate = useNavigate();
   const { playlistId } = useParams();
@@ -81,12 +99,14 @@ export default function SharedPlaylistEntry() {
     recommendationCount: 0,
     ownerNickname: "",
   });
+  const [myPlaylistId, setMyPlaylistId] = useState("");
   const [recommendedTracks, setRecommendedTracks] = useState(() => buildInitialTracks(normalizedPlaylistId));
   const [activeIndex, setActiveIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const linkError = !normalizedPlaylistId ? "유효하지 않은 공유 링크입니다." : "";
   const pointerStartXRef = useRef(0);
   const hasDraggedRef = useRef(false);
+  const isMyPlaylist = Boolean(accessToken) && myPlaylistId === normalizedPlaylistId;
 
   const searchPath = useMemo(() => {
     if (!normalizedPlaylistId) return "/search";
@@ -142,22 +162,55 @@ export default function SharedPlaylistEntry() {
   }, [normalizedPlaylistId, storageKey]);
 
   useEffect(() => {
-    if (recommendedTracks.length === 0) {
-      setActiveIndex(0);
-      return;
-    }
+    if (!accessToken || !normalizedPlaylistId) return;
 
-    setActiveIndex((prevIndex) => {
-      if (prevIndex < recommendedTracks.length) {
-        return prevIndex;
+    let cancelled = false;
+
+    const checkMyPlaylist = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/playlists/check`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+        const payload = await parseJson(response);
+
+        if (
+          !response.ok ||
+          payload?.code !== "SUCCESS" ||
+          !payload?.content?.hasPlaylist
+        ) {
+          if (!cancelled) {
+            setMyPlaylistId("");
+          }
+          return;
+        }
+
+        if (!cancelled) {
+          setMyPlaylistId(getPlaylistIdFromResponseContent(payload.content));
+        }
+      } catch {
+        if (!cancelled) {
+          setMyPlaylistId("");
+        }
       }
-      return 0;
-    });
-  }, [recommendedTracks]);
+    };
+
+    void checkMyPlaylist();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [accessToken, normalizedPlaylistId]);
 
   const handleStartRecommendation = () => {
     if (!normalizedPlaylistId) {
       alert("유효하지 않은 공유 링크입니다.");
+      return;
+    }
+
+    if (isMyPlaylist) {
+      navigate(`/character-loading?playlistId=${encodeURIComponent(normalizedPlaylistId)}`);
       return;
     }
 
@@ -185,14 +238,15 @@ export default function SharedPlaylistEntry() {
   };
 
   const trackCount = recommendedTracks.length;
-  const centerTrack = trackCount > 0 ? recommendedTracks[activeIndex] : null;
+  const currentIndex = trackCount > 0 ? activeIndex % trackCount : 0;
+  const centerTrack = trackCount > 0 ? recommendedTracks[currentIndex] : null;
   const leftTrack = trackCount > 1
-    ? recommendedTracks[(activeIndex - 1 + trackCount) % trackCount]
+    ? recommendedTracks[(currentIndex - 1 + trackCount) % trackCount]
     : null;
   const rightTrack = trackCount > 1
-    ? recommendedTracks[(activeIndex + 1) % trackCount]
+    ? recommendedTracks[(currentIndex + 1) % trackCount]
     : null;
-  const indicatorProgress = trackCount > 1 ? activeIndex / (trackCount - 1) : 0;
+  const indicatorProgress = trackCount > 1 ? currentIndex / (trackCount - 1) : 0;
   const ownerLabel = playlistMeta.ownerNickname
     ? `${playlistMeta.ownerNickname}님의 플레이리스트`
     : "친구의 플레이리스트";
@@ -232,7 +286,7 @@ export default function SharedPlaylistEntry() {
     pointerStartXRef.current = event.clientX;
   };
 
-  const handlePointerUp = (event) => {
+  const handlePointerUp = () => {
     if (!isDragging) return;
     setIsDragging(false);
   };
@@ -312,7 +366,7 @@ export default function SharedPlaylistEntry() {
           )}
         </div>
         {trackCount > 1 ? (
-          <div className="shared-cover-indicator" aria-label={`추천 곡 ${activeIndex + 1} / ${trackCount}`}>
+          <div className="shared-cover-indicator" aria-label={`추천 곡 ${currentIndex + 1} / ${trackCount}`}>
             <span className="shared-cover-indicator-track" />
             <span
               className="shared-cover-indicator-thumb"
@@ -327,7 +381,7 @@ export default function SharedPlaylistEntry() {
       {linkError ? <p className="shared-playlist-error">{linkError}</p> : null}
 
       <button type="button" className="shared-recommend-button" onClick={handleStartRecommendation}>
-        + 노래 추천하기
+        {isMyPlaylist ? "캐릭터 생성하러 가기" : "+ 노래 추천하기"}
       </button>
     </main>
   );
