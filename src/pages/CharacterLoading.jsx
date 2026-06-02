@@ -1,6 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import plitterLogo from "../assets/Plitter.png";
+import { API_BASE_URL, parseJson } from "../lib/api";
 import "./CharacterLoading.css";
 
 export default function CharacterLoading() {
@@ -10,6 +11,8 @@ export default function CharacterLoading() {
   const playlistId = searchParams.get("playlistId");
   const recreate = searchParams.get("recreate");
   const eyebrowText = recreate ? "캐릭터 다시 생성 중" : "캐릭터 생성 중";
+  const [loadingTitle, setLoadingTitle] = useState("플레이리스트의 분위기를 정리하고 있어요");
+  const [loadingDescription, setLoadingDescription] = useState("잠시 후 캐릭터 결과 페이지로 이동합니다.");
 
   useEffect(() => {
     if (!playlistId) {
@@ -18,20 +21,116 @@ export default function CharacterLoading() {
       return;
     }
 
-    const timer = setTimeout(() => {
-      if (recreate) {
-        navigate(`/character-result?playlistId=${playlistId}&recreate=true`, {
-          replace: true,
-        });
+    const authToken =
+      localStorage.getItem("accessToken") || localStorage.getItem("guestToken") || "";
+    const redirectPath = recreate
+      ? `/character-loading?playlistId=${encodeURIComponent(playlistId)}&recreate=true`
+      : `/character-loading?playlistId=${encodeURIComponent(playlistId)}`;
+
+    let cancelled = false;
+
+    const requestCharacter = async () => {
+      if (!authToken) {
+        localStorage.setItem("postLoginRedirect", redirectPath);
+        alert("로그인이 필요합니다.");
+        navigate("/login", { replace: true });
         return;
       }
 
-      navigate(`/character-result?playlistId=${playlistId}`, {
-        replace: true,
-      });
-    }, 3000);
+      try {
+        setLoadingTitle(
+          recreate
+            ? "새로운 캐릭터 버전을 만들고 있어요"
+            : "플레이리스트의 분위기를 정리하고 있어요"
+        );
+        setLoadingDescription("생성 가능 여부를 확인하고 있습니다.");
 
-    return () => clearTimeout(timer);
+        const authHeaders = {
+          Authorization: `Bearer ${authToken}`,
+        };
+
+        const availabilityResponse = await fetch(
+          `${API_BASE_URL}/playlists/${playlistId}/character/availability`,
+          {
+            headers: authHeaders,
+          }
+        );
+        const availabilityPayload = await parseJson(availabilityResponse);
+
+        if (!availabilityResponse.ok || availabilityPayload?.code !== "SUCCESS") {
+          if (availabilityPayload?.code === "UNAUTHORIZED") {
+            localStorage.setItem("postLoginRedirect", redirectPath);
+            alert("로그인이 필요합니다.");
+            navigate("/login", { replace: true });
+            return;
+          }
+
+          throw new Error(
+            availabilityPayload?.message || "캐릭터 생성 가능 여부를 확인하지 못했습니다."
+          );
+        }
+
+        if (!availabilityPayload?.content?.available) {
+          const requiredCount = availabilityPayload?.content?.requiredCount ?? 10;
+          const currentCount = availabilityPayload?.content?.currentCount ?? 0;
+          alert(
+            `추천 ${requiredCount}곡 이상이 필요합니다. 현재 ${currentCount}/${requiredCount}`
+          );
+          navigate(`/playlist/${playlistId}`, { replace: true });
+          return;
+        }
+
+        if (cancelled) return;
+
+        setLoadingDescription("실제 캐릭터 이미지를 생성하고 있습니다.");
+
+        const createResponse = await fetch(
+          `${API_BASE_URL}/playlists/${playlistId}/character`,
+          {
+            method: "POST",
+            headers: authHeaders,
+          }
+        );
+        const createPayload = await parseJson(createResponse);
+
+        if (!createResponse.ok || createPayload?.code !== "SUCCESS") {
+          if (createPayload?.code === "UNAUTHORIZED") {
+            localStorage.setItem("postLoginRedirect", redirectPath);
+            alert("로그인이 필요합니다.");
+            navigate("/login", { replace: true });
+            return;
+          }
+
+          if (createPayload?.code === "CHARACTER_NOT_AVAILABLE") {
+            const requiredCount = availabilityPayload?.content?.requiredCount ?? 10;
+            const currentCount = availabilityPayload?.content?.currentCount ?? 0;
+            alert(
+              `추천 ${requiredCount}곡 이상이 필요합니다. 현재 ${currentCount}/${requiredCount}`
+            );
+            navigate(`/playlist/${playlistId}`, { replace: true });
+            return;
+          }
+
+          throw new Error(createPayload?.message || "캐릭터 생성에 실패했습니다.");
+        }
+
+        if (cancelled) return;
+
+        navigate(`/character-result?playlistId=${playlistId}`, {
+          replace: true,
+        });
+      } catch (error) {
+        if (cancelled) return;
+        alert(error.message || "캐릭터 생성 중 오류가 발생했습니다.");
+        navigate(`/playlist/${playlistId}`, { replace: true });
+      }
+    };
+
+    void requestCharacter();
+
+    return () => {
+      cancelled = true;
+    };
   }, [playlistId, recreate, navigate]);
 
   return (
@@ -50,8 +149,8 @@ export default function CharacterLoading() {
       <section className="character-content">
         <div className="character-loading-copy">
           <p className="character-loading-eyebrow">{eyebrowText}</p>
-          <h1>플레이리스트의 분위기를 정리하고 있어요</h1>
-          <p>잠시 후 캐릭터 결과 페이지로 이동합니다.</p>
+          <h1>{loadingTitle}</h1>
+          <p>{loadingDescription}</p>
         </div>
 
         <div className="character-loading-indicator" aria-hidden="true">
