@@ -9,6 +9,7 @@ export default function CharacterLoading() {
 
   const playlistId = searchParams.get("playlistId");
   const recreate = searchParams.get("recreate");
+  const eyebrowText = recreate ? "캐릭터 다시 생성 중" : "캐릭터 생성 중";
 
   useEffect(() => {
     if (!playlistId) {
@@ -46,7 +47,18 @@ export default function CharacterLoading() {
       <div className="gradient-blob blob-green" />
       <div className="gradient-blob blob-purple" />
 
-      <section className="character-content"></section>
+      <section className="character-content">
+        <div className="character-loading-copy">
+          <p className="character-loading-eyebrow">{eyebrowText}</p>
+          <h1>플레이리스트의 분위기를 정리하고 있어요</h1>
+          <p>잠시 후 캐릭터 결과 페이지로 이동합니다.</p>
+        </div>
+
+        <div className="character-loading-indicator" aria-hidden="true">
+          <span className="character-loading-track" />
+          <span className="character-loading-thumb" />
+        </div>
+      </section>
     </main>
   );
 }
