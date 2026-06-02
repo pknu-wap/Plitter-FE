@@ -16,11 +16,12 @@ export default function CharacterResult() {
       style={{ background: result.background }}
     >
       <header className="result-header">
-        <img src={plitterLogo} alt="PLITTER" className="character-logo"/>
+        <img src={plitterLogo} alt="PLITTER" className="character-logo" />
       </header>
 
       <section className="result-content">
-        <p className="result-title">{result.name}님의 캐릭터는</p>
+        <p className="result-eyebrow">캐릭터 결과</p>
+        <h1 className="result-title">{result.name}님의 캐릭터는</h1>
 
         <div className="character-image-wrap">
           <img

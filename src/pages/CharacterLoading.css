@@ -1,16 +1,15 @@
-* {
-  box-sizing: border-box;
-}
-
 .character-create-page {
   position: relative;
   width: 100%;
-  max-width: 100%;
+  max-width: var(--app-page-max-width);
   min-height: 100vh;
   margin: 0 auto;
+  padding: var(--app-page-padding-top) var(--app-page-padding-x) var(--app-page-padding-bottom);
   overflow: hidden;
-  background-color: #fff9ef;
-  font-family: Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  background: var(--app-page-bg);
+  font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  display: flex;
+  flex-direction: column;
 }
 
 .character-header {
@@ -18,16 +17,6 @@
   z-index: 10;
   display: flex;
   justify-content: flex-start;
-  padding: 25px 0 0 0;
-}
-
-.character-header h1 {
-  margin: 0;
-  margin-left: 24px;
-  font-size: 24px;
-  font-weight: 900;
-  letter-spacing: -1px;
-  color: #000;
 }
 
 .gradient-blob {
@@ -42,7 +31,7 @@
 .blob-orange {
   width: 245px;
   height: 245px;
-  top: 70px;
+  top: 54px;
   right: -28px;
   background: radial-gradient(circle, #ff5b25 0%, #ffb090 42%, rgba(255, 176, 144, 0) 72%);
   animation: rollOrange 6.2s ease-in-out infinite;
@@ -52,7 +41,7 @@
 .blob-yellow {
   width: 330px;
   height: 330px;
-  top: 205px;
+  top: 180px;
   left: -180px;
   background: radial-gradient(circle, #fff500 0%, #fffb8a 45%, rgba(255, 251, 138, 0) 72%);
   animation: rollYellow 8.4s ease-in-out infinite;
@@ -62,7 +51,7 @@
 .blob-blue {
   width: 400px;
   height: 300px;
-  top: 405px;
+  top: 360px;
   right: -145px;
   background: radial-gradient(circle, #3368ff 0%, #b9a7ff 43%, rgba(185, 167, 255, 0) 75%);
   animation: rollBlue 7.1s ease-in-out infinite;
@@ -72,7 +61,7 @@
 .blob-pink {
   width: 220px;
   height: 220px;
-  top: 690px;
+  top: 590px;
   left: -95px;
   background: radial-gradient(circle, #ff13bf 0%, #ff9ada 45%, rgba(255, 154, 218, 0) 76%);
   animation: rollPink 5.8s ease-in-out infinite;
@@ -82,7 +71,7 @@
 .blob-green {
   width: 190px;
   height: 145px;
-  top: 900px;
+  top: 760px;
   left: 85px;
   background: radial-gradient(circle, #20ff1a 0%, #a2ff98 45%, rgba(162, 255, 152, 0) 75%);
   animation: rollGreen 9.2s ease-in-out infinite;
@@ -92,11 +81,93 @@
 .blob-purple {
   width: 280px;
   height: 260px;
-  bottom: -85px;
+  bottom: -90px;
   right: -85px;
   background: radial-gradient(circle, #9b1cff 0%, #d290ff 48%, rgba(210, 144, 255, 0) 76%);
   animation: rollPurple 7.7s ease-in-out infinite;
   animation-delay: -2.4s;
+}
+
+.character-logo {
+  display: block;
+  width: 107px;
+  height: auto;
+  object-fit: contain;
+}
+
+.character-content {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 0 34px;
+}
+
+.character-loading-copy {
+  width: 100%;
+  max-width: 320px;
+  text-align: center;
+}
+
+.character-loading-eyebrow {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #b59567;
+}
+
+.character-loading-copy h1 {
+  margin: 12px 0 0;
+  font-size: 27px;
+  line-height: 1.4;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  color: #111111;
+  word-break: keep-all;
+}
+
+.character-loading-copy p {
+  margin: 12px 0 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: #8d7354;
+  word-break: keep-all;
+}
+
+.character-loading-indicator {
+  position: relative;
+  width: 120px;
+  height: 12px;
+  margin-top: 56px;
+}
+
+.character-loading-track,
+.character-loading-thumb {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  border-radius: 999px;
+}
+
+.character-loading-track {
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: rgba(192, 173, 140, 0.28);
+}
+
+.character-loading-thumb {
+  left: 0;
+  width: 24px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 2px 8px rgba(77, 53, 28, 0.12);
+  animation: loadingSlide 1.6s ease-in-out infinite;
 }
 
 @keyframes rollOrange {
@@ -234,5 +305,19 @@
   100% {
     transform: translate(0, 0) rotate(360deg) scale(1);
     border-radius: 50%;
+  }
+}
+
+@keyframes loadingSlide {
+  0% {
+    left: 0;
+  }
+
+  50% {
+    left: calc(100% - 24px);
+  }
+
+  100% {
+    left: 0;
   }
 }

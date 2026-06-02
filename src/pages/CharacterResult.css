@@ -1,12 +1,14 @@
 .character-result-page {
   position: relative;
   width: 100%;
-  max-width: 100%;
+  max-width: var(--app-page-max-width);
   min-height: 100vh;
   margin: 0 auto;
-  padding: 50px 24px 38px;
+  padding: var(--app-page-padding-top) var(--app-page-padding-x) var(--app-page-padding-bottom);
   overflow: hidden;
-  font-family: Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  display: flex;
+  flex-direction: column;
 }
 
 .character-result-page::before {
@@ -28,30 +30,48 @@
 }
 
 .character-logo {
-  width: 140px;
+  width: 107px;
   height: auto;
-  margin-left: 24px;
   display: block;
+  object-fit: contain;
 }
 
 .result-content {
   position: relative;
   z-index: 2;
-  margin-top: 70px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0;
+  padding: 36px 0 26px;
   text-align: center;
 }
 
+.result-eyebrow {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(17, 17, 17, 0.56);
+}
+
 .result-title {
-  margin: 134px 0 25px;
-  font-size: 16px;
+  margin: 12px 0 0;
+  font-size: 27px;
+  line-height: 1.4;
   font-weight: 800;
-  color: #000;
+  color: #111111;
+  letter-spacing: -0.05em;
+  word-break: keep-all;
 }
 
 .character-image-wrap {
   width: 240px;
   height: 240px;
-  margin: 0 auto 20px;
+  margin: 34px auto 20px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -65,8 +85,8 @@
 
 .character-name-button {
   min-width: 190px;
-  height: 44px;
-  padding: 0 8px;
+  min-height: 46px;
+  padding: 10px 22px;
   border: 1px solid rgba(255, 255, 255, 0.65);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.1);
@@ -81,7 +101,7 @@
 .tag-list {
   width: fit-content;
   max-width: calc(100% - 48px);
-  margin: 34px auto 0;
+  margin: 24px auto 0;
   padding: 10px 22px;
   display: flex;
   justify-content: center;
@@ -106,19 +126,22 @@
 }
 
 .go-playlist-button {
-  position: absolute;
-  left: 24px;
-  right: 24px;
-  bottom: 40px;
+  position: relative;
+  left: auto;
+  right: auto;
+  bottom: auto;
   z-index: 2;
-  height: 58px;
-  border: 1px solid rgba(255, 255, 255, 0.55);
+  width: 100%;
+  min-height: 56px;
+  margin-top: auto;
+  border: none;
   border-radius: 999px;
-  background: rgba(238, 221, 190, 0.2);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  color: #8c6b49;
-  font-size: 14px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, rgba(246, 237, 219, 0.3) 100%);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  color: #7e6246;
+  font-size: 16px;
   font-weight: 800;
   cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
 }
