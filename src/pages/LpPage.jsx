@@ -1,16 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import plitterLogo from "../assets/Plitter.png";
 import vinylImage from "../assets/lp-vinyl.png";
-import playIcon from "../assets/Polygon 1.png";
-import playCircle from "../assets/Ellipse 12.png";
-import commentPopup from "../assets/Rectangle 236.png";
-import commentBox from "../assets/Rectangle 237.png";
-import playBar from "../assets/Group 3.png";
 import { API_BASE_URL, parseJson } from "../lib/api";
 import "./LpPage.css";
-
-// pr 보내기용 주석(삭제 예정)
 
 
 function normalizeTrack(track) {
@@ -50,27 +43,14 @@ function normalizeComments(comments) {
   return comments.map(normalizeComment).filter(Boolean);
 }
 
-function formatTime(seconds) {
-  if (!Number.isFinite(seconds) || seconds < 0) {
-    return "0:00";
-  }
-
-  const minute = Math.floor(seconds / 60);
-  const second = Math.floor(seconds % 60)
-    .toString()
-    .padStart(2, "0");
-  return `${minute}:${second}`;
-}
-
-
 export default function LpPage() {
   const location = useLocation();
   const navigate = useNavigate();
+  const playerPanelRef = useRef(null);
 
   const initialTrack = normalizeTrack(location.state?.track);
 
   const [displayTrack, setDisplayTrack] = useState(initialTrack);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [embedUrl, setEmbedUrl] = useState("");
   const [isPlayerVisible, setIsPlayerVisible] = useState(false);
   const [isPlayerLoading, setIsPlayerLoading] = useState(false);
@@ -162,14 +142,23 @@ export default function LpPage() {
     return undefined;
   }, [fetchComments, recommendationId]);
 
-  const handleTogglePlay = async () => {
-    console.log("[LpPage] play button clicked", {
-      spotifyId: displayTrack?.spotifyId,
-      hasAccessToken: Boolean(accessToken),
-      hasGuestToken: Boolean(guestToken),
-      hasEmbedUrl: Boolean(embedUrl),
-      isPlayerVisible,
+  const scrollToPlayerPanel = useCallback(() => {
+    requestAnimationFrame(() => {
+      playerPanelRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
     });
+  }, []);
+
+  const handleLoadPlayer = async () => {
+    if (embedUrl) {
+      if (!isPlayerVisible) {
+        setIsPlayerVisible(true);
+      }
+      scrollToPlayerPanel();
+      return;
+    }
 
     if (!displayTrack?.spotifyId) {
       alert("재생할 곡 정보가 없습니다.");
@@ -183,18 +172,10 @@ export default function LpPage() {
       return;
     }
 
-    // Spotify iframe은 유지, 버튼 상태만 바꿈
-    if (isPlayerVisible && embedUrl) {
-      setIsPlaying((prev) => !prev);
-      return;
-    }
-
     setIsPlayerLoading(true);
 
     try {
       const playUrl = `${API_BASE_URL}/tracks/${displayTrack.spotifyId}/play`;
-      console.log("[LpPage] play api request", playUrl);
-
       const response = await fetch(playUrl, {
         method: "GET",
         headers: {
@@ -204,12 +185,6 @@ export default function LpPage() {
       });
 
       const payload = await parseJson(response);
-      console.log("[LpPage] play api response", {
-        ok: response.ok,
-        status: response.status,
-        payload,
-      });
-
       const nextEmbedUrl = payload?.response?.embedUrl || payload?.content?.embedUrl;
 
       if (!response.ok || !nextEmbedUrl) {
@@ -224,9 +199,9 @@ export default function LpPage() {
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           setIsPlayerVisible(true);
+          scrollToPlayerPanel();
         });
       });
-      setIsPlaying(true);
     } catch {
       alert("플레이어 요청 중 네트워크 오류가 발생했습니다.");
     } finally {
@@ -376,17 +351,14 @@ export default function LpPage() {
   const notes = comments.slice(0, 5);
   const hasNotes = notes.length > 0;
   const canToggleComments = hasNotes;
-  const previewDuration = 30;
-  const previewCurrentTime = isPlayerVisible ? previewDuration : 0;
-
   if (!displayTrack) {
-      return (
-        <main className="lp-page">
-          <header className="lp-header">
-            <button type="button" className="brand-home-button" onClick={() => navigate("/")}>
-              <img src={plitterLogo} alt="PLITTER" className="header-logo-image" />
-            </button>
-          </header>
+    return (
+      <main className="lp-page">
+        <header className="lp-header">
+          <button type="button" className="brand-home-button" onClick={() => navigate("/")}>
+            <img src={plitterLogo} alt="PLITTER" className="header-logo-image" />
+          </button>
+        </header>
         <section className="lp-empty">
           <p>선택된 곡이 없습니다.</p>
           <button type="button" onClick={() => navigate("/search")}>검색 페이지로 이동</button>
@@ -406,6 +378,7 @@ export default function LpPage() {
       {/* 스포티파이 embed 플레이어 */}
       {embedUrl ? (
         <section
+          ref={playerPanelRef}
           className={`spotify-player-panel ${isPlayerVisible ? "visible" : ""}`}
           aria-label="Spotify preview player"
         >
@@ -440,43 +413,35 @@ export default function LpPage() {
             ))}
           </div>
         ) : null}
-      </section>
 
-      {canToggleComments ? (
-        <button
-          type="button"
-          className="comment-pill"
-          onClick={() => setShowComments((prev) => !prev)}
-          aria-label={showComments ? "코멘트 숨기기" : "코멘트 보이기"}
-        >
-          {showComments ? "코멘트" : ""}
-        </button>
-      ) : null}
+        {canToggleComments ? (
+          <button
+            type="button"
+            className="comment-pill"
+            onClick={() => setShowComments((prev) => !prev)}
+            aria-label={showComments ? "코멘트 숨기기" : "코멘트 보이기"}
+          >
+            {showComments ? "코멘트" : ""}
+          </button>
+        ) : null}
+      </section>
 
       <section className="lp-track-preview">
         <h2>{displayTrack.title}</h2>
         <p>{displayTrack.artistName}</p>
       </section>
 
-      <section className="player-bar-container">
-        <img className="progress-bar-image" src={playBar} alt="재생 진행바" />
-
-        <div className="time-info">
-          <span>{formatTime(previewCurrentTime)}</span>
-          <span>{formatTime(previewDuration)}</span>
-        </div>
-
-        <button type="button" className="play-btn" onClick={handleTogglePlay} disabled={isPlayerLoading}>
-          <img src={playCircle} alt="" className="play-btn-circle" aria-hidden="true" />
-          {isPlayerLoading ? (
-            <span className="play-btn-state">…</span>
-          ) : isPlaying ? (
-            <span className="play-btn-state">❚❚</span>
-          ) : (
-            <img src={playIcon} alt="재생" className="play-btn-icon" />
-          )}
-        </button>
-
+      <section className="lp-action-group">
+        {!embedUrl ? (
+          <button
+            type="button"
+            className="load-player-btn"
+            onClick={handleLoadPlayer}
+            disabled={isPlayerLoading}
+          >
+            {isPlayerLoading ? "노래 플레이어 불러오는 중..." : "노래 플레이어 불러오기"}
+          </button>
+        ) : null}
         {isRecommended || hasNotes || recommendationId ? (
           <button type="button" className="view-comments-btn" onClick={handleGoToComments}>
             {isCommentsLoading ? "코멘트 불러오는 중..." : `이 곡의 코멘트 ${commentCount}개 보기 →`}
