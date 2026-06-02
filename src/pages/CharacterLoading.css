@@ -1,0 +1,238 @@
+* {
+  box-sizing: border-box;
+}
+
+.character-create-page {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  margin: 0 auto;
+  overflow: hidden;
+  background-color: #fff9ef;
+  font-family: Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+
+.character-header {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-start;
+  padding: 25px 0 0 0;
+}
+
+.character-header h1 {
+  margin: 0;
+  margin-left: 24px;
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: -1px;
+  color: #000;
+}
+
+.gradient-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(32px);
+  opacity: 0.9;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.blob-orange {
+  width: 245px;
+  height: 245px;
+  top: 70px;
+  right: -28px;
+  background: radial-gradient(circle, #ff5b25 0%, #ffb090 42%, rgba(255, 176, 144, 0) 72%);
+  animation: rollOrange 6.2s ease-in-out infinite;
+  animation-delay: -1.8s;
+}
+
+.blob-yellow {
+  width: 330px;
+  height: 330px;
+  top: 205px;
+  left: -180px;
+  background: radial-gradient(circle, #fff500 0%, #fffb8a 45%, rgba(255, 251, 138, 0) 72%);
+  animation: rollYellow 8.4s ease-in-out infinite;
+  animation-delay: -4.6s;
+}
+
+.blob-blue {
+  width: 400px;
+  height: 300px;
+  top: 405px;
+  right: -145px;
+  background: radial-gradient(circle, #3368ff 0%, #b9a7ff 43%, rgba(185, 167, 255, 0) 75%);
+  animation: rollBlue 7.1s ease-in-out infinite;
+  animation-delay: -2.9s;
+}
+
+.blob-pink {
+  width: 220px;
+  height: 220px;
+  top: 690px;
+  left: -95px;
+  background: radial-gradient(circle, #ff13bf 0%, #ff9ada 45%, rgba(255, 154, 218, 0) 76%);
+  animation: rollPink 5.8s ease-in-out infinite;
+  animation-delay: -3.7s;
+}
+
+.blob-green {
+  width: 190px;
+  height: 145px;
+  top: 900px;
+  left: 85px;
+  background: radial-gradient(circle, #20ff1a 0%, #a2ff98 45%, rgba(162, 255, 152, 0) 75%);
+  animation: rollGreen 9.2s ease-in-out infinite;
+  animation-delay: -5.1s;
+}
+
+.blob-purple {
+  width: 280px;
+  height: 260px;
+  bottom: -85px;
+  right: -85px;
+  background: radial-gradient(circle, #9b1cff 0%, #d290ff 48%, rgba(210, 144, 255, 0) 76%);
+  animation: rollPurple 7.7s ease-in-out infinite;
+  animation-delay: -2.4s;
+}
+
+@keyframes rollOrange {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    border-radius: 50%;
+  }
+  25% {
+    transform: translate(-180px, 95px) rotate(80deg) scale(1.08);
+    border-radius: 45% 55% 60% 40%;
+  }
+  50% {
+    transform: translate(-80px, 260px) rotate(160deg) scale(0.96);
+    border-radius: 60% 40% 45% 55%;
+  }
+  75% {
+    transform: translate(-220px, 390px) rotate(250deg) scale(1.12);
+    border-radius: 42% 58% 48% 52%;
+  }
+  100% {
+    transform: translate(0, 0) rotate(360deg) scale(1);
+    border-radius: 50%;
+  }
+}
+
+@keyframes rollYellow {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    border-radius: 50%;
+  }
+  25% {
+    transform: translate(210px, -90px) rotate(-70deg) scale(1.05);
+    border-radius: 55% 45% 50% 50%;
+  }
+  50% {
+    transform: translate(330px, 120px) rotate(-150deg) scale(0.98);
+    border-radius: 48% 52% 60% 40%;
+  }
+  75% {
+    transform: translate(130px, 260px) rotate(-240deg) scale(1.1);
+    border-radius: 62% 38% 45% 55%;
+  }
+  100% {
+    transform: translate(0, 0) rotate(-360deg) scale(1);
+    border-radius: 50%;
+  }
+}
+
+@keyframes rollBlue {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    border-radius: 50%;
+  }
+  25% {
+    transform: translate(-260px, -130px) rotate(70deg) scale(1.06);
+    border-radius: 45% 55% 50% 50%;
+  }
+  50% {
+    transform: translate(-120px, 140px) rotate(170deg) scale(1.12);
+    border-radius: 55% 45% 62% 38%;
+  }
+  75% {
+    transform: translate(-310px, 310px) rotate(260deg) scale(0.98);
+    border-radius: 40% 60% 48% 52%;
+  }
+  100% {
+    transform: translate(0, 0) rotate(360deg) scale(1);
+    border-radius: 50%;
+  }
+}
+
+@keyframes rollPink {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    border-radius: 50%;
+  }
+  25% {
+    transform: translate(170px, -170px) rotate(-90deg) scale(1.1);
+    border-radius: 58% 42% 48% 52%;
+  }
+  50% {
+    transform: translate(320px, -40px) rotate(-180deg) scale(0.95);
+    border-radius: 45% 55% 65% 35%;
+  }
+  75% {
+    transform: translate(190px, 130px) rotate(-270deg) scale(1.08);
+    border-radius: 62% 38% 42% 58%;
+  }
+  100% {
+    transform: translate(0, 0) rotate(-360deg) scale(1);
+    border-radius: 50%;
+  }
+}
+
+@keyframes rollGreen {
+  0% {
+    transform: translate(0, 0) rotate(-32deg) scale(1);
+    border-radius: 50%;
+  }
+  25% {
+    transform: translate(170px, -160px) rotate(40deg) scale(1.12);
+    border-radius: 45% 55% 55% 45%;
+  }
+  50% {
+    transform: translate(-40px, -260px) rotate(120deg) scale(0.96);
+    border-radius: 60% 40% 45% 55%;
+  }
+  75% {
+    transform: translate(220px, -360px) rotate(210deg) scale(1.08);
+    border-radius: 42% 58% 62% 38%;
+  }
+  100% {
+    transform: translate(0, 0) rotate(328deg) scale(1);
+    border-radius: 50%;
+  }
+}
+
+@keyframes rollPurple {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    border-radius: 50%;
+  }
+  25% {
+    transform: translate(-230px, -160px) rotate(90deg) scale(1.08);
+    border-radius: 52% 48% 42% 58%;
+  }
+  50% {
+    transform: translate(-80px, -330px) rotate(180deg) scale(1.14);
+    border-radius: 45% 55% 60% 40%;
+  }
+  75% {
+    transform: translate(-280px, -520px) rotate(270deg) scale(0.98);
+    border-radius: 62% 38% 48% 52%;
+  }
+  100% {
+    transform: translate(0, 0) rotate(360deg) scale(1);
+    border-radius: 50%;
+  }
+}
