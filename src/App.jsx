@@ -167,7 +167,7 @@ function App() {
       <AuthTokenHandler />
 
       <Routes>
-        <Route path="/" element={<LandingPage />} />
+        <Route path="/" element={<RealMain />} />
         <Route path="/login" element={<Login />} />
         <Route path="/guest" element={<div>after guest login</div>} />
         <Route path="/auth/callback" element={<AuthCallback />} />
