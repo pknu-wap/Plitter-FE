@@ -10,6 +10,9 @@ import playBar from "../assets/Group 3.png";
 import { API_BASE_URL, parseJson } from "../lib/api";
 import "./LpPage.css";
 
+// pr 보내기용 주석(삭제 예정)
+
+
 function normalizeTrack(track) {
   if (!track) return null;
 
