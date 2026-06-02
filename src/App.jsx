@@ -180,7 +180,9 @@ function App() {
         <Route path="/lp" element={<LpPage />} />
         <Route path="/comments" element={<CommentList />} />
         <Route path="/loading" element={<CharacterLoading />} />
+        <Route path="/character-loading" element={<CharacterLoading />} />
         <Route path="/result" element={<CharacterResult />} />
+        <Route path="/character-result" element={<CharacterResult />} />
       </Routes>
     </BrowserRouter>
   );
