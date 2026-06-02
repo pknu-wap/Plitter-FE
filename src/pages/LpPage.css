@@ -71,8 +71,8 @@
 }
 
 .spotify-player-panel.visible {
-  max-height: 150px;
-  margin: 0 0 18px;
+  max-height: 190px;
+  margin: 4px 0 28px;
   opacity: 1;
   pointer-events: auto;
   transform: translateY(0);
@@ -127,25 +127,26 @@
 
 .lp-stage {
   position: relative;
-  height: 500px;
-  margin-right: calc(-1 * var(--app-page-padding-x));
-  margin-left: calc(-1 * var(--app-page-padding-x));
+  width: 100%;
+  min-height: 500px;
+  margin: 22px auto 0;
+  display: flex;
+  justify-content: center;
 }
 
 .lp-record-view {
   position: relative;
-  width: 487px;
-  max-width: 100%;
-  height: 100%;
+  width: min(100%, 372px);
+  height: 430px;
   margin: 0 auto;
 }
 
 .lp-vinyl {
   position: absolute;
-  width: 432px;
-  height: 351px;
-  top: 103px;
-  left: 55px;
+  width: 264px;
+  height: 264px;
+  top: 108px;
+  right: 18px;
   object-fit: contain;
   filter: drop-shadow(6px 6px 7.5px rgba(0, 0, 0, 0.25));
   animation: lp-spin 3.6s linear infinite;
@@ -153,10 +154,10 @@
 
 .lp-album-cover {
   position: absolute;
-  width: 295px;
-  height: 294px;
-  left: 0;
-  top: 131px;
+  width: 248px;
+  height: 248px;
+  left: 30px;
+  top: 96px;
   object-fit: cover;
   border-radius: 2px;
   box-shadow: 6px 6px 7.5px rgba(0, 0, 0, 0.25);
@@ -177,9 +178,8 @@
   position: absolute;
   top: 0;
   left: 50%;
-  width: 487px;
-  max-width: 100%;
-  height: 100%;
+  width: min(100%, 372px);
+  height: 430px;
   pointer-events: none;
   transform: translateX(-50%);
   z-index: 5;
@@ -206,43 +206,43 @@
 }
 
 .post-it-1 {
-  top: 167px;
-  left: 24px;
+  top: 112px;
+  left: 48px;
   transform: rotate(13.55deg);
   background: rgba(255, 244, 212, 1);
 }
 
 .post-it-2 {
-  top: 123px;
-  left: 238px;
+  top: 82px;
+  right: 32px;
   transform: rotate(-19.8deg);
   background: rgba(255, 201, 201, 1);
 }
 
 .post-it-3 {
-  top: 285px;
-  left: 203px;
+  top: 214px;
+  right: 56px;
   transform: rotate(4.37deg);
   background: rgba(225, 255, 166, 1);
 }
 
 .post-it-4 {
-  top: 422px;
-  left: 37px;
+  top: 312px;
+  left: 44px;
   transform: rotate(4.37deg);
   background: rgba(211, 245, 255, 1);
 }
 
 .post-it-5 {
-  top: 422px;
-  left: 250px;
+  top: 322px;
+  right: 26px;
   transform: rotate(-19.8deg);
   background: rgba(255, 244, 185, 1);
 }
 
 .comment-pill {
   position: absolute;
-  top: 502px;
+  bottom: 0;
   left: 50%;
   transform: translateX(-50%);
   margin: 0;
@@ -272,7 +272,7 @@
 }
 
 .lp-track-preview {
-  margin-top: 0;
+  margin-top: 18px;
   text-align: center;
 }
 
@@ -310,93 +310,44 @@
   white-space: nowrap;
 }
 
-.player-bar-container {
-  margin-top: 6px;
+.lp-action-group {
+  margin-top: 34px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 16px;
 }
 
-.progress-bar-image {
-  display: block;
-  width: 286px;
-  height: 9px;
-  object-fit: contain;
-  box-shadow: 1px 1px 0.4px 27px rgba(0, 0, 0, 0.25);
-}
-
-.time-info {
-  width: 286px;
-  margin-top: -1px;
-  display: flex;
-  justify-content: space-between;
-  color: rgba(0, 0, 0, 1);
+.load-player-btn {
+  width: 345px;
+  max-width: 100%;
+  min-height: 53px;
+  border: 1px solid rgba(188, 165, 124, 0.45);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 22% 18%, rgba(255, 255, 255, 0.56) 0%, rgba(255, 255, 255, 0.14) 32%, rgba(255, 255, 255, 0) 60%),
+    rgba(255, 250, 242, 0.92);
+  color: rgba(116, 73, 41, 1);
   font-family: "Inter", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
-  font-size: 10px;
-  font-weight: 400;
-  font-variation-settings: "wght" 400;
-  font-style: normal;
+  font-size: 16px;
+  font-weight: 700;
   line-height: 22px;
   letter-spacing: -0.41px;
-}
-
-.time-info span:first-child {
-  width: 19px;
-  height: 22px;
-}
-
-.time-info span:last-child {
-  width: 21px;
-  height: 22px;
-  text-align: right;
-}
-
-.play-btn {
-  margin-top: 12px;
-  width: 36px;
-  height: 36px;
-  border-radius: 0;
-  border: none;
-  background: transparent;
-  color: #111111;
-  font-size: 19px;
   cursor: pointer;
-  display: grid;
-  place-items: center;
-  box-shadow: none;
-  padding: 0;
-  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    0 10px 22px rgba(116, 73, 41, 0.08);
 }
 
-.play-btn-circle {
-  position: absolute;
-  inset: 0;
-  width: 36px;
-  height: 36px;
-  display: block;
-  object-fit: contain;
-  pointer-events: none;
-}
-
-.play-btn-icon {
-  position: relative;
-  z-index: 1;
-  width: 15px;
-  height: 15px;
-  display: block;
-  object-fit: contain;
-  border-radius: 2px;
-  margin-left: 1px;
-}
-
-.play-btn-state {
-  position: relative;
-  z-index: 1;
-  line-height: 1;
+.load-player-btn:disabled {
+  cursor: default;
+  opacity: 0.72;
 }
 
 .view-comments-btn {
-  margin-top: 22px;
   width: 345px;
   max-width: 100%;
   border: none;
