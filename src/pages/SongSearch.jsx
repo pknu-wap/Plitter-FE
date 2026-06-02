@@ -163,7 +163,6 @@ export default function SongSearch() {
                 <div className="track-info">
                   <h3>{track.title}</h3>
                   <p>{track.artistName}</p>
-                  <span>앨범 {track.albumName || track.album || "-"}</span>
                 </div>
               </button>
             </li>

@@ -1,9 +1,17 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import plitterLogo from "../assets/Plitter.png";
 import vinylImage from "../assets/lp-vinyl.png";
+import playIcon from "../assets/Polygon 1.png";
+import playCircle from "../assets/Ellipse 12.png";
+import commentPopup from "../assets/Rectangle 236.png";
+import commentBox from "../assets/Rectangle 237.png";
+import playBar from "../assets/Group 3.png";
 import { API_BASE_URL, parseJson } from "../lib/api";
 import "./LpPage.css";
+
+// pr 보내기용 주석(삭제 예정)
+
 
 function normalizeTrack(track) {
   if (!track) return null;
@@ -15,9 +23,31 @@ function normalizeTrack(track) {
     artistName: track.artistName || track.artist || "아티스트 정보 없음",
     albumCoverImageUrl: track.albumCoverImageUrl || track.albumImage || "",
     previewUrl: track.previewUrl || "",
-    albumName: track.albumName || track.album || "",
     commentCount: track.commentCount ?? 0,
   };
+}
+
+function normalizeComment(comment) {
+  if (!comment) return null;
+
+  if (typeof comment === "string") {
+    return { recommenderName: "익명", comment };
+  }
+
+  const commentText = comment.comment || comment.content || comment.text || "";
+
+  if (!commentText) return null;
+
+  return {
+    recommenderName: comment.recommenderName || comment.nickname || comment.name || "익명",
+    comment: commentText,
+  };
+}
+
+function normalizeComments(comments) {
+  if (!Array.isArray(comments)) return [];
+
+  return comments.map(normalizeComment).filter(Boolean);
 }
 
 function formatTime(seconds) {
@@ -36,14 +66,14 @@ function formatTime(seconds) {
 export default function LpPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const audioRef = useRef(null);
 
   const initialTrack = normalizeTrack(location.state?.track);
 
   const [displayTrack, setDisplayTrack] = useState(initialTrack);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [duration, setDuration] = useState(30);
-  const [currentTime, setCurrentTime] = useState(0);
+  const [embedUrl, setEmbedUrl] = useState("");
+  const [isPlayerVisible, setIsPlayerVisible] = useState(false);
+  const [isPlayerLoading, setIsPlayerLoading] = useState(false);
 
   const [isCommentPopupOpen, setIsCommentPopupOpen] = useState(Boolean(location.state?.openRecommendSheet));
   const [commentText, setCommentText] = useState(location.state?.commentText || "");
@@ -52,8 +82,10 @@ export default function LpPage() {
 
   const [isRecommended, setIsRecommended] = useState(Boolean(location.state?.isRecommended));
   const [showComments, setShowComments] = useState(true);
-  const [comments, setComments] = useState(Array.isArray(location.state?.localComments) ? location.state.localComments : []);
-  const [commentCount, setCommentCount] = useState(location.state?.commentCount ?? initialTrack?.commentCount ?? comments.length ?? 0);
+  const [comments, setComments] = useState(() => normalizeComments(location.state?.localComments));
+  const [commentCount, setCommentCount] = useState(
+    () => location.state?.commentCount ?? initialTrack?.commentCount ?? normalizeComments(location.state?.localComments).length,
+  );
 
   const [recommendationId, setRecommendationId] = useState(location.state?.recommendationId ?? initialTrack?.recommendationId ?? null);
   const [isCommentsLoading, setIsCommentsLoading] = useState(false);
@@ -69,46 +101,6 @@ export default function LpPage() {
     const params = new URLSearchParams(location.search);
     return location.state?.playlistId || params.get("playlistId");
   }, [location.search, location.state?.playlistId]);
-
-  useEffect(() => {
-    if (!displayTrack?.previewUrl) {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-      return;
-    }
-
-    const audio = new Audio(displayTrack.previewUrl);
-
-    const handleLoadedMetadata = () => {
-      if (Number.isFinite(audio.duration) && audio.duration > 0) {
-        setDuration(audio.duration);
-      }
-    };
-
-    const handleTimeUpdate = () => {
-      setCurrentTime(audio.currentTime || 0);
-    };
-
-    const handleEnded = () => {
-      setIsPlaying(false);
-      setCurrentTime(0);
-    };
-
-    audio.addEventListener("loadedmetadata", handleLoadedMetadata);
-    audio.addEventListener("timeupdate", handleTimeUpdate);
-    audio.addEventListener("ended", handleEnded);
-    audioRef.current = audio;
-
-    return () => {
-      audio.pause();
-      audio.currentTime = 0;
-      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
-      audio.removeEventListener("timeupdate", handleTimeUpdate);
-      audio.removeEventListener("ended", handleEnded);
-    };
-  }, [displayTrack?.previewUrl]);
 
   const fetchComments = useCallback(async (id) => {
     if (!id) return;
@@ -133,7 +125,7 @@ export default function LpPage() {
       }
 
       const content = payload?.content;
-      const fetchedComments = Array.isArray(content?.comments) ? content.comments : [];
+      const fetchedComments = normalizeComments(content?.comments);
 
       setComments(fetchedComments);
       setCommentCount(fetchedComments.length);
@@ -171,22 +163,74 @@ export default function LpPage() {
   }, [fetchComments, recommendationId]);
 
   const handleTogglePlay = async () => {
-    if (!audioRef.current) {
-      alert("이 곡은 미리듣기를 지원하지 않습니다.");
+    console.log("[LpPage] play button clicked", {
+      spotifyId: displayTrack?.spotifyId,
+      hasAccessToken: Boolean(accessToken),
+      hasGuestToken: Boolean(guestToken),
+      hasEmbedUrl: Boolean(embedUrl),
+      isPlayerVisible,
+    });
+
+    if (!displayTrack?.spotifyId) {
+      alert("재생할 곡 정보가 없습니다.");
       return;
     }
 
-    if (isPlaying) {
-      audioRef.current.pause();
-      setIsPlaying(false);
+    const authToken = accessToken || guestToken;
+
+    if (!authToken) {
+      alert("로그인 또는 게스트 입장 후 미리듣기를 사용할 수 있습니다.");
       return;
     }
+
+    // Spotify iframe은 유지, 버튼 상태만 바꿈
+    if (isPlayerVisible && embedUrl) {
+      setIsPlaying((prev) => !prev);
+      return;
+    }
+
+    setIsPlayerLoading(true);
 
     try {
-      await audioRef.current.play();
+      const playUrl = `${API_BASE_URL}/tracks/${displayTrack.spotifyId}/play`;
+      console.log("[LpPage] play api request", playUrl);
+
+      const response = await fetch(playUrl, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const payload = await parseJson(response);
+      console.log("[LpPage] play api response", {
+        ok: response.ok,
+        status: response.status,
+        payload,
+      });
+
+      const nextEmbedUrl = payload?.response?.embedUrl || payload?.content?.embedUrl;
+
+      if (!response.ok || !nextEmbedUrl) {
+        alert(payload?.message || "플레이어를 불러오지 못했습니다.");
+        return;
+      }
+
+      setIsPlayerVisible(false);
+      setEmbedUrl(nextEmbedUrl);
+
+      // iframe이 먼저 렌더링된 뒤 visible 클래스를 붙여야 내려오는 애니메이션이 보인다.
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setIsPlayerVisible(true);
+        });
+      });
       setIsPlaying(true);
     } catch {
-      alert("재생에 실패했습니다.");
+      alert("플레이어 요청 중 네트워크 오류가 발생했습니다.");
+    } finally {
+      setIsPlayerLoading(false);
     }
   };
 
@@ -269,7 +313,6 @@ export default function LpPage() {
               artistName: displayTrack.artistName,
               albumCoverImageUrl: displayTrack.albumCoverImageUrl,
               previewUrl: displayTrack.previewUrl || "",
-              albumName: displayTrack.albumName || "",
             },
             ...trackHistory,
           ];
@@ -330,10 +373,11 @@ export default function LpPage() {
     });
   };
 
-  const notes = comments.slice(0, 4);
+  const notes = comments.slice(0, 5);
   const hasNotes = notes.length > 0;
-  const canToggleComments = hasNotes || isRecommended;
-  const progressRatio = duration > 0 ? Math.min(currentTime / duration, 1) : 0;
+  const canToggleComments = hasNotes;
+  const previewDuration = 30;
+  const previewCurrentTime = isPlayerVisible ? previewDuration : 0;
 
   if (!displayTrack) {
       return (
@@ -358,6 +402,28 @@ export default function LpPage() {
           <img src={plitterLogo} alt="PLITTER" className="header-logo-image" />
         </button>
       </header>
+      
+      {/* 스포티파이 embed 플레이어 */}
+      {embedUrl ? (
+        <section
+          className={`spotify-player-panel ${isPlayerVisible ? "visible" : ""}`}
+          aria-label="Spotify preview player"
+        >
+          <div className="airpods-player-shell">
+            <span className="airpods-lid-line" aria-hidden="true" />
+            <span className="airpods-led" aria-hidden="true" />
+            <iframe
+              src={embedUrl}
+              width="100%"
+              height="80"
+              frameBorder="0"
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+              loading="lazy"
+              title={`${displayTrack.title} Spotify player`}
+            />
+          </div>
+        </section>
+      ) : null}
 
       <section className="lp-stage">
         <div className="lp-record-view">
@@ -377,12 +443,15 @@ export default function LpPage() {
       </section>
 
       {canToggleComments ? (
-        <button type="button" className="comment-pill" onClick={() => setShowComments((prev) => !prev)}>
-          코멘트
+        <button
+          type="button"
+          className="comment-pill"
+          onClick={() => setShowComments((prev) => !prev)}
+          aria-label={showComments ? "코멘트 숨기기" : "코멘트 보이기"}
+        >
+          {showComments ? "코멘트" : ""}
         </button>
-      ) : (
-        <span className="comment-pill comment-pill-static">코멘트</span>
-      )}
+      ) : null}
 
       <section className="lp-track-preview">
         <h2>{displayTrack.title}</h2>
@@ -390,18 +459,22 @@ export default function LpPage() {
       </section>
 
       <section className="player-bar-container">
-        <div className="progress-bar-bg" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progressRatio * 100)}>
-          <div className="progress-bar-fill" style={{ width: `${progressRatio * 100}%` }} />
-          <span className="progress-thumb" style={{ left: `${progressRatio * 100}%` }} />
-        </div>
+        <img className="progress-bar-image" src={playBar} alt="재생 진행바" />
 
         <div className="time-info">
-          <span>{formatTime(currentTime)}</span>
-          <span>{formatTime(duration)}</span>
+          <span>{formatTime(previewCurrentTime)}</span>
+          <span>{formatTime(previewDuration)}</span>
         </div>
 
-        <button type="button" className="play-btn" onClick={handleTogglePlay}>
-          {isPlaying ? "❚❚" : "▶"}
+        <button type="button" className="play-btn" onClick={handleTogglePlay} disabled={isPlayerLoading}>
+          <img src={playCircle} alt="" className="play-btn-circle" aria-hidden="true" />
+          {isPlayerLoading ? (
+            <span className="play-btn-state">…</span>
+          ) : isPlaying ? (
+            <span className="play-btn-state">❚❚</span>
+          ) : (
+            <img src={playIcon} alt="재생" className="play-btn-icon" />
+          )}
         </button>
 
         {isRecommended || hasNotes || recommendationId ? (
@@ -425,7 +498,6 @@ export default function LpPage() {
               <div className="sheet-track-text">
                 <h3>{displayTrack.title}</h3>
                 <p>{displayTrack.artistName}</p>
-                <span>앨범 {displayTrack.albumName || "-"}</span>
               </div>
             </div>
 
@@ -442,7 +514,9 @@ export default function LpPage() {
             <div className="anonymous-row">
               <div>
                 <strong>익명 여부</strong>
-                <p>익명을 선택하면 랜덤 닉네임으로 추천됩니다.</p>
+                <p>익명을 선택하면 랜덤 닉네임으로,<br />
+                  선택하지 않으면 카카오톡 이름으로 추천됩니다.
+                </p>
               </div>
               <button
                 type="button"

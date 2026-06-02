@@ -13,7 +13,6 @@ function normalizeTrack(track) {
     title: track.title || "제목 없음",
     artistName: track.artistName || track.artist || "아티스트 정보 없음",
     albumCoverImageUrl: track.albumCoverImageUrl || track.albumImage || "",
-    albumName: track.albumName || track.album || "",
     previewUrl: track.previewUrl || "",
     commentCount: track.commentCount ?? 0,
   };
@@ -25,6 +24,29 @@ function avatarColor(name) {
   return palette[seed % palette.length];
 }
 
+function normalizeComment(comment) {
+  if (!comment) return null;
+
+  if (typeof comment === "string") {
+    return { recommenderName: "익명", comment };
+  }
+
+  const commentText = comment.comment || comment.content || comment.text || "";
+
+  if (!commentText) return null;
+
+  return {
+    recommenderName: comment.recommenderName || comment.nickname || comment.name || "익명",
+    comment: commentText,
+  };
+}
+
+function normalizeComments(comments) {
+  if (!Array.isArray(comments)) return [];
+
+  return comments.map(normalizeComment).filter(Boolean);
+}
+
 
 export default function CommentList() {
   const location = useLocation();
@@ -32,12 +54,11 @@ export default function CommentList() {
   const accessToken = localStorage.getItem("accessToken") || "";
 
   const [track, setTrack] = useState(normalizeTrack(location.state?.track));
-  const [comments, setComments] = useState(Array.isArray(location.state?.localComments) ? location.state.localComments : []);
+  const [comments, setComments] = useState(() => normalizeComments(location.state?.localComments));
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
   const recommendationId = location.state?.recommendationId ?? track?.recommendationId ?? null;
-  const playlistId = location.state?.playlistId || "1";
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -65,7 +86,7 @@ export default function CommentList() {
         }
 
         const content = payload?.content;
-        const fetchedComments = Array.isArray(content?.comments) ? content.comments : [];
+        const fetchedComments = normalizeComments(content?.comments);
 
         setComments(fetchedComments);
 
@@ -106,20 +127,6 @@ export default function CommentList() {
     );
   }
 
-  const handleWriteComment = () => {
-    navigate("/lp", {
-      state: {
-        track,
-        recommendationId,
-        playlistId,
-        isRecommended: true,
-        openRecommendSheet: true,
-        localComments: comments,
-        commentCount: comments.length,
-      },
-    });
-  };
-
   return (
     <main className="comments-page">
       <header className="comments-header">
@@ -134,10 +141,6 @@ export default function CommentList() {
         <div className="card-details">
           <h2 className="card-title">{track?.title}</h2>
           <p className="card-artist">{track?.artistName}</p>
-          <p className="card-album">앨범 {track?.albumName || "-"}</p>
-          <button type="button" className="write-comment-btn" onClick={handleWriteComment}>
-            코멘트 작성하기 →
-          </button>
         </div>
       </section>
 
@@ -153,6 +156,7 @@ export default function CommentList() {
           {comments.map((comment, index) => {
             const name = comment.recommenderName || "익명";
             const initial = name[0] || "익";
+            const commentText = comment.comment || "";
 
             return (
               <li key={`${name}-${index}`} className="comment-item">
@@ -162,7 +166,7 @@ export default function CommentList() {
                   </span>
                   <strong className="comment-author">{name}</strong>
                 </div>
-                <p className="comment-text">{comment.comment}</p>
+                <p className="comment-text">{commentText}</p>
               </li>
             );
           })}

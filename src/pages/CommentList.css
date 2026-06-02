@@ -75,25 +75,6 @@
   color: #333333;
 }
 
-.card-album {
-  margin-top: 4px;
-  font-size: 11px;
-  color: #5f56ff;
-}
-
-.write-comment-btn {
-  width: 100%;
-  margin-top: auto;
-  height: 34px;
-  border: none;
-  border-radius: 999px;
-  background: rgba(214, 194, 153, 0.56);
-  color: #7b5838;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
 .comments-status,
 .comments-error {
   margin: 8px 0 16px;
