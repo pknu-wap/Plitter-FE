@@ -71,7 +71,7 @@ export default function CharacterResult() {
         };
 
         const [characterResponse, playlistResponse] = await Promise.all([
-          fetch(`${API_BASE_URL}/playlists/${playlistId}/character`, {
+          fetch(`${API_BASE_URL}/playlists/${playlistId}/character/download-url`, {
             headers: authHeaders,
           }),
           fetch(`${API_BASE_URL}/playlists/${playlistId}/public`),
@@ -95,7 +95,10 @@ export default function CharacterResult() {
         if (cancelled) return;
 
         setCharacterResult({
-          imageUrl: characterPayload?.content?.imageUrl || fallbackResult.image,
+          imageUrl:
+            characterPayload?.content?.downloadUrl ||
+            characterPayload?.content?.imageUrl ||
+            fallbackResult.image,
           characterName:
             characterPayload?.content?.characterName || fallbackResult.characterName,
           tags: characterPayload?.content?.tags || fallbackResult.tags,
