@@ -3,9 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import plitterLogo from "../assets/Plitter.png";
 import { API_BASE_URL, parseJson } from "../lib/api";
 import "./SharedPlaylistEntry.css";
-import popCharacter from "../assets/pop.png";
 
-const USE_MOCK_DATA = true;
+const USE_MOCK_DATA = false;
 
 const MOCK_PLAYLIST_META = {
   recommendationCount: 10,
@@ -14,12 +13,7 @@ const MOCK_PLAYLIST_META = {
 
 const MOCK_MY_PLAYLIST_ID = "6";
 
-//const MOCK_CHARACTER_DATA = null;
-
-// 캐릭터 생성 후 UI 확인용
-const MOCK_CHARACTER_DATA = {
-imageUrl: popCharacter,
-};
+const MOCK_CHARACTER_DATA = null;
 
 const MOCK_RECOMMENDED_TRACKS = [
   {
@@ -444,11 +438,10 @@ export default function SharedPlaylistEntry() {
       return;
     }
 
-    if (isMyPlaylist && playlistMeta.recommendationCount >= 10) {
+    if (canCreateCharacter) {
       navigate(`/character-loading?playlistId=${encodeURIComponent(normalizedPlaylistId)}`);
       return;
     }
-
     if (hasGuestRecommended && !accessToken && guestToken) {
       navigate("/login");
       return;
@@ -514,8 +507,10 @@ export default function SharedPlaylistEntry() {
 
   const showLimitMessage = hasRecommendationLimitExceeded && Boolean(accessToken) && !isMyPlaylist;
   const showRecommendButton = !showLimitMessage;
+  const canCreateCharacter = isMyPlaylist && playlistMeta.recommendationCount >= 10;
+
   const buttonText = (() => {
-    if (isMyPlaylist && playlistMeta.recommendationCount >= 10) {
+    if (canCreateCharacter) {
       return "캐릭터 생성하러 가기";
     }
 
