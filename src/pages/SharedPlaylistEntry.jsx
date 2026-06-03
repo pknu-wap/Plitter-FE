@@ -244,16 +244,16 @@ export default function SharedPlaylistEntry() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [hasGuestRecommended, setHasGuestRecommended] = useState(() => {
+  const hasGuestRecommended = useMemo(() => {
     if (USE_MOCK_DATA) return false;
-    if (!normalizedPlaylistId) return false;
-    return localStorage.getItem(`guestRecommended:${normalizedPlaylistId}`) === "true";
-  });
-  const [hasRecommendationLimitExceeded, setHasRecommendationLimitExceeded] = useState(() => {
+    if (!guestRecommendedKey) return false;
+    return localStorage.getItem(guestRecommendedKey) === "true";
+  }, [guestRecommendedKey]);
+  const hasRecommendationLimitExceeded = useMemo(() => {
     if (USE_MOCK_DATA) return false;
-    if (!normalizedPlaylistId) return false;
-    return localStorage.getItem(`recommendLimitExceeded:${normalizedPlaylistId}`) === "true";
-  });
+    if (!recommendationLimitKey) return false;
+    return localStorage.getItem(recommendationLimitKey) === "true";
+  }, [recommendationLimitKey]);
   const linkError = !normalizedPlaylistId ? "유효하지 않은 공유 링크입니다." : "";
   const pointerStartXRef = useRef(0);
   const hasDraggedRef = useRef(false);
@@ -265,18 +265,6 @@ export default function SharedPlaylistEntry() {
     if (!normalizedPlaylistId) return "/search";
     return `/search?playlistId=${encodeURIComponent(normalizedPlaylistId)}`;
   }, [normalizedPlaylistId]);
-
-  useEffect(() => {
-    if (USE_MOCK_DATA) return;
-    if (!guestRecommendedKey) return;
-    setHasGuestRecommended(localStorage.getItem(guestRecommendedKey) === "true");
-  }, [guestRecommendedKey]);
-
-  useEffect(() => {
-    if (USE_MOCK_DATA) return;
-    if (!recommendationLimitKey) return;
-    setHasRecommendationLimitExceeded(localStorage.getItem(recommendationLimitKey) === "true");
-  }, [recommendationLimitKey]);
 
   useEffect(() => {
     if (USE_MOCK_DATA) return;
@@ -345,12 +333,18 @@ export default function SharedPlaylistEntry() {
         );
         const payload = await parseJson(response);
 
-        if (!response.ok || payload?.code !== "SUCCESS" || !payload?.content?.imageUrl) {
+        const nextCharacterImageUrl =
+          payload?.content?.downloadUrl || payload?.content?.imageUrl || "";
+
+        if (!response.ok || payload?.code !== "SUCCESS" || !nextCharacterImageUrl) {
           setCharacterData(null);
           return;
         }
 
-        setCharacterData(payload.content);
+        setCharacterData({
+          ...payload.content,
+          imageUrl: nextCharacterImageUrl,
+        });
       } catch {
         setCharacterData(null);
       }
@@ -438,6 +432,11 @@ export default function SharedPlaylistEntry() {
       return;
     }
 
+    if (isMyPlaylist && hasCharacter) {
+      navigate(`/character-loading?playlistId=${encodeURIComponent(normalizedPlaylistId)}&recreate=true`);
+      return;
+    }
+
     if (canCreateCharacter) {
       navigate(`/character-loading?playlistId=${encodeURIComponent(normalizedPlaylistId)}`);
       return;
@@ -502,14 +501,19 @@ export default function SharedPlaylistEntry() {
     ? "마음에 드는 앨범을 눌러 추천 흐름을 이어가 보세요."
     : "로그인하거나 게스트로 입장해 추천을 남겨보세요.";
 
-  const hasTrackIdentity = centerTrack
-    && (centerTrack.title !== "추천된 곡" || centerTrack.artistName !== "아티스트 정보 없음");
-
   const showLimitMessage = hasRecommendationLimitExceeded && Boolean(accessToken) && !isMyPlaylist;
   const showRecommendButton = !showLimitMessage;
+  const hasCharacter = Boolean(characterData?.imageUrl);
+  const characterReadyMessage = characterData?.characterName
+    ? `${characterData.characterName} 캐릭터가 완성되었어요`
+    : "캐릭터가 완성되었어요";
   const canCreateCharacter = isMyPlaylist && playlistMeta.recommendationCount >= 10;
 
   const buttonText = (() => {
+    if (isMyPlaylist && hasCharacter) {
+      return "캐릭터 다시 생성하기";
+    }
+
     if (canCreateCharacter) {
       return "캐릭터 생성하러 가기";
     }
@@ -580,9 +584,10 @@ export default function SharedPlaylistEntry() {
       <section className="shared-entry-copy">
         {characterData ? (
           <div className="shared-character-info">
+            <p className="shared-character-ready-message">{characterReadyMessage}</p>
             <img
               src={characterData.imageUrl}
-              alt={"생성된 캐릭터"}
+              alt={characterData.characterName || "생성된 캐릭터"}
               className="shared-character-image"
             />
           </div>
