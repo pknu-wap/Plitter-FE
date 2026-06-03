@@ -244,16 +244,16 @@ export default function SharedPlaylistEntry() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [hasGuestRecommended, setHasGuestRecommended] = useState(() => {
+  const hasGuestRecommended = useMemo(() => {
     if (USE_MOCK_DATA) return false;
-    if (!normalizedPlaylistId) return false;
-    return localStorage.getItem(`guestRecommended:${normalizedPlaylistId}`) === "true";
-  });
-  const [hasRecommendationLimitExceeded, setHasRecommendationLimitExceeded] = useState(() => {
+    if (!guestRecommendedKey) return false;
+    return localStorage.getItem(guestRecommendedKey) === "true";
+  }, [guestRecommendedKey]);
+  const hasRecommendationLimitExceeded = useMemo(() => {
     if (USE_MOCK_DATA) return false;
-    if (!normalizedPlaylistId) return false;
-    return localStorage.getItem(`recommendLimitExceeded:${normalizedPlaylistId}`) === "true";
-  });
+    if (!recommendationLimitKey) return false;
+    return localStorage.getItem(recommendationLimitKey) === "true";
+  }, [recommendationLimitKey]);
   const linkError = !normalizedPlaylistId ? "유효하지 않은 공유 링크입니다." : "";
   const pointerStartXRef = useRef(0);
   const hasDraggedRef = useRef(false);
@@ -265,18 +265,6 @@ export default function SharedPlaylistEntry() {
     if (!normalizedPlaylistId) return "/search";
     return `/search?playlistId=${encodeURIComponent(normalizedPlaylistId)}`;
   }, [normalizedPlaylistId]);
-
-  useEffect(() => {
-    if (USE_MOCK_DATA) return;
-    if (!guestRecommendedKey) return;
-    setHasGuestRecommended(localStorage.getItem(guestRecommendedKey) === "true");
-  }, [guestRecommendedKey]);
-
-  useEffect(() => {
-    if (USE_MOCK_DATA) return;
-    if (!recommendationLimitKey) return;
-    setHasRecommendationLimitExceeded(localStorage.getItem(recommendationLimitKey) === "true");
-  }, [recommendationLimitKey]);
 
   useEffect(() => {
     if (USE_MOCK_DATA) return;
@@ -438,7 +426,7 @@ export default function SharedPlaylistEntry() {
       return;
     }
 
-    if (canCreateCharacter) {
+    if (isMyPlaylist) {
       navigate(`/character-loading?playlistId=${encodeURIComponent(normalizedPlaylistId)}`);
       return;
     }
@@ -448,11 +436,6 @@ export default function SharedPlaylistEntry() {
     }
 
     if (hasRecommendationLimitExceeded && Boolean(accessToken) && !isMyPlaylist) {
-      return;
-    }
-
-    if (isMyPlaylist) {
-      alert("추천곡이 10개 이상 모이면 캐릭터를 생성할 수 있어요.");
       return;
     }
 
@@ -502,15 +485,11 @@ export default function SharedPlaylistEntry() {
     ? "마음에 드는 앨범을 눌러 추천 흐름을 이어가 보세요."
     : "로그인하거나 게스트로 입장해 추천을 남겨보세요.";
 
-  const hasTrackIdentity = centerTrack
-    && (centerTrack.title !== "추천된 곡" || centerTrack.artistName !== "아티스트 정보 없음");
-
   const showLimitMessage = hasRecommendationLimitExceeded && Boolean(accessToken) && !isMyPlaylist;
   const showRecommendButton = !showLimitMessage;
-  const canCreateCharacter = isMyPlaylist && playlistMeta.recommendationCount >= 10;
 
   const buttonText = (() => {
-    if (canCreateCharacter) {
+    if (isMyPlaylist) {
       return "캐릭터 생성하러 가기";
     }
 
