@@ -165,9 +165,7 @@ export default function LpPage() {
       return;
     }
 
-    const authToken = accessToken || guestToken;
-
-    if (!authToken) {
+    if (!accessToken && !guestToken) {
       alert("로그인 또는 게스트 입장 후 미리듣기를 사용할 수 있습니다.");
       return;
     }
@@ -178,10 +176,11 @@ export default function LpPage() {
       const playUrl = `${API_BASE_URL}/tracks/${displayTrack.spotifyId}/play`;
       const response = await fetch(playUrl, {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-          "Content-Type": "application/json",
-        },
+        headers: accessToken
+          ? {
+            Authorization: `Bearer ${accessToken}`,
+          }
+          : {},
       });
 
       const payload = await parseJson(response);
