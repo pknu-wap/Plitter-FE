@@ -259,10 +259,10 @@
 
 .shared-character-image {
   width: 211px;
-  height: 234x;
+  height: 234px;
   object-fit: contain;
   display: block;
-  margin: 47px auto 0;
+  margin: 14px auto 0;
 }
 
 .shared-character-ready-message {

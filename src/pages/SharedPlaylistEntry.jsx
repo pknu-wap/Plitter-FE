@@ -361,12 +361,18 @@ export default function SharedPlaylistEntry() {
         );
         const payload = await parseJson(response);
 
-        if (!response.ok || payload?.code !== "SUCCESS" || !payload?.content?.imageUrl) {
+        const nextCharacterImageUrl =
+          payload?.content?.downloadUrl || payload?.content?.imageUrl || "";
+
+        if (!response.ok || payload?.code !== "SUCCESS" || !nextCharacterImageUrl) {
           setCharacterData(null);
           return;
         }
 
-        setCharacterData(payload.content);
+        setCharacterData({
+          ...payload.content,
+          imageUrl: nextCharacterImageUrl,
+        });
       } catch {
         setCharacterData(null);
       }
@@ -474,7 +480,6 @@ export default function SharedPlaylistEntry() {
       alert("유효하지 않은 공유 링크입니다.");
       return;
     }
-
     const shareLink = `${window.location.origin}/playlist/${normalizedPlaylistId}`;
 
     try {
@@ -536,7 +541,10 @@ export default function SharedPlaylistEntry() {
           return;
         }
 
-        navigate(`/character-loading?playlistId=${encodeURIComponent(normalizedPlaylistId)}`);
+        const recreateQuery = hasCharacter ? "&recreate=true" : "";
+        navigate(
+          `/character-loading?playlistId=${encodeURIComponent(normalizedPlaylistId)}${recreateQuery}`
+        );
       } catch (error) {
         alert(error.message || "캐릭터 생성 가능 여부를 확인하지 못했습니다.");
       } finally {
@@ -610,11 +618,18 @@ export default function SharedPlaylistEntry() {
   const isCreateCharacterDisabled =
     isMyPlaylist &&
     (isCharacterAvailabilityLoading || characterAvailability?.available === false);
+  const hasCharacter = Boolean(characterData?.imageUrl);
+  const characterReadyMessage = characterData?.characterName
+    ? `${characterData.characterName} 캐릭터가 완성되었어요`
+    : "캐릭터가 완성되었어요";
 
   const buttonText = (() => {
     if (isMyPlaylist) {
       if (isCharacterAvailabilityLoading) {
         return "생성 가능 여부 확인 중...";
+      }
+      if (hasCharacter) {
+        return "캐릭터 다시 생성하기";
       }
       return "캐릭터 생성하러 가기";
     }
@@ -685,9 +700,10 @@ export default function SharedPlaylistEntry() {
       <section className="shared-entry-copy">
         {characterData ? (
           <div className="shared-character-info">
+            <p className="shared-character-ready-message">{characterReadyMessage}</p>
             <img
               src={characterData.imageUrl}
-              alt={"생성된 캐릭터"}
+              alt={characterData.characterName || "생성된 캐릭터"}
               className="shared-character-image"
             />
           </div>
