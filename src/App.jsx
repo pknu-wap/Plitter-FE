@@ -183,6 +183,7 @@ function App() {
         <Route path="/character-loading" element={<CharacterLoading />} />
         <Route path="/result" element={<CharacterResult />} />
         <Route path="/character-result" element={<CharacterResult />} />
+        <Route path="/playlist/:playlistId" element={<LandingPage />} />
       </Routes>
     </BrowserRouter>
   );
