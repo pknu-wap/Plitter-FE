@@ -116,16 +116,15 @@
 .shared-cover {
   width: 100%;
   height: 100%;
-  border-radius: 20px;
+  border-radius: 8px;
   object-fit: cover;
   display: block;
   box-shadow: 0 18px 32px rgba(77, 53, 28, 0.18);
-  margin-top: 177px;
 }
 
 .shared-main-cover-back-left,
 .shared-main-cover-back-right {
-  top: 52px;
+  top: 150px;
   width: 126px;
   height: 126px;
   opacity: 0.92;
@@ -144,31 +143,17 @@
 
 .shared-main-cover-front {
   left: 50%;
-  top: 0;
+  top: 120px;
   width: 199px;
   height: 199px;
   transform: translateX(-50%);
   z-index: 2;
-  margin-top: 177px;
 }
 
 .shared-main-cover-front:hover,
 .shared-main-cover-back-left:hover,
 .shared-main-cover-back-right:hover {
   opacity: 1;
-}
-
-.shared-center-caption {
-  position: absolute;
-  left: 50%;
-  bottom: -78px;
-  transform: translateX(-50%);
-  width: 260px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  text-align: center;
-  pointer-events: none;
 }
 
 .shared-center-caption strong {
@@ -189,7 +174,7 @@
   transform: translateX(-50%);
   width: 199px;
   height: 199px;
-  border-radius: 20px;
+  border-radius: 8px;
   background: linear-gradient(135deg, #f3c4b4, #e8764f);
   box-shadow: 0 18px 32px rgba(77, 53, 28, 0.18);
   margin-top: 60px;
@@ -199,7 +184,7 @@
   position: relative;
   width: 92px;
   height: 4px;
-  margin-top: 30px;
+  margin-top: 70px;
 }
 
 .shared-cover-indicator-track,
@@ -238,14 +223,13 @@
   width: 100%;
   height: 56px;
   border: none;
-  border-radius: 999px;
+  border-radius: 12px;
   background: linear-gradient(180deg, #f1e6d3 0%, #eadcc2 100%);
   color: #b08f5f;
   font-size: 16px;
   font-weight: 800;
   cursor: pointer;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
-  margin-bottom: 68px;
 }
 
 .shared-record-section .shared-entry-eyebrow {
@@ -269,11 +253,11 @@
 }
 
 .shared-character-image {
-  width: 137px;
-  height: 164px;
+  width: 211px;
+  height: 234x;
   object-fit: contain;
   display: block;
-  margin: 0 auto 14px;
+  margin: 47px auto 0;
 }
 
 .shared-character-ready-message {
@@ -283,4 +267,29 @@
   font-size: 13px;
   font-weight: 700;
   word-break: keep-all;
+}
+
+.shared-copy-link-button {
+  width: 100%;
+  height: 56px;
+  margin-top: 12px;
+  margin-bottom: 0px;
+  border: none;
+  border-radius: 12px;
+  background: #fff7ec;
+  color: #b08f5f;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+.shared-copy-link-button.copied {
+  background: #f1e6d3;
+  color: #9f8563;
+}
+
+.shared-copy-link-button:disabled {
+  cursor: default;
+  opacity: 0.7;
 }

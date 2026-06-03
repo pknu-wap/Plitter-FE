@@ -4,6 +4,130 @@ import plitterLogo from "../assets/Plitter.png";
 import { API_BASE_URL, parseJson } from "../lib/api";
 import "./SharedPlaylistEntry.css";
 
+const USE_MOCK_DATA = false;
+
+const MOCK_PLAYLIST_META = {
+  recommendationCount: 10,
+  ownerNickname: "민주",
+};
+
+const MOCK_MY_PLAYLIST_ID = "6";
+
+const MOCK_CHARACTER_DATA = null;
+
+const MOCK_RECOMMENDED_TRACKS = [
+  {
+    recommendationId: 1,
+    spotifyId: "mock-1",
+    title: "Ditto",
+    artistName: "NewJeans",
+    albumCoverImageUrl:
+      "https://i.scdn.co/image/ab67616d0000b273edf5b257be1d6593e81bb45f",
+    previewUrl: "",
+    albumName: "OMG",
+    commentCount: 0,
+  },
+  {
+    recommendationId: 2,
+    spotifyId: "mock-2",
+    title: "Love wins all",
+    artistName: "IU",
+    albumCoverImageUrl:
+      "https://i.scdn.co/image/ab67616d0000b2734ed058b71650a6ca2c04adff",
+    previewUrl: "",
+    albumName: "The Winning",
+    commentCount: 0,
+  },
+  {
+    recommendationId: 3,
+    spotifyId: "mock-3",
+    title: "Supernova",
+    artistName: "aespa",
+    albumCoverImageUrl:
+      "https://i.scdn.co/image/ab67616d0000b273d0f2d75c7fb4b8c8de684aef",
+    previewUrl: "",
+    albumName: "Armageddon",
+    commentCount: 0,
+  },
+    {
+    recommendationId: 4,
+    spotifyId: "mock-4",
+    title: "Attention",
+    artistName: "NewJeans",
+    albumCoverImageUrl:
+      "https://i.scdn.co/image/ab67616d0000b273d70036292d54f29e8b68ec01",
+    previewUrl: "",
+    albumName: "New Jeans",
+    commentCount: 0,
+  },
+  {
+    recommendationId: 5,
+    spotifyId: "mock-5",
+    title: "밤편지",
+    artistName: "IU",
+    albumCoverImageUrl:
+      "https://i.scdn.co/image/ab67616d0000b273a1acb4f388d5e8c38847f172",
+    previewUrl: "",
+    albumName: "Palette",
+    commentCount: 0,
+  },
+  {
+    recommendationId: 6,
+    spotifyId: "mock-6",
+    title: "Hype Boy",
+    artistName: "NewJeans",
+    albumCoverImageUrl:
+      "https://i.scdn.co/image/ab67616d0000b273d70036292d54f29e8b68ec01",
+    previewUrl: "",
+    albumName: "New Jeans",
+    commentCount: 0,
+  },
+  {
+    recommendationId: 7,
+    spotifyId: "mock-7",
+    title: "I AM",
+    artistName: "IVE",
+    albumCoverImageUrl:
+      "https://i.scdn.co/image/ab67616d0000b27325f19f7d8fdb20b4700b9810",
+    previewUrl: "",
+    albumName: "I've IVE",
+    commentCount: 0,
+  },
+  {
+    recommendationId: 8,
+    spotifyId: "mock-8",
+    title: "첫 만남은 계획대로 되지 않아",
+    artistName: "TWS",
+    albumCoverImageUrl:
+      "https://i.scdn.co/image/ab67616d0000b273c0c6c5b54f3dba39e9f77c47",
+    previewUrl: "",
+    albumName: "Sparkling Blue",
+    commentCount: 0,
+  },
+  {
+    recommendationId: 9,
+    spotifyId: "mock-9",
+    title: "Drama",
+    artistName: "aespa",
+    albumCoverImageUrl:
+      "https://i.scdn.co/image/ab67616d0000b2736e18cf6a06f3a4e6f248a0e9",
+    previewUrl: "",
+    albumName: "Drama",
+    commentCount: 0,
+  },
+  {
+    recommendationId: 10,
+    spotifyId: "mock-10",
+    title: "ETA",
+    artistName: "NewJeans",
+    albumCoverImageUrl:
+      "https://i.scdn.co/image/ab67616d0000b2733d98a0ae7c78a3a9babaf8af",
+    previewUrl: "",
+    albumName: "Get Up",
+    commentCount: 0,
+  },
+];
+
 function getStoredCoverHistory(playlistId) {
   if (!playlistId) return [];
   try {
@@ -50,6 +174,7 @@ function dedupeTracksByCover(tracks) {
 }
 
 function buildInitialTracks(playlistId) {
+  if (USE_MOCK_DATA) return MOCK_RECOMMENDED_TRACKS;
   if (!playlistId) return [];
 
   const latestCover = localStorage.getItem(`lastRecommendedCover:${playlistId}`) || "";
@@ -84,11 +209,11 @@ function getPlaylistIdFromResponseContent(content) {
 export default function SharedPlaylistEntry() {
   const navigate = useNavigate();
   const { playlistId } = useParams();
-  const normalizedPlaylistId = (playlistId || "").trim();
+  const normalizedPlaylistId = (playlistId || (USE_MOCK_DATA ? MOCK_MY_PLAYLIST_ID : "")).trim();
 
   const accessToken = localStorage.getItem("accessToken") || "";
   const guestToken = localStorage.getItem("guestToken") || "";
-  const isLoggedIn = Boolean(accessToken || guestToken);
+  const isLoggedIn = USE_MOCK_DATA ? true : Boolean(accessToken || guestToken);
 
   const storageKey = useMemo(() => {
     if (!normalizedPlaylistId) return "";
@@ -105,27 +230,36 @@ export default function SharedPlaylistEntry() {
     return `recommendLimitExceeded:${normalizedPlaylistId}`;
   }, [normalizedPlaylistId]);
 
-  const [playlistMeta, setPlaylistMeta] = useState({
-    recommendationCount: 0,
-    ownerNickname: "",
-  });
-  const [characterData, setCharacterData] = useState(null);
-  const [myPlaylistId, setMyPlaylistId] = useState("");
+  const [playlistMeta, setPlaylistMeta] = useState(
+    USE_MOCK_DATA
+      ? MOCK_PLAYLIST_META
+      : {
+          recommendationCount: 0,
+          ownerNickname: "",
+        }
+  );
+  const [characterData, setCharacterData] = useState(USE_MOCK_DATA ? MOCK_CHARACTER_DATA : null);
+  const [myPlaylistId, setMyPlaylistId] = useState(USE_MOCK_DATA ? MOCK_MY_PLAYLIST_ID : "");
   const [recommendedTracks, setRecommendedTracks] = useState(() => buildInitialTracks(normalizedPlaylistId));
   const [activeIndex, setActiveIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [hasGuestRecommended, setHasGuestRecommended] = useState(() => {
+    if (USE_MOCK_DATA) return false;
     if (!normalizedPlaylistId) return false;
     return localStorage.getItem(`guestRecommended:${normalizedPlaylistId}`) === "true";
   });
   const [hasRecommendationLimitExceeded, setHasRecommendationLimitExceeded] = useState(() => {
+    if (USE_MOCK_DATA) return false;
     if (!normalizedPlaylistId) return false;
     return localStorage.getItem(`recommendLimitExceeded:${normalizedPlaylistId}`) === "true";
   });
   const linkError = !normalizedPlaylistId ? "유효하지 않은 공유 링크입니다." : "";
   const pointerStartXRef = useRef(0);
   const hasDraggedRef = useRef(false);
-  const isMyPlaylist = Boolean(accessToken) && myPlaylistId === normalizedPlaylistId;
+  const isMyPlaylist = USE_MOCK_DATA
+    ? myPlaylistId === normalizedPlaylistId
+    : Boolean(accessToken) && myPlaylistId === normalizedPlaylistId;
 
   const searchPath = useMemo(() => {
     if (!normalizedPlaylistId) return "/search";
@@ -133,16 +267,19 @@ export default function SharedPlaylistEntry() {
   }, [normalizedPlaylistId]);
 
   useEffect(() => {
+    if (USE_MOCK_DATA) return;
     if (!guestRecommendedKey) return;
     setHasGuestRecommended(localStorage.getItem(guestRecommendedKey) === "true");
   }, [guestRecommendedKey]);
 
   useEffect(() => {
+    if (USE_MOCK_DATA) return;
     if (!recommendationLimitKey) return;
     setHasRecommendationLimitExceeded(localStorage.getItem(recommendationLimitKey) === "true");
   }, [recommendationLimitKey]);
 
   useEffect(() => {
+    if (USE_MOCK_DATA) return;
     if (!normalizedPlaylistId) return;
 
     const fetchPlaylist = async () => {
@@ -191,6 +328,7 @@ export default function SharedPlaylistEntry() {
   }, [normalizedPlaylistId, storageKey]);
 
   useEffect(() => {
+    if (USE_MOCK_DATA) return;
     if (!normalizedPlaylistId) return;
 
     const fetchCharacter = async () => {
@@ -222,6 +360,7 @@ export default function SharedPlaylistEntry() {
   }, [normalizedPlaylistId, accessToken]);
 
   useEffect(() => {
+    if (USE_MOCK_DATA) return;
     if (!accessToken || !normalizedPlaylistId) return;
 
     let cancelled = false;
@@ -264,12 +403,34 @@ export default function SharedPlaylistEntry() {
   }, [accessToken, normalizedPlaylistId]);
 
   const handleGoMyPlaylist = () => {
-  if (myPlaylistId) {
-    navigate(`/playlist/${encodeURIComponent(myPlaylistId)}`);
-    return;
-  }
+    if (myPlaylistId) {
+      navigate(`/playlist/${encodeURIComponent(myPlaylistId)}`);
+      return;
+    }
+
     navigate("/main");
   };
+
+  const handleCopyShareLink = async () => {
+  if (!normalizedPlaylistId) {
+    alert("유효하지 않은 공유 링크입니다.");
+    return;
+  }
+
+  const shareLink = `${window.location.origin}/playlist/${normalizedPlaylistId}`;
+
+  try {
+    await navigator.clipboard.writeText(shareLink);
+    setCopied(true);
+
+    setTimeout(() => {
+      setCopied(false);
+    }, 1800);
+  } catch (error) {
+    console.error("공유 링크 복사 실패", error);
+    alert("공유 링크 복사 중 문제가 발생했어요.");
+  }
+};
 
   const handleStartRecommendation = () => {
     if (!normalizedPlaylistId) {
@@ -277,11 +438,10 @@ export default function SharedPlaylistEntry() {
       return;
     }
 
-    if (isMyPlaylist && playlistMeta.recommendationCount >= 10) {
+    if (canCreateCharacter) {
       navigate(`/character-loading?playlistId=${encodeURIComponent(normalizedPlaylistId)}`);
       return;
     }
-
     if (hasGuestRecommended && !accessToken && guestToken) {
       navigate("/login");
       return;
@@ -347,8 +507,10 @@ export default function SharedPlaylistEntry() {
 
   const showLimitMessage = hasRecommendationLimitExceeded && Boolean(accessToken) && !isMyPlaylist;
   const showRecommendButton = !showLimitMessage;
+  const canCreateCharacter = isMyPlaylist && playlistMeta.recommendationCount >= 10;
+
   const buttonText = (() => {
-    if (isMyPlaylist && playlistMeta.recommendationCount >= 10) {
+    if (canCreateCharacter) {
       return "캐릭터 생성하러 가기";
     }
 
@@ -468,10 +630,6 @@ export default function SharedPlaylistEntry() {
               aria-label="대표 추천곡 보기"
             >
               <img className="shared-cover" src={centerTrack.albumCoverImageUrl} alt={centerTrack.title} />
-              <span className="shared-center-caption">
-                <strong>{hasTrackIdentity ? centerTrack.title : "추천 커버 모음"}</strong>
-                <span>{hasTrackIdentity ? centerTrack.artistName : "추천된 모든 곡 커버를 넘겨서 볼 수 있어요"}</span>
-              </span>
             </button>
           ) : (
             <div className="shared-cover-placeholder" aria-hidden="true" />
@@ -502,6 +660,15 @@ export default function SharedPlaylistEntry() {
       {showRecommendButton ? (
         <button type="button" className="shared-recommend-button" onClick={handleStartRecommendation}>
           {buttonText}
+        </button>
+      ) : null}
+      {isMyPlaylist ? (
+      <button
+          type="button"
+          className={`shared-copy-link-button ${copied ? "copied" : ""}`}
+          onClick={handleCopyShareLink}
+        >
+          {copied ? "공유 링크가 복사되었어요" : "공유 링크 복사하기"}
         </button>
       ) : null}
     </main>
