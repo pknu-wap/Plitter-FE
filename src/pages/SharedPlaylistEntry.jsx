@@ -95,14 +95,33 @@ export default function SharedPlaylistEntry() {
     return `lastRecommendedCover:${normalizedPlaylistId}`;
   }, [normalizedPlaylistId]);
 
+  const guestRecommendedKey = useMemo(() => {
+    if (!normalizedPlaylistId) return "";
+    return `guestRecommended:${normalizedPlaylistId}`;
+  }, [normalizedPlaylistId]);
+
+  const recommendationLimitKey = useMemo(() => {
+    if (!normalizedPlaylistId) return "";
+    return `recommendLimitExceeded:${normalizedPlaylistId}`;
+  }, [normalizedPlaylistId]);
+
   const [playlistMeta, setPlaylistMeta] = useState({
     recommendationCount: 0,
     ownerNickname: "",
   });
+  const [characterData, setCharacterData] = useState(null);
   const [myPlaylistId, setMyPlaylistId] = useState("");
   const [recommendedTracks, setRecommendedTracks] = useState(() => buildInitialTracks(normalizedPlaylistId));
   const [activeIndex, setActiveIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [hasGuestRecommended, setHasGuestRecommended] = useState(() => {
+    if (!normalizedPlaylistId) return false;
+    return localStorage.getItem(`guestRecommended:${normalizedPlaylistId}`) === "true";
+  });
+  const [hasRecommendationLimitExceeded, setHasRecommendationLimitExceeded] = useState(() => {
+    if (!normalizedPlaylistId) return false;
+    return localStorage.getItem(`recommendLimitExceeded:${normalizedPlaylistId}`) === "true";
+  });
   const linkError = !normalizedPlaylistId ? "유효하지 않은 공유 링크입니다." : "";
   const pointerStartXRef = useRef(0);
   const hasDraggedRef = useRef(false);
@@ -112,6 +131,16 @@ export default function SharedPlaylistEntry() {
     if (!normalizedPlaylistId) return "/search";
     return `/search?playlistId=${encodeURIComponent(normalizedPlaylistId)}`;
   }, [normalizedPlaylistId]);
+
+  useEffect(() => {
+    if (!guestRecommendedKey) return;
+    setHasGuestRecommended(localStorage.getItem(guestRecommendedKey) === "true");
+  }, [guestRecommendedKey]);
+
+  useEffect(() => {
+    if (!recommendationLimitKey) return;
+    setHasRecommendationLimitExceeded(localStorage.getItem(recommendationLimitKey) === "true");
+  }, [recommendationLimitKey]);
 
   useEffect(() => {
     if (!normalizedPlaylistId) return;
@@ -162,6 +191,37 @@ export default function SharedPlaylistEntry() {
   }, [normalizedPlaylistId, storageKey]);
 
   useEffect(() => {
+    if (!normalizedPlaylistId) return;
+
+    const fetchCharacter = async () => {
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/playlists/${normalizedPlaylistId}/character/download-url`,
+          {
+            headers: accessToken
+              ? {
+                  Authorization: `Bearer ${accessToken}`,
+                }
+              : {},
+          }
+        );
+        const payload = await parseJson(response);
+
+        if (!response.ok || payload?.code !== "SUCCESS" || !payload?.content?.imageUrl) {
+          setCharacterData(null);
+          return;
+        }
+
+        setCharacterData(payload.content);
+      } catch {
+        setCharacterData(null);
+      }
+    };
+
+    void fetchCharacter();
+  }, [normalizedPlaylistId, accessToken]);
+
+  useEffect(() => {
     if (!accessToken || !normalizedPlaylistId) return;
 
     let cancelled = false;
@@ -203,14 +263,36 @@ export default function SharedPlaylistEntry() {
     };
   }, [accessToken, normalizedPlaylistId]);
 
+  const handleGoMyPlaylist = () => {
+  if (myPlaylistId) {
+    navigate(`/playlist/${encodeURIComponent(myPlaylistId)}`);
+    return;
+  }
+    navigate("/main");
+  };
+
   const handleStartRecommendation = () => {
     if (!normalizedPlaylistId) {
       alert("유효하지 않은 공유 링크입니다.");
       return;
     }
 
-    if (isMyPlaylist) {
+    if (isMyPlaylist && playlistMeta.recommendationCount >= 10) {
       navigate(`/character-loading?playlistId=${encodeURIComponent(normalizedPlaylistId)}`);
+      return;
+    }
+
+    if (hasGuestRecommended && !accessToken && guestToken) {
+      navigate("/login");
+      return;
+    }
+
+    if (hasRecommendationLimitExceeded && Boolean(accessToken) && !isMyPlaylist) {
+      return;
+    }
+
+    if (isMyPlaylist) {
+      alert("추천곡이 10개 이상 모이면 캐릭터를 생성할 수 있어요.");
       return;
     }
 
@@ -247,17 +329,36 @@ export default function SharedPlaylistEntry() {
     ? recommendedTracks[(currentIndex + 1) % trackCount]
     : null;
   const indicatorProgress = trackCount > 1 ? currentIndex / (trackCount - 1) : 0;
+
   const ownerLabel = playlistMeta.ownerNickname
     ? `${playlistMeta.ownerNickname}님의 플레이리스트`
     : "친구의 플레이리스트";
+
   const description = playlistMeta.recommendationCount > 0
     ? `${ownerLabel}에 ${playlistMeta.recommendationCount}곡이 모였어요`
     : "친구에게 어울리는 한 곡을 쌓아보세요";
+
   const helperText = isLoggedIn
     ? "마음에 드는 앨범을 눌러 추천 흐름을 이어가 보세요."
     : "로그인하거나 게스트로 입장해 추천을 남겨보세요.";
+
   const hasTrackIdentity = centerTrack
     && (centerTrack.title !== "추천된 곡" || centerTrack.artistName !== "아티스트 정보 없음");
+
+  const showLimitMessage = hasRecommendationLimitExceeded && Boolean(accessToken) && !isMyPlaylist;
+  const showRecommendButton = !showLimitMessage;
+  const buttonText = (() => {
+    if (isMyPlaylist && playlistMeta.recommendationCount >= 10) {
+      return "캐릭터 생성하러 가기";
+    }
+
+    if (hasGuestRecommended && !accessToken && guestToken) {
+      return "내 플레이리스트도 만들러가기";
+    }
+
+    return "+ 노래 추천하기";
+  })();
+
   const moveCarousel = (direction) => {
     if (trackCount <= 1) return;
 
@@ -308,16 +409,27 @@ export default function SharedPlaylistEntry() {
           <img src={plitterLogo} alt="PLITTER" className="header-logo-image" />
         </button>
         {accessToken ? (
-          <button type="button" className="shared-my-list-button" onClick={() => navigate("/main")}>
-            내 리스트
+          <button type="button" className="shared-my-list-button" onClick={handleGoMyPlaylist}>
+            MY
           </button>
         ) : null}
       </header>
 
       <section className="shared-entry-copy">
-        <p className="shared-entry-eyebrow">{ownerLabel}</p>
-        <h1>{description}</h1>
-        <p>{helperText}</p>
+        {characterData ? (
+          <div className="shared-character-info">
+            <img
+              src={characterData.imageUrl}
+              alt={"생성된 캐릭터"}
+              className="shared-character-image"
+            />
+          </div>
+        ) : (
+          <>
+            <h1>{description}</h1>
+            <p>{helperText}</p>
+          </>
+        )}
       </section>
 
       <section className="shared-record-section">
@@ -365,6 +477,7 @@ export default function SharedPlaylistEntry() {
             <div className="shared-cover-placeholder" aria-hidden="true" />
           )}
         </div>
+
         {trackCount > 1 ? (
           <div className="shared-cover-indicator" aria-label={`추천 곡 ${currentIndex + 1} / ${trackCount}`}>
             <span className="shared-cover-indicator-track" />
@@ -376,13 +489,21 @@ export default function SharedPlaylistEntry() {
             />
           </div>
         ) : null}
+
+        <p className="shared-entry-eyebrow">{ownerLabel}</p>
       </section>
 
       {linkError ? <p className="shared-playlist-error">{linkError}</p> : null}
 
-      <button type="button" className="shared-recommend-button" onClick={handleStartRecommendation}>
-        {isMyPlaylist ? "캐릭터 생성하러 가기" : "+ 노래 추천하기"}
-      </button>
+      {showLimitMessage ? (
+        <p className="shared-limit-message">한 친구에게 3번까지 추천이 가능합니다</p>
+      ) : null}
+
+      {showRecommendButton ? (
+        <button type="button" className="shared-recommend-button" onClick={handleStartRecommendation}>
+          {buttonText}
+        </button>
+      ) : null}
     </main>
   );
 }
