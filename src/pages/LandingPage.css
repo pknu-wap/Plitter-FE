@@ -256,3 +256,21 @@ body {
     transform: translateX(-50%) scale(0.92);
   }
 }
+
+.guest-recommend-button {
+  display: block;
+  width: fit-content;
+  margin: 22px auto 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #006fff;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.guest-recommend-button:active {
+  opacity: 0.7;
+}
