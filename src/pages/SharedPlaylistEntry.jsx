@@ -206,6 +206,30 @@ function getPlaylistIdFromResponseContent(content) {
   return "";
 }
 
+function getCharacterAvailabilityMessage(availability) {
+  const requiredCount = availability?.requiredCount ?? 10;
+  const currentCount = availability?.currentCount ?? 0;
+  return `추천 ${requiredCount}곡 이상이 필요합니다. 현재 ${currentCount}/${requiredCount}`;
+}
+
+async function requestCharacterAvailability(playlistId, accessToken) {
+  const response = await fetch(
+    `${API_BASE_URL}/playlists/${playlistId}/character/availability`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+  const payload = await parseJson(response);
+
+  return {
+    response,
+    payload,
+    content: payload?.content ?? null,
+  };
+}
+
 export default function SharedPlaylistEntry() {
   const navigate = useNavigate();
   const { playlistId } = useParams();
@@ -244,16 +268,20 @@ export default function SharedPlaylistEntry() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [hasGuestRecommended, setHasGuestRecommended] = useState(() => {
+  const [characterAvailability, setCharacterAvailability] = useState(
+    USE_MOCK_DATA ? { available: true, requiredCount: 10, currentCount: 10 } : null
+  );
+  const [isCharacterAvailabilityLoading, setIsCharacterAvailabilityLoading] = useState(false);
+  const hasGuestRecommended = useMemo(() => {
     if (USE_MOCK_DATA) return false;
-    if (!normalizedPlaylistId) return false;
-    return localStorage.getItem(`guestRecommended:${normalizedPlaylistId}`) === "true";
-  });
-  const [hasRecommendationLimitExceeded, setHasRecommendationLimitExceeded] = useState(() => {
+    if (!guestRecommendedKey) return false;
+    return localStorage.getItem(guestRecommendedKey) === "true";
+  }, [guestRecommendedKey]);
+  const hasRecommendationLimitExceeded = useMemo(() => {
     if (USE_MOCK_DATA) return false;
-    if (!normalizedPlaylistId) return false;
-    return localStorage.getItem(`recommendLimitExceeded:${normalizedPlaylistId}`) === "true";
-  });
+    if (!recommendationLimitKey) return false;
+    return localStorage.getItem(recommendationLimitKey) === "true";
+  }, [recommendationLimitKey]);
   const linkError = !normalizedPlaylistId ? "유효하지 않은 공유 링크입니다." : "";
   const pointerStartXRef = useRef(0);
   const hasDraggedRef = useRef(false);
@@ -265,18 +293,6 @@ export default function SharedPlaylistEntry() {
     if (!normalizedPlaylistId) return "/search";
     return `/search?playlistId=${encodeURIComponent(normalizedPlaylistId)}`;
   }, [normalizedPlaylistId]);
-
-  useEffect(() => {
-    if (USE_MOCK_DATA) return;
-    if (!guestRecommendedKey) return;
-    setHasGuestRecommended(localStorage.getItem(guestRecommendedKey) === "true");
-  }, [guestRecommendedKey]);
-
-  useEffect(() => {
-    if (USE_MOCK_DATA) return;
-    if (!recommendationLimitKey) return;
-    setHasRecommendationLimitExceeded(localStorage.getItem(recommendationLimitKey) === "true");
-  }, [recommendationLimitKey]);
 
   useEffect(() => {
     if (USE_MOCK_DATA) return;
@@ -402,6 +418,48 @@ export default function SharedPlaylistEntry() {
     };
   }, [accessToken, normalizedPlaylistId]);
 
+  useEffect(() => {
+    if (USE_MOCK_DATA || !isMyPlaylist || !normalizedPlaylistId || !accessToken) return;
+
+    let cancelled = false;
+
+    const loadCharacterAvailability = async () => {
+      setIsCharacterAvailabilityLoading(true);
+
+      try {
+        const { response, payload, content } = await requestCharacterAvailability(
+          normalizedPlaylistId,
+          accessToken
+        );
+
+        if (!response.ok || payload?.code !== "SUCCESS") {
+          if (!cancelled) {
+            setCharacterAvailability(null);
+          }
+          return;
+        }
+
+        if (!cancelled) {
+          setCharacterAvailability(content);
+        }
+      } catch {
+        if (!cancelled) {
+          setCharacterAvailability(null);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsCharacterAvailabilityLoading(false);
+        }
+      }
+    };
+
+    void loadCharacterAvailability();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [accessToken, isMyPlaylist, normalizedPlaylistId]);
+
   const handleGoMyPlaylist = () => {
     if (myPlaylistId) {
       navigate(`/playlist/${encodeURIComponent(myPlaylistId)}`);
@@ -412,47 +470,88 @@ export default function SharedPlaylistEntry() {
   };
 
   const handleCopyShareLink = async () => {
-  if (!normalizedPlaylistId) {
-    alert("유효하지 않은 공유 링크입니다.");
-    return;
-  }
-
-  const shareLink = `${window.location.origin}/playlist/${normalizedPlaylistId}`;
-
-  try {
-    await navigator.clipboard.writeText(shareLink);
-    setCopied(true);
-
-    setTimeout(() => {
-      setCopied(false);
-    }, 1800);
-  } catch (error) {
-    console.error("공유 링크 복사 실패", error);
-    alert("공유 링크 복사 중 문제가 발생했어요.");
-  }
-};
-
-  const handleStartRecommendation = () => {
     if (!normalizedPlaylistId) {
       alert("유효하지 않은 공유 링크입니다.");
       return;
     }
 
-    if (canCreateCharacter) {
-      navigate(`/character-loading?playlistId=${encodeURIComponent(normalizedPlaylistId)}`);
+    const shareLink = `${window.location.origin}/playlist/${normalizedPlaylistId}`;
+
+    try {
+      await navigator.clipboard.writeText(shareLink);
+      setCopied(true);
+
+      setTimeout(() => {
+        setCopied(false);
+      }, 1800);
+    } catch (error) {
+      console.error("공유 링크 복사 실패", error);
+      alert("공유 링크 복사 중 문제가 발생했어요.");
+    }
+  };
+
+  const handleStartRecommendation = async () => {
+    if (!normalizedPlaylistId) {
+      alert("유효하지 않은 공유 링크입니다.");
       return;
     }
+
+    if (isMyPlaylist) {
+      if (!accessToken) {
+        localStorage.setItem(
+          "postLoginRedirect",
+          `/playlist/${encodeURIComponent(normalizedPlaylistId)}`
+        );
+        navigate(`/login?playlistId=${encodeURIComponent(normalizedPlaylistId)}`);
+        return;
+      }
+
+      setIsCharacterAvailabilityLoading(true);
+
+      try {
+        const { response, payload, content } = await requestCharacterAvailability(
+          normalizedPlaylistId,
+          accessToken
+        );
+
+        if (!response.ok || payload?.code !== "SUCCESS") {
+          if (payload?.code === "UNAUTHORIZED") {
+            localStorage.setItem(
+              "postLoginRedirect",
+              `/playlist/${encodeURIComponent(normalizedPlaylistId)}`
+            );
+            navigate(`/login?playlistId=${encodeURIComponent(normalizedPlaylistId)}`);
+            return;
+          }
+
+          throw new Error(
+            payload?.message || "캐릭터 생성 가능 여부를 확인하지 못했습니다."
+          );
+        }
+
+        setCharacterAvailability(content);
+
+        if (!content?.available) {
+          alert(getCharacterAvailabilityMessage(content));
+          return;
+        }
+
+        navigate(`/character-loading?playlistId=${encodeURIComponent(normalizedPlaylistId)}`);
+      } catch (error) {
+        alert(error.message || "캐릭터 생성 가능 여부를 확인하지 못했습니다.");
+      } finally {
+        setIsCharacterAvailabilityLoading(false);
+      }
+
+      return;
+    }
+
     if (hasGuestRecommended && !accessToken && guestToken) {
       navigate("/landing");
       return;
     }
 
     if (hasRecommendationLimitExceeded && Boolean(accessToken) && !isMyPlaylist) {
-      return;
-    }
-
-    if (isMyPlaylist) {
-      alert("추천곡이 10개 이상 모이면 캐릭터를 생성할 수 있어요.");
       return;
     }
 
@@ -502,15 +601,21 @@ export default function SharedPlaylistEntry() {
     ? "마음에 드는 앨범을 눌러 추천 흐름을 이어가 보세요."
     : "로그인하거나 게스트로 입장해 추천을 남겨보세요.";
 
-  const hasTrackIdentity = centerTrack
-    && (centerTrack.title !== "추천된 곡" || centerTrack.artistName !== "아티스트 정보 없음");
-
   const showLimitMessage = hasRecommendationLimitExceeded && Boolean(accessToken) && !isMyPlaylist;
   const showRecommendButton = !showLimitMessage;
-  const canCreateCharacter = isMyPlaylist && playlistMeta.recommendationCount >= 10;
+  const showCharacterBlockedMessage =
+    isMyPlaylist &&
+    Boolean(characterAvailability) &&
+    characterAvailability.available === false;
+  const isCreateCharacterDisabled =
+    isMyPlaylist &&
+    (isCharacterAvailabilityLoading || characterAvailability?.available === false);
 
   const buttonText = (() => {
-    if (canCreateCharacter) {
+    if (isMyPlaylist) {
+      if (isCharacterAvailabilityLoading) {
+        return "생성 가능 여부 확인 중...";
+      }
       return "캐릭터 생성하러 가기";
     }
 
@@ -657,13 +762,24 @@ export default function SharedPlaylistEntry() {
         <p className="shared-limit-message">한 친구에게 3번까지 추천이 가능합니다</p>
       ) : null}
 
+      {showCharacterBlockedMessage ? (
+        <p className="shared-limit-message">
+          {getCharacterAvailabilityMessage(characterAvailability)}
+        </p>
+      ) : null}
+
       {showRecommendButton ? (
-        <button type="button" className="shared-recommend-button" onClick={handleStartRecommendation}>
+        <button
+          type="button"
+          className="shared-recommend-button"
+          onClick={handleStartRecommendation}
+          disabled={isCreateCharacterDisabled}
+        >
           {buttonText}
         </button>
       ) : null}
       {isMyPlaylist ? (
-      <button
+        <button
           type="button"
           className={`shared-copy-link-button ${copied ? "copied" : ""}`}
           onClick={handleCopyShareLink}
