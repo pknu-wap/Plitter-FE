@@ -176,8 +176,7 @@ function App() {
         <Route path="/landing" element={<LandingPage />} />
         <Route path="/realmain" element={<RealMain />} />
         <Route path="/profile-share" element={<ProfileShare />} />
-        {/* <Route path="/playlist/:playlistId" element={<SharedPlaylistEntry />} /> */}
-        <Route path="/playlist/6" element={<SharedPlaylistEntry />} />
+        <Route path="/playlist/:playlistId" element={<SharedPlaylistEntry />} />
         <Route path="/lp" element={<LpPage />} />
         <Route path="/comments" element={<CommentList />} />
         <Route path="/loading" element={<CharacterLoading />} />
