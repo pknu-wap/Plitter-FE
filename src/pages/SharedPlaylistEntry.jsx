@@ -443,7 +443,7 @@ export default function SharedPlaylistEntry() {
       return;
     }
     if (hasGuestRecommended && !accessToken && guestToken) {
-      navigate("/login");
+      navigate("/landing");
       return;
     }
 

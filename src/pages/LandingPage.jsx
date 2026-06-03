@@ -1,3 +1,4 @@
+import { useNavigate, useParams } from "react-router-dom";
 import { API_BASE_URL, parseJson } from "../lib/api";
 import "./LandingPage.css";
 
@@ -15,6 +16,11 @@ import number18 from "../assets/NUMBER 18.png";
 import plitterLogo from "../assets/Plitter.png";
 
 export default function LandingPage() {
+  const navigate = useNavigate();
+  const { playlistId } = useParams();
+
+  const isSharedLinkEntry = Boolean(playlistId);
+
   const handleKakaoLogin = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/kakao/login`);
@@ -31,10 +37,19 @@ export default function LandingPage() {
     }
   };
 
+  const handleGuestRecommend = () => {
+    if (!playlistId) {
+      navigate("/search");
+      return;
+    }
+
+    navigate(`/playlist/${playlistId}/recommend`);
+  };
+
   return (
     <main className="landing-page">
       <header className="landing-header">
-          <img src={plitterLogo} alt="PLITTER" className="plitter-logo" />
+        <img src={plitterLogo} alt="PLITTER" className="plitter-logo" />
       </header>
 
       <section className="landing-hero">
@@ -49,17 +64,17 @@ export default function LandingPage() {
         </div>
 
         <div className="vinyl-record">
-            <img className="lp-layer lp-ellipse-25" src={ellipse25} alt="" />
-            <img className="lp-layer lp-ellipse-14" src={ellipse14} alt="" />
-            <img className="lp-layer lp-ellipse-37" src={ellipse37} alt="" />
-            <img className="lp-layer lp-ellipse-33" src={ellipse33} alt="" />
-            <img className="lp-layer lp-ellipse-35" src={ellipse35} alt="" />
-            <img className="lp-layer lp-ellipse-36" src={ellipse36} alt="" />
-            <img className="lp-layer lp-ellipse-34" src={ellipse34} alt="" />
+          <img className="lp-layer lp-ellipse-25" src={ellipse25} alt="" />
+          <img className="lp-layer lp-ellipse-14" src={ellipse14} alt="" />
+          <img className="lp-layer lp-ellipse-37" src={ellipse37} alt="" />
+          <img className="lp-layer lp-ellipse-33" src={ellipse33} alt="" />
+          <img className="lp-layer lp-ellipse-35" src={ellipse35} alt="" />
+          <img className="lp-layer lp-ellipse-36" src={ellipse36} alt="" />
+          <img className="lp-layer lp-ellipse-34" src={ellipse34} alt="" />
 
-            <img className="lp-number" src={number18} alt="NUMBER 18" />
-            <img className="lp-center" src={ellipse26} alt="" />
-            <img className="lp-dot" src={ellipse32} alt="" />
+          <img className="lp-number" src={number18} alt="NUMBER 18" />
+          <img className="lp-center" src={ellipse26} alt="" />
+          <img className="lp-dot" src={ellipse32} alt="" />
         </div>
       </section>
 
@@ -74,6 +89,16 @@ export default function LandingPage() {
           <span className="kakao-icon" />
           <span className="kakao-login-label">카카오계정으로 로그인</span>
         </button>
+
+        {isSharedLinkEntry && (
+          <button
+            type="button"
+            className="guest-recommend-button"
+            onClick={handleGuestRecommend}
+          >
+            게스트로 추천만 할게요 →
+          </button>
+        )}
       </section>
     </main>
   );
