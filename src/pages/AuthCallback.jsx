@@ -12,7 +12,7 @@ export default function AuthCallback() {
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
     const hasAccessToken = params.get("accessToken");
-    const fallbackPath = code ? "/main" : "/login";
+    const fallbackPath = code ? "/profile-share" : "/login";
 
     const timer = window.setTimeout(() => {
       if (!hasAccessToken) {

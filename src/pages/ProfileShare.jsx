@@ -4,6 +4,13 @@ import plitterLogo from "../assets/Plitter.png";
 import { API_BASE_URL, parseJson } from "../lib/api";
 import "./ProfileShare.css";
 
+const USE_MOCK_DATA = true;
+
+const MOCK_PLAYLIST_CONTENT = {
+  playlistId: "mock-playlist",
+  shareUrl: `${window.location.origin}/playlist/mock-playlist`,
+};
+
 export default function ProfileShare() {
   const navigate = useNavigate();
 
@@ -12,6 +19,7 @@ export default function ProfileShare() {
   const [copied, setCopied] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [hasPlaylist, setHasPlaylist] = useState(false);
+  const [myPlaylistPath, setMyPlaylistPath] = useState("");
 
   const hasCheckedPlaylist = useRef(false);
 
@@ -42,7 +50,33 @@ export default function ProfileShare() {
     return "";
   };
 
+  const applyPlaylistContent = (content) => {
+    const playlistId = getPlaylistIdFromResponseContent(content);
+
+    const nextShareLink =
+      content?.shareUrl ||
+      (playlistId ? `${window.location.origin}/playlist/${playlistId}` : "");
+
+    setHasPlaylist(true);
+    setShareLink(nextShareLink);
+    setMyPlaylistPath(playlistId ? `/playlist/${playlistId}` : "");
+  };
+
   const checkPlaylist = async () => {
+    const nickname = getNickname();
+    setPlaylistName(`${nickname}님의 플레이리스트`);
+
+    if (USE_MOCK_DATA) {
+      setIsLoading(true);
+
+      setTimeout(() => {
+        applyPlaylistContent(MOCK_PLAYLIST_CONTENT);
+        setIsLoading(false);
+      }, 300);
+
+      return;
+    }
+
     const accessToken = localStorage.getItem("accessToken");
 
     if (!accessToken) {
@@ -53,9 +87,6 @@ export default function ProfileShare() {
 
     try {
       setIsLoading(true);
-
-      const nickname = getNickname();
-      setPlaylistName(`${nickname}님의 플레이리스트`);
 
       const response = await fetch(`${API_BASE_URL}/playlists/check`, {
         headers: {
@@ -70,22 +101,18 @@ export default function ProfileShare() {
       if (!response.ok || data?.code !== "SUCCESS") {
         setHasPlaylist(false);
         setShareLink("");
+        setMyPlaylistPath("");
         return;
       }
 
       if (!data?.content?.hasPlaylist) {
         setHasPlaylist(false);
         setShareLink("");
+        setMyPlaylistPath("");
         return;
       }
 
-      const playlistId = getPlaylistIdFromResponseContent(data.content);
-      const checkedShareLink =
-        data.content?.shareUrl ||
-        (playlistId ? `${window.location.origin}/playlist/${playlistId}` : "");
-
-      setHasPlaylist(true);
-      setShareLink(checkedShareLink);
+      applyPlaylistContent(data.content);
     } catch (error) {
       console.error("플레이리스트 확인 실패", error);
       alert("플레이리스트 확인 중 문제가 발생했어요.");
@@ -95,19 +122,22 @@ export default function ProfileShare() {
   };
 
   const createPlaylist = async () => {
-    const accessToken = localStorage.getItem("accessToken");
-
     const nickname = getNickname();
+    const finalPlaylistName = `${nickname}님의 플레이리스트`;
+
+    setPlaylistName(finalPlaylistName);
+
+    if (USE_MOCK_DATA) {
+      return MOCK_PLAYLIST_CONTENT;
+    }
+
+    const accessToken = localStorage.getItem("accessToken");
 
     if (!accessToken) {
       alert("로그인이 필요합니다.");
       navigate("/login");
       return null;
     }
-
-    const finalPlaylistName = `${nickname}님의 플레이리스트`;
-
-    setPlaylistName(finalPlaylistName);
 
     const response = await fetch(`${API_BASE_URL}/playlists`, {
       method: "POST",
@@ -123,17 +153,17 @@ export default function ProfileShare() {
     console.log("플레이리스트 생성 응답:", data);
 
     if (!response.ok) {
-      if (data.code === "PLAYLIST_ALREADY_EXISTS") {
+      if (data?.code === "PLAYLIST_ALREADY_EXISTS") {
         alert("이미 생성된 플레이리스트가 있어요.");
         await checkPlaylist();
         return null;
       }
 
-      alert(data.message || "플레이리스트 생성에 실패했어요.");
+      alert(data?.message || "플레이리스트 생성에 실패했어요.");
       return null;
     }
 
-    return data.content?.shareUrl || null;
+    return data.content || null;
   };
 
   useEffect(() => {
@@ -151,18 +181,26 @@ export default function ProfileShare() {
     try {
       setIsLoading(true);
 
-      const newShareLink = await createPlaylist();
+      const newPlaylistContent = await createPlaylist();
 
-      if (!newShareLink) return;
+      if (!newPlaylistContent) return;
 
-      setShareLink(newShareLink);
-      setHasPlaylist(true);
+      applyPlaylistContent(newPlaylistContent);
     } catch (error) {
       console.error("플레이리스트 생성 실패", error);
       alert("플레이리스트 생성 중 문제가 발생했어요.");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleGoMyPlaylist = () => {
+    if (!myPlaylistPath) {
+      alert("플레이리스트 경로를 확인할 수 없어요.");
+      return;
+    }
+
+    navigate(myPlaylistPath);
   };
 
   const handleCopyLink = async () => {
@@ -212,18 +250,29 @@ export default function ProfileShare() {
 
       <section className="share-bottom-area">
         {hasPlaylist ? (
-          <button
-            type="button"
-            className={`copy-link-button ${copied ? "copied" : ""}`}
-            onClick={handleCopyLink}
-            disabled={isLoading}
-          >
-            {isLoading
-              ? "공유 링크 확인 중..."
-              : copied
-              ? "공유 링크가 복사되었어요"
-              : "공유 링크 복사하기"}
-          </button>
+          <>
+            <button
+              type="button"
+              className={`copy-link-button ${copied ? "copied" : ""}`}
+              onClick={handleCopyLink}
+              disabled={isLoading}
+            >
+              {isLoading
+                ? "공유 링크 확인 중..."
+                : copied
+                ? "공유 링크가 복사되었어요"
+                : "공유 링크 복사하기"}
+            </button>
+
+            <button
+              type="button"
+              className="my-playlist-button"
+              onClick={handleGoMyPlaylist}
+              disabled={isLoading || !myPlaylistPath}
+            >
+              생성된 플레이리스트로 이동
+            </button>
+          </>
         ) : (
           <button
             type="button"
