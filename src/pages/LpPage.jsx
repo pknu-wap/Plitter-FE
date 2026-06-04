@@ -54,6 +54,7 @@ export default function LpPage() {
   const [embedUrl, setEmbedUrl] = useState("");
   const [isPlayerVisible, setIsPlayerVisible] = useState(false);
   const [isPlayerLoading, setIsPlayerLoading] = useState(false);
+  const isNewRecommendationEntry = Boolean(location.state?.isNewRecommendation);
 
   const [isCommentPopupOpen, setIsCommentPopupOpen] = useState(Boolean(location.state?.openRecommendSheet));
   const [commentText, setCommentText] = useState(location.state?.commentText || "");
@@ -431,7 +432,7 @@ export default function LpPage() {
       </section>
 
       <section className="lp-action-group">
-        {!embedUrl ? (
+        {!isNewRecommendationEntry && !embedUrl ? (
           <button
             type="button"
             className="load-player-btn"
