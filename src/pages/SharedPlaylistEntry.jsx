@@ -710,6 +710,9 @@ export default function SharedPlaylistEntry() {
 
   const hasCharacter = Boolean(characterData?.imageUrl);
 
+  const showShareGuideMessage =
+    showCharacterBlockedMessage && !hasCharacter;
+
   const buttonText = (() => {
     if (isMyPlaylist) {
       if (isCharacterAvailabilityLoading) {
@@ -903,9 +906,16 @@ export default function SharedPlaylistEntry() {
       ) : null}
 
       {showCharacterBlockedMessage ? (
-        <p className="shared-limit-message">
-          {getCharacterAvailabilityMessage(characterAvailability)}
-        </p>
+        <>
+          <p className="shared-limit-message">
+            {getCharacterAvailabilityMessage(characterAvailability)}
+          </p>
+          {showShareGuideMessage ? (
+            <p className="shared-share-guide-message">
+              공유 링크를 공유해서 추천을 받아보세요
+            </p>
+          ) : null}
+        </>
       ) : null}
 
       {showRecommendButton ? (
