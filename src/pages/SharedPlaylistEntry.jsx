@@ -710,9 +710,6 @@ export default function SharedPlaylistEntry() {
   const showShareGuideMessage =
     showCharacterBlockedMessage && !hasCharacter;
 
-  const showShareGuideMessage =
-    showCharacterBlockedMessage && !hasCharacter;
-
   const buttonText = (() => {
     if (isMyPlaylist) {
       if (isCharacterAvailabilityLoading) {
