@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import plitterLogo from "../assets/Plitter.png";
 import vinylImage from "../assets/lp-vinyl.png";
 import { API_BASE_URL, parseJson } from "../lib/api";
+import { buildSearchPath } from "../lib/playlistShare";
 import "./LpPage.css";
 
 
@@ -78,10 +79,14 @@ export default function LpPage() {
   const isKakaoUser = Boolean(accessToken);
   const isGuestUser = !isKakaoUser && Boolean(guestToken);
 
-  const playlistId = useMemo(() => {
+  const publicShareId = useMemo(() => {
     const params = new URLSearchParams(location.search);
-    return location.state?.playlistId || params.get("playlistId");
-  }, [location.search, location.state?.playlistId]);
+    return (
+      location.state?.publicShareId ||
+      params.get("publicShareId") ||
+      params.get("playlistId")
+    );
+  }, [location.search, location.state?.publicShareId]);
 
   const fetchComments = useCallback(async (id) => {
     if (!id) return;
@@ -222,16 +227,17 @@ export default function LpPage() {
 
     if (!isKakaoUser && !isGuestUser) {
       alert("로그인 또는 게스트 입장 후 추천할 수 있습니다.");
-      if (playlistId) {
-        localStorage.setItem("postLoginRedirect", `/search?playlistId=${encodeURIComponent(playlistId)}`);
-        navigate(`/login?playlistId=${encodeURIComponent(playlistId)}`);
+      if (publicShareId) {
+        const redirectPath = buildSearchPath(publicShareId);
+        localStorage.setItem("postLoginRedirect", redirectPath);
+        navigate(`/login?publicShareId=${encodeURIComponent(publicShareId)}`);
       } else {
         navigate("/login");
       }
       return;
     }
 
-    if (!playlistId) {
+    if (!publicShareId) {
       alert("플레이리스트 정보가 없습니다. 공유 링크에서 다시 시작해 주세요.");
       return;
     }
@@ -256,11 +262,14 @@ export default function LpPage() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/playlists/${playlistId}/recommendations`, {
+      const response = await fetch(
+        `${API_BASE_URL}/playlists/share/${encodeURIComponent(publicShareId)}/recommendations`,
+        {
         method: "POST",
         headers,
         body: JSON.stringify(requestData),
-      });
+        }
+      );
 
       const payload = await parseJson(response);
 
@@ -274,10 +283,10 @@ export default function LpPage() {
       setIsCommentPopupOpen(false);
       setIsRecommended(true);
 
-      if (playlistId && displayTrack.albumCoverImageUrl) {
-        localStorage.setItem(`lastRecommendedCover:${playlistId}`, displayTrack.albumCoverImageUrl);
+      if (publicShareId && displayTrack.albumCoverImageUrl) {
+        localStorage.setItem(`lastRecommendedCover:${publicShareId}`, displayTrack.albumCoverImageUrl);
         try {
-          const trackHistoryKey = `recommendedTracks:${playlistId}`;
+          const trackHistoryKey = `recommendedTracks:${publicShareId}`;
           const rawTrackHistory = localStorage.getItem(trackHistoryKey);
           const parsedTrackHistory = rawTrackHistory ? JSON.parse(rawTrackHistory) : [];
           const trackHistory = Array.isArray(parsedTrackHistory) ? parsedTrackHistory : [];
@@ -301,7 +310,7 @@ export default function LpPage() {
           });
           localStorage.setItem(trackHistoryKey, JSON.stringify(uniqueTrackHistory.slice(0, 10)));
 
-          const historyKey = `recommendedCovers:${playlistId}`;
+          const historyKey = `recommendedCovers:${publicShareId}`;
           const rawHistory = localStorage.getItem(historyKey);
           const parsedHistory = rawHistory ? JSON.parse(rawHistory) : [];
           const history = Array.isArray(parsedHistory) ? parsedHistory : [];
@@ -339,7 +348,7 @@ export default function LpPage() {
       state: {
         track: displayTrack,
         recommendationId,
-        playlistId,
+        publicShareId,
         commentText,
         isRecommended,
         commentCount,

@@ -3,6 +3,13 @@ import { useNavigate, useParams } from "react-router-dom";
 import plitterLogo from "../assets/Plitter.png";
 import popImage from "../assets/rnb.png";
 import { API_BASE_URL, parseJson } from "../lib/api";
+import {
+  buildPlaylistPath,
+  buildPlaylistShareLink,
+  buildSearchPath,
+  getPlaylistIdFromResponseContent,
+  getPublicShareIdFromResponseContent,
+} from "../lib/playlistShare";
 import "./SharedPlaylistEntry.css";
 
 const USE_MOCK_DATA = false;
@@ -209,25 +216,6 @@ function mergeTracks(nextTracks, prevTracks) {
   return dedupeTracksByCover([...nextTracks, ...prevTracks]);
 }
 
-function getPlaylistIdFromResponseContent(content) {
-  if (content?.playlistId) {
-    return String(content.playlistId).trim();
-  }
-
-  if (typeof content?.shareUrl === "string" && content.shareUrl) {
-    try {
-      const shareUrl = new URL(content.shareUrl, window.location.origin);
-      const matchedPath = shareUrl.pathname.match(/^\/playlist\/([^/]+)$/);
-
-      return matchedPath ? decodeURIComponent(matchedPath[1]).trim() : "";
-    } catch {
-      return "";
-    }
-  }
-
-  return "";
-}
-
 function getCharacterAvailabilityMessage(availability) {
   const requiredCount = availability?.requiredCount ?? 10;
   const currentCount = availability?.currentCount ?? 0;
@@ -256,10 +244,10 @@ async function requestCharacterAvailability(playlistId, accessToken) {
 
 export default function SharedPlaylistEntry() {
   const navigate = useNavigate();
-  const { playlistId } = useParams();
+  const { publicShareId } = useParams();
 
-  const normalizedPlaylistId = (
-    playlistId ||
+  const normalizedPublicShareId = (
+    publicShareId ||
     (USE_MOCK_DATA ? MOCK_MY_PLAYLIST_ID : "")
   ).trim();
 
@@ -268,19 +256,19 @@ export default function SharedPlaylistEntry() {
   const isLoggedIn = USE_MOCK_DATA ? true : Boolean(accessToken || guestToken);
 
   const storageKey = useMemo(() => {
-    if (!normalizedPlaylistId) return "";
-    return `lastRecommendedCover:${normalizedPlaylistId}`;
-  }, [normalizedPlaylistId]);
+    if (!normalizedPublicShareId) return "";
+    return `lastRecommendedCover:${normalizedPublicShareId}`;
+  }, [normalizedPublicShareId]);
 
   const guestRecommendedKey = useMemo(() => {
-    if (!normalizedPlaylistId) return "";
-    return `guestRecommended:${normalizedPlaylistId}`;
-  }, [normalizedPlaylistId]);
+    if (!normalizedPublicShareId) return "";
+    return `guestRecommended:${normalizedPublicShareId}`;
+  }, [normalizedPublicShareId]);
 
   const recommendationLimitKey = useMemo(() => {
-    if (!normalizedPlaylistId) return "";
-    return `recommendLimitExceeded:${normalizedPlaylistId}`;
-  }, [normalizedPlaylistId]);
+    if (!normalizedPublicShareId) return "";
+    return `recommendLimitExceeded:${normalizedPublicShareId}`;
+  }, [normalizedPublicShareId]);
 
   const [playlistMeta, setPlaylistMeta] = useState(
     USE_MOCK_DATA
@@ -298,9 +286,12 @@ export default function SharedPlaylistEntry() {
   const [myPlaylistId, setMyPlaylistId] = useState(
     USE_MOCK_DATA ? MOCK_MY_PLAYLIST_ID : ""
   );
+  const [myPlaylistPublicShareId, setMyPlaylistPublicShareId] = useState(
+    USE_MOCK_DATA ? MOCK_MY_PLAYLIST_ID : ""
+  );
 
   const [recommendedTracks, setRecommendedTracks] = useState(() =>
-    buildInitialTracks(normalizedPlaylistId)
+    buildInitialTracks(normalizedPublicShareId)
   );
 
   const [activeIndex, setActiveIndex] = useState(0);
@@ -330,29 +321,31 @@ export default function SharedPlaylistEntry() {
     return localStorage.getItem(recommendationLimitKey) === "true";
   }, [recommendationLimitKey]);
 
-  const linkError = !normalizedPlaylistId ? "유효하지 않은 공유 링크입니다." : "";
+  const linkError = !normalizedPublicShareId ? "유효하지 않은 공유 링크입니다." : "";
 
   const pointerStartXRef = useRef(0);
   const hasDraggedRef = useRef(false);
 
   const isMyPlaylist = USE_MOCK_DATA
-    ? myPlaylistId === normalizedPlaylistId
-    : Boolean(accessToken) && myPlaylistId === normalizedPlaylistId;
+    ? myPlaylistPublicShareId === normalizedPublicShareId
+    : Boolean(accessToken) && myPlaylistPublicShareId === normalizedPublicShareId;
 
   const searchPath = useMemo(() => {
-    if (!normalizedPlaylistId) return "/search";
+    if (!normalizedPublicShareId) return "/search";
 
-    return `/search?playlistId=${encodeURIComponent(normalizedPlaylistId)}`;
-  }, [normalizedPlaylistId]);
+    return buildSearchPath(normalizedPublicShareId);
+  }, [normalizedPublicShareId]);
 
   useEffect(() => {
     if (USE_MOCK_DATA) return;
-    if (!normalizedPlaylistId) return;
+    if (!normalizedPublicShareId) return;
 
     const fetchPlaylist = async () => {
       try {
         const response = await fetch(
-          `${API_BASE_URL}/playlists/${normalizedPlaylistId}/public`
+          `${API_BASE_URL}/playlists/share/${encodeURIComponent(
+            normalizedPublicShareId
+          )}/public`
         );
 
         const payload = await parseJson(response);
@@ -384,7 +377,7 @@ export default function SharedPlaylistEntry() {
           .reverse();
 
         const storedHistoryTracks = getStoredCoverHistory(
-          normalizedPlaylistId
+          normalizedPublicShareId
         ).map((cover) => normalizeTrack(null, cover));
 
         const latestPublicTrack = normalizeTrack(null, latestCoverImageUrl);
@@ -399,7 +392,7 @@ export default function SharedPlaylistEntry() {
 
         if (publicTracks.length > 0) {
           localStorage.setItem(
-            `recommendedTracks:${normalizedPlaylistId}`,
+            `recommendedTracks:${normalizedPublicShareId}`,
             JSON.stringify(publicTracks)
           );
         }
@@ -411,22 +404,20 @@ export default function SharedPlaylistEntry() {
     };
 
     void fetchPlaylist();
-  }, [normalizedPlaylistId, storageKey]);
+  }, [normalizedPublicShareId, storageKey]);
 
   useEffect(() => {
     if (USE_MOCK_DATA || FORCE_MOCK_CHARACTER) return;
-    if (!normalizedPlaylistId) return;
+    if (!accessToken || !isMyPlaylist || !myPlaylistId) return;
 
     const fetchCharacter = async () => {
       try {
         const response = await fetch(
-          `${API_BASE_URL}/playlists/${normalizedPlaylistId}/character/download-url`,
+          `${API_BASE_URL}/playlists/${myPlaylistId}/character/download-url`,
           {
-            headers: accessToken
-              ? {
-                  Authorization: `Bearer ${accessToken}`,
-                }
-              : {},
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
           }
         );
 
@@ -454,11 +445,11 @@ export default function SharedPlaylistEntry() {
     };
 
     void fetchCharacter();
-  }, [normalizedPlaylistId, accessToken]);
+  }, [accessToken, isMyPlaylist, myPlaylistId]);
 
   useEffect(() => {
     if (USE_MOCK_DATA) return;
-    if (!accessToken || !normalizedPlaylistId) return;
+    if (!accessToken || !normalizedPublicShareId) return;
 
     let cancelled = false;
 
@@ -479,6 +470,7 @@ export default function SharedPlaylistEntry() {
         ) {
           if (!cancelled) {
             setMyPlaylistId("");
+            setMyPlaylistPublicShareId("");
           }
 
           return;
@@ -486,10 +478,14 @@ export default function SharedPlaylistEntry() {
 
         if (!cancelled) {
           setMyPlaylistId(getPlaylistIdFromResponseContent(payload.content));
+          setMyPlaylistPublicShareId(
+            getPublicShareIdFromResponseContent(payload.content)
+          );
         }
       } catch {
         if (!cancelled) {
           setMyPlaylistId("");
+          setMyPlaylistPublicShareId("");
         }
       }
     };
@@ -499,11 +495,11 @@ export default function SharedPlaylistEntry() {
     return () => {
       cancelled = true;
     };
-  }, [accessToken, normalizedPlaylistId]);
+  }, [accessToken, normalizedPublicShareId]);
 
   useEffect(() => {
     if (USE_MOCK_DATA) return;
-    if (!isMyPlaylist || !normalizedPlaylistId || !accessToken) return;
+    if (!isMyPlaylist || !myPlaylistId || !accessToken) return;
 
     let cancelled = false;
 
@@ -512,7 +508,7 @@ export default function SharedPlaylistEntry() {
 
       try {
         const { response, payload, content } =
-          await requestCharacterAvailability(normalizedPlaylistId, accessToken);
+          await requestCharacterAvailability(myPlaylistId, accessToken);
 
         if (!response.ok || payload?.code !== "SUCCESS") {
           if (!cancelled) {
@@ -541,11 +537,11 @@ export default function SharedPlaylistEntry() {
     return () => {
       cancelled = true;
     };
-  }, [accessToken, isMyPlaylist, normalizedPlaylistId]);
+  }, [accessToken, isMyPlaylist, myPlaylistId]);
 
   const handleGoMyPlaylist = () => {
-    if (myPlaylistId) {
-      navigate(`/playlist/${encodeURIComponent(myPlaylistId)}`);
+    if (myPlaylistPublicShareId) {
+      navigate(buildPlaylistPath(myPlaylistPublicShareId));
       return;
     }
 
@@ -553,12 +549,12 @@ export default function SharedPlaylistEntry() {
   };
 
   const handleCopyShareLink = async () => {
-    if (!normalizedPlaylistId) {
+    if (!normalizedPublicShareId) {
       alert("유효하지 않은 공유 링크입니다.");
       return;
     }
 
-    const shareLink = `${window.location.origin}/playlist/${normalizedPlaylistId}`;
+    const shareLink = buildPlaylistShareLink(normalizedPublicShareId);
 
     try {
       await navigator.clipboard.writeText(shareLink);
@@ -574,7 +570,7 @@ export default function SharedPlaylistEntry() {
   };
 
   const handleStartRecommendation = async () => {
-    if (!normalizedPlaylistId) {
+    if (!normalizedPublicShareId) {
       alert("유효하지 않은 공유 링크입니다.");
       return;
     }
@@ -583,10 +579,10 @@ export default function SharedPlaylistEntry() {
       if (!accessToken) {
         localStorage.setItem(
           "postLoginRedirect",
-          `/playlist/${encodeURIComponent(normalizedPlaylistId)}`
+          buildPlaylistPath(normalizedPublicShareId)
         );
 
-        navigate(`/login?playlistId=${encodeURIComponent(normalizedPlaylistId)}`);
+        navigate(`/login?publicShareId=${encodeURIComponent(normalizedPublicShareId)}`);
         return;
       }
 
@@ -594,17 +590,17 @@ export default function SharedPlaylistEntry() {
 
       try {
         const { response, payload, content } =
-          await requestCharacterAvailability(normalizedPlaylistId, accessToken);
+          await requestCharacterAvailability(myPlaylistId, accessToken);
 
         if (!response.ok || payload?.code !== "SUCCESS") {
           if (payload?.code === "UNAUTHORIZED") {
             localStorage.setItem(
               "postLoginRedirect",
-              `/playlist/${encodeURIComponent(normalizedPlaylistId)}`
+              buildPlaylistPath(normalizedPublicShareId)
             );
 
             navigate(
-              `/login?playlistId=${encodeURIComponent(normalizedPlaylistId)}`
+              `/login?publicShareId=${encodeURIComponent(normalizedPublicShareId)}`
             );
 
             return;
@@ -626,7 +622,9 @@ export default function SharedPlaylistEntry() {
 
         navigate(
           `/character-loading?playlistId=${encodeURIComponent(
-            normalizedPlaylistId
+            myPlaylistId
+          )}&publicShareId=${encodeURIComponent(
+            normalizedPublicShareId
           )}${recreateQuery}`
         );
       } catch (error) {
@@ -650,7 +648,7 @@ export default function SharedPlaylistEntry() {
     if (!isLoggedIn) {
       localStorage.setItem("postLoginRedirect", searchPath);
 
-      navigate(`/login?playlistId=${encodeURIComponent(normalizedPlaylistId)}`);
+      navigate(`/login?publicShareId=${encodeURIComponent(normalizedPublicShareId)}`);
       return;
     }
 
@@ -660,10 +658,10 @@ export default function SharedPlaylistEntry() {
   const openRecommendationTrack = (track) => {
     if (!track?.albumCoverImageUrl) return;
 
-    navigate(`/lp?playlistId=${encodeURIComponent(normalizedPlaylistId)}`, {
+    navigate(`/lp?publicShareId=${encodeURIComponent(normalizedPublicShareId)}`, {
       state: {
         track,
-        playlistId: normalizedPlaylistId,
+        publicShareId: normalizedPublicShareId,
         isRecommended: true,
         recommendationId: track.recommendationId ?? null,
         commentCount: track.commentCount ?? 0,
@@ -709,7 +707,6 @@ export default function SharedPlaylistEntry() {
       characterAvailability?.available === false);
 
   const hasCharacter = Boolean(characterData?.imageUrl);
-
   const showShareGuideMessage =
     showCharacterBlockedMessage && !hasCharacter;
 

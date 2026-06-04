@@ -1,14 +1,19 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import plitterLogo from "../assets/Plitter.png";
 import { API_BASE_URL, parseJson } from "../lib/api";
+import {
+  buildPlaylistPath,
+  buildPlaylistShareLink,
+  getPublicShareIdFromResponseContent,
+} from "../lib/playlistShare";
 import "./ProfileShare.css";
 
-const USE_MOCK_DATA = true;
+const USE_MOCK_DATA = false;
 
 const MOCK_PLAYLIST_CONTENT = {
-  playlistId: "mock-playlist",
-  shareUrl: `${window.location.origin}/playlist/mock-playlist`,
+  publicShareId: "mock-share-id",
+  shareUrl: `${window.location.origin}/playlist/mock-share-id`,
 };
 
 export default function ProfileShare() {
@@ -32,37 +37,15 @@ export default function ProfileShare() {
     );
   };
 
-  const getPlaylistIdFromResponseContent = (content) => {
-    if (content?.playlistId) {
-      return String(content.playlistId).trim();
-    }
-
-    if (typeof content?.shareUrl === "string" && content.shareUrl) {
-      try {
-        const shareUrl = new URL(content.shareUrl, window.location.origin);
-        const matchedPath = shareUrl.pathname.match(/^\/playlist\/([^/]+)$/);
-        return matchedPath ? decodeURIComponent(matchedPath[1]).trim() : "";
-      } catch {
-        return "";
-      }
-    }
-
-    return "";
-  };
-
   const applyPlaylistContent = (content) => {
-    const playlistId = getPlaylistIdFromResponseContent(content);
-
-    const nextShareLink =
-      content?.shareUrl ||
-      (playlistId ? `${window.location.origin}/playlist/${playlistId}` : "");
+    const publicShareId = getPublicShareIdFromResponseContent(content);
 
     setHasPlaylist(true);
-    setShareLink(nextShareLink);
-    setMyPlaylistPath(playlistId ? `/playlist/${playlistId}` : "");
+    setShareLink(buildPlaylistShareLink(publicShareId));
+    setMyPlaylistPath(buildPlaylistPath(publicShareId));
   };
 
-  const checkPlaylist = async () => {
+  const checkPlaylist = useCallback(async () => {
     const nickname = getNickname();
     setPlaylistName(`${nickname}님의 플레이리스트`);
 
@@ -119,7 +102,7 @@ export default function ProfileShare() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [navigate]);
 
   const createPlaylist = async () => {
     const nickname = getNickname();
@@ -175,7 +158,7 @@ export default function ProfileShare() {
     };
 
     loadPlaylistStatus();
-  }, []);
+  }, [checkPlaylist]);
 
   const handleCreatePlaylist = async () => {
     try {

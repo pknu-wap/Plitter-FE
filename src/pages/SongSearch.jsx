@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import plitterLogo from "../assets/Plitter.png";
 import { API_BASE_URL, parseJson } from "../lib/api";
+import { buildSearchPath } from "../lib/playlistShare";
 import searchIcon from "../assets/magnifyingglass.png";
 import "./SongSearch.css";
 
@@ -19,20 +20,21 @@ export default function SongSearch() {
   const accessToken = localStorage.getItem("accessToken") || "";
   const guestToken = localStorage.getItem("guestToken") || "";
 
-  const playlistId = useMemo(() => {
+  const publicShareId = useMemo(() => {
     const params = new URLSearchParams(location.search);
-    return params.get("playlistId");
+    return params.get("publicShareId") || params.get("playlistId");
   }, [location.search]);
-  const playlistContextError = !playlistId ? "공유된 플레이리스트 링크로 접속해 주세요." : "";
+  const playlistContextError = !publicShareId ? "공유된 플레이리스트 링크로 접속해 주세요." : "";
 
   useEffect(() => {
-    if (!playlistId) return;
+    if (!publicShareId) return;
 
     if (!accessToken && !guestToken) {
-      localStorage.setItem("postLoginRedirect", `/search?playlistId=${encodeURIComponent(playlistId)}`);
-      navigate(`/login?playlistId=${encodeURIComponent(playlistId)}`, { replace: true });
+      const redirectPath = buildSearchPath(publicShareId);
+      localStorage.setItem("postLoginRedirect", redirectPath);
+      navigate(`/login?publicShareId=${encodeURIComponent(publicShareId)}`, { replace: true });
     }
-  }, [accessToken, guestToken, navigate, playlistId]);
+  }, [accessToken, guestToken, navigate, publicShareId]);
 
   const searchTracks = async (term) => {
     const normalized = term.trim();
@@ -84,7 +86,7 @@ export default function SongSearch() {
   }, [keyword]);
 
   const handleSelectTrack = (track) => {
-    if (!playlistId) {
+    if (!publicShareId) {
       alert("플레이리스트 정보가 없습니다. 공유 링크로 다시 접속해 주세요.");
       return;
     }
@@ -92,7 +94,7 @@ export default function SongSearch() {
     navigate("/lp", {
       state: {
         track,
-        playlistId,
+        publicShareId,
         isNewRecommendation: true,
       },
     });

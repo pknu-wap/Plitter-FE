@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { characterResults } from "../data/CharacterResults";
 import { API_BASE_URL, parseJson } from "../lib/api";
+import { buildPlaylistPath } from "../lib/playlistShare";
 import "./CharacterResult.css";
 import plitterLogo from "../assets/Plitter.png";
 
@@ -32,6 +33,7 @@ export default function CharacterResult() {
 
   const type = searchParams.get("type") || "rnb";
   const playlistId = searchParams.get("playlistId");
+  const publicShareId = searchParams.get("publicShareId");
   const fallbackResult = characterResults[type] || characterResults.rnb;
   const [characterResult, setCharacterResult] = useState(() =>
     playlistId
@@ -51,7 +53,9 @@ export default function CharacterResult() {
 
     const authToken =
       localStorage.getItem("accessToken") || localStorage.getItem("guestToken") || "";
-    const redirectPath = `/character-result?playlistId=${encodeURIComponent(playlistId)}`;
+    const redirectPath = `/character-result?playlistId=${encodeURIComponent(playlistId)}${
+      publicShareId ? `&publicShareId=${encodeURIComponent(publicShareId)}` : ""
+    }`;
 
     let cancelled = false;
 
@@ -70,16 +74,24 @@ export default function CharacterResult() {
           Authorization: `Bearer ${authToken}`,
         };
 
+        const playlistRequest = publicShareId
+          ? fetch(
+              `${API_BASE_URL}/playlists/share/${encodeURIComponent(
+                publicShareId
+              )}/public`
+            )
+          : Promise.resolve(null);
+
         const [characterResponse, playlistResponse] = await Promise.all([
           fetch(`${API_BASE_URL}/playlists/${playlistId}/character/download-url`, {
             headers: authHeaders,
           }),
-          fetch(`${API_BASE_URL}/playlists/${playlistId}/public`),
+          playlistRequest,
         ]);
 
         const [characterPayload, playlistPayload] = await Promise.all([
           parseJson(characterResponse),
-          parseJson(playlistResponse),
+          playlistResponse ? parseJson(playlistResponse) : Promise.resolve(null),
         ]);
 
         if (!characterResponse.ok || characterPayload?.code !== "SUCCESS") {
@@ -122,7 +134,14 @@ export default function CharacterResult() {
     return () => {
       cancelled = true;
     };
-  }, [fallbackResult.characterName, fallbackResult.image, fallbackResult.tags, navigate, playlistId]);
+  }, [
+    fallbackResult.characterName,
+    fallbackResult.image,
+    fallbackResult.tags,
+    navigate,
+    playlistId,
+    publicShareId,
+  ]);
 
   const backgroundStyle = characterResult?.tags?.length
     ? getCharacterBackground(characterResult.tags)
@@ -176,7 +195,9 @@ export default function CharacterResult() {
 
       <button
         className="go-playlist-button"
-        onClick={() => navigate("/main")}
+        onClick={() =>
+          navigate(publicShareId ? buildPlaylistPath(publicShareId) : "/main")
+        }
       >
         내 플리로 돌아가기
       </button>

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import plitterLogo from "../assets/Plitter.png";
 import { API_BASE_URL, parseJson } from "../lib/api";
+import { buildPlaylistPath } from "../lib/playlistShare";
 import "./CharacterLoading.css";
 
 export default function CharacterLoading() {
@@ -9,6 +10,7 @@ export default function CharacterLoading() {
   const [searchParams] = useSearchParams();
 
   const playlistId = searchParams.get("playlistId");
+  const publicShareId = searchParams.get("publicShareId");
   const recreate = searchParams.get("recreate");
   const eyebrowText = recreate ? "캐릭터 다시 생성 중" : "캐릭터 생성 중";
   const [loadingTitle, setLoadingTitle] = useState("플레이리스트의 분위기를 정리하고 있어요");
@@ -23,9 +25,14 @@ export default function CharacterLoading() {
 
     const authToken =
       localStorage.getItem("accessToken") || localStorage.getItem("guestToken") || "";
+    const playlistPath = publicShareId ? buildPlaylistPath(publicShareId) : "/main";
     const redirectPath = recreate
-      ? `/character-loading?playlistId=${encodeURIComponent(playlistId)}&recreate=true`
-      : `/character-loading?playlistId=${encodeURIComponent(playlistId)}`;
+      ? `/character-loading?playlistId=${encodeURIComponent(playlistId)}${
+          publicShareId ? `&publicShareId=${encodeURIComponent(publicShareId)}` : ""
+        }&recreate=true`
+      : `/character-loading?playlistId=${encodeURIComponent(playlistId)}${
+          publicShareId ? `&publicShareId=${encodeURIComponent(publicShareId)}` : ""
+        }`;
 
     let cancelled = false;
 
@@ -76,7 +83,7 @@ export default function CharacterLoading() {
           alert(
             `추천 ${requiredCount}곡 이상이 필요합니다. 현재 ${currentCount}/${requiredCount}`
           );
-          navigate(`/playlist/${playlistId}`, { replace: true });
+          navigate(playlistPath, { replace: true });
           return;
         }
 
@@ -107,7 +114,7 @@ export default function CharacterLoading() {
             alert(
               `추천 ${requiredCount}곡 이상이 필요합니다. 현재 ${currentCount}/${requiredCount}`
             );
-            navigate(`/playlist/${playlistId}`, { replace: true });
+            navigate(playlistPath, { replace: true });
             return;
           }
 
@@ -116,13 +123,18 @@ export default function CharacterLoading() {
 
         if (cancelled) return;
 
-        navigate(`/character-result?playlistId=${playlistId}`, {
+        navigate(
+          `/character-result?playlistId=${encodeURIComponent(playlistId)}${
+            publicShareId ? `&publicShareId=${encodeURIComponent(publicShareId)}` : ""
+          }`,
+          {
           replace: true,
-        });
+          }
+        );
       } catch (error) {
         if (cancelled) return;
         alert(error.message || "캐릭터 생성 중 오류가 발생했습니다.");
-        navigate(`/playlist/${playlistId}`, { replace: true });
+        navigate(playlistPath, { replace: true });
       }
     };
 
@@ -131,7 +143,7 @@ export default function CharacterLoading() {
     return () => {
       cancelled = true;
     };
-  }, [playlistId, recreate, navigate]);
+  }, [playlistId, publicShareId, recreate, navigate]);
 
   return (
     <main className="character-create-page">

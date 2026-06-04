@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL, parseJson } from "../lib/api";
+import { buildPlaylistPath, getPublicShareIdFromResponseContent } from "../lib/playlistShare";
 import "./RealMain.css";
 
 import plitterLogo from "../assets/Plitter.png";
@@ -19,25 +20,6 @@ import number18 from "../assets/NUMBER 18.png";
 import ellipse27 from "../assets/Ellipse 27.png";
 import ellipse28 from "../assets/Ellipse 28.png";
 import ellipse29 from "../assets/Ellipse 29.png";
-
-function getPlaylistIdFromResponseContent(content) {
-  if (content?.playlistId) {
-    return String(content.playlistId).trim();
-  }
-
-  if (typeof content?.shareUrl === "string" && content.shareUrl) {
-    try {
-      const shareUrl = new URL(content.shareUrl, window.location.origin);
-      const matchedPath = shareUrl.pathname.match(/^\/playlist\/([^/]+)$/);
-
-      return matchedPath ? decodeURIComponent(matchedPath[1]).trim() : "";
-    } catch {
-      return "";
-    }
-  }
-
-  return "";
-}
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -72,10 +54,10 @@ export default function LandingPage() {
           return;
         }
 
-        const playlistId = getPlaylistIdFromResponseContent(payload.content);
+        const publicShareId = getPublicShareIdFromResponseContent(payload.content);
 
-        if (playlistId) {
-          navigate(`/playlist/${encodeURIComponent(playlistId)}`, {
+        if (publicShareId) {
+          navigate(buildPlaylistPath(publicShareId), {
             replace: true,
           });
         }
@@ -86,24 +68,6 @@ export default function LandingPage() {
 
     void goMyPlaylist();
   }, [navigate]);
-
-  const handleKakaoLogin = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/auth/kakao/login`);
-      const payload = await parseJson(response);
-
-      if (!response.ok || payload?.code !== "SUCCESS" || !payload?.content) {
-        throw new Error(
-          payload?.message || "카카오 로그인 URL 요청에 실패했습니다."
-        );
-      }
-
-      window.location.href = payload.content;
-    } catch (error) {
-      console.error("카카오 로그인 실패:", error);
-      alert(error.message || "카카오 로그인 중 오류가 발생했습니다.");
-    }
-  };
 
   const handleGuestStart = () => {
     navigate("/playlist/${encodeURIComponent(playlistId)");
