@@ -228,6 +228,15 @@
   word-break: keep-all;
 }
 
+.shared-share-guide-message {
+  margin: -8px 0 16px;
+  text-align: center;
+  color: #c2aa84;
+  font-size: 13px;
+  font-weight: 600;
+  word-break: keep-all;
+}
+
 .shared-recommend-button {
   width: 100%;
   height: 56px;
