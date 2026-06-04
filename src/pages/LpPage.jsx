@@ -54,6 +54,7 @@ export default function LpPage() {
   const [embedUrl, setEmbedUrl] = useState("");
   const [isPlayerVisible, setIsPlayerVisible] = useState(false);
   const [isPlayerLoading, setIsPlayerLoading] = useState(false);
+  const isNewRecommendationEntry = Boolean(location.state?.isNewRecommendation);
 
   const [isCommentPopupOpen, setIsCommentPopupOpen] = useState(Boolean(location.state?.openRecommendSheet));
   const [commentText, setCommentText] = useState(location.state?.commentText || "");
@@ -194,7 +195,7 @@ export default function LpPage() {
       setIsPlayerVisible(false);
       setEmbedUrl(nextEmbedUrl);
 
-      // iframe이 먼저 렌더링된 뒤 visible 클래스를 붙여야 내려오는 애니메이션이 보인다.
+      // iframe 먼저 렌더링된 뒤 visible 클래스를 붙여야 내려오는 애니메이션 보임
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           setIsPlayerVisible(true);
@@ -431,7 +432,7 @@ export default function LpPage() {
       </section>
 
       <section className="lp-action-group">
-        {!embedUrl ? (
+        {!isNewRecommendationEntry && !embedUrl ? (
           <button
             type="button"
             className="load-player-btn"
@@ -465,7 +466,7 @@ export default function LpPage() {
               </div>
             </div>
 
-            <div className="input-group">
+            <div className={`input-group ${isGuestUser ? "guest-comment-input-group" : ""}`}>
               <label htmlFor="commentText">코멘트</label>
               <textarea
                 id="commentText"
@@ -475,6 +476,7 @@ export default function LpPage() {
               />
             </div>
 
+            {isKakaoUser ? (
             <div className="anonymous-row">
               <div>
                 <strong>익명 여부</strong>
@@ -486,11 +488,11 @@ export default function LpPage() {
                 type="button"
                 className={`anonymous-toggle ${isAnonymous ? "on" : "off"}`}
                 onClick={() => setIsAnonymous((prev) => !prev)}
-                disabled={!isKakaoUser}
               >
-                {isKakaoUser ? (isAnonymous ? "ON" : "OFF") : "ON"}
+                {isAnonymous ? "ON" : "OFF"}
               </button>
             </div>
+            ) : null}
 
             <button type="button" className="recommend-btn" onClick={handleRecommend} disabled={isSubmitting}>
               {isSubmitting ? "추천 등록 중..." : "추천하기"}
