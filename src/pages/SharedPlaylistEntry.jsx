@@ -6,7 +6,7 @@ import { API_BASE_URL, parseJson } from "../lib/api";
 import "./SharedPlaylistEntry.css";
 
 const USE_MOCK_DATA = false;
-const FORCE_MOCK_CHARACTER = true;
+const FORCE_MOCK_CHARACTER = false;
 
 const MOCK_PLAYLIST_META = {
   recommendationCount: 10,
