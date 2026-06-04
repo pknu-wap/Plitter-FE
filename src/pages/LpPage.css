@@ -72,7 +72,7 @@
 
 .spotify-player-panel.visible {
   max-height: 190px;
-  margin: 4px 0 28px;
+  margin: 18px 0 16px;
   opacity: 1;
   pointer-events: auto;
   transform: translateY(0);
@@ -129,13 +129,14 @@
   position: relative;
   width: 100%;
   min-height: 500px;
-  margin: 22px auto 0;
+  margin: 12px auto 0;
   display: flex;
   justify-content: center;
 }
 
 .lp-record-view {
   position: relative;
+  width: 364px;
   width: min(100%, 372px);
   height: 430px;
   margin: 0 auto;
@@ -146,8 +147,8 @@
   width: 264px;
   height: 264px;
   top: 90px;
-  left: 108px;
-  right: 18px;
+  left: 130px;
+  right: auto;
   object-fit: contain;
   filter: drop-shadow(6px 6px 7.5px rgba(0, 0, 0, 0.25));
   animation: lp-spin 3.6s linear infinite;
@@ -157,7 +158,7 @@
   position: absolute;
   width: 248px;
   height: 248px;
-  left: 8px;
+  left: 22px;
   top: 96px;
   object-fit: cover;
   border-radius: 2px;
