@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { BrowserRouter, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { API_BASE_URL, parseJson } from "./lib/api";
+import { buildPlaylistPath, getPublicShareIdFromResponseContent } from "./lib/playlistShare";
 import AuthCallback from "./pages/AuthCallback";
 
 import CommentList from "./pages/CommentList";
@@ -16,18 +17,8 @@ import CharacterResult from "./pages/CharacterResult";
 import LogotoRealMain from "./pages/LogotoRealMain";
 
 function toPlaylistPathFromResponseContent(content) {
-  if (content?.playlistId) {
-    return `/playlist/${content.playlistId}`;
-  }
-
-  if (typeof content?.shareUrl === "string" && content.shareUrl) {
-    try {
-      const shareUrl = new URL(content.shareUrl);
-      return shareUrl.pathname || "/profile-share";
-    } catch {
-      return content.shareUrl.startsWith("/") ? content.shareUrl : "/profile-share";
-    }
-  }
+  const publicShareId = getPublicShareIdFromResponseContent(content);
+  if (publicShareId) return buildPlaylistPath(publicShareId);
 
   return null;
 }
@@ -177,7 +168,7 @@ function App() {
         <Route path="/landing" element={<LandingPage />} />
         <Route path="/realmain" element={<RealMain />} />
         <Route path="/profile-share" element={<ProfileShare />} />
-        <Route path="/playlist/:playlistId" element={<SharedPlaylistEntry />} />
+        <Route path="/playlist/:publicShareId" element={<SharedPlaylistEntry />} />
         <Route path="/lp" element={<LpPage />} />
         <Route path="/comments" element={<CommentList />} />
         <Route path="/loading" element={<CharacterLoading />} />

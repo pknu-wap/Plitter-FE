@@ -1,18 +1,24 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import kakaoBtn from "../assets/kakao_login.png";
+import { buildSearchPath } from "../lib/playlistShare";
 import "./Login.css";
 
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const [isGuestLoading, setIsGuestLoading] = useState(false);
-  const playlistId = new URLSearchParams(location.search).get("playlistId");
-  const redirectParam = new URLSearchParams(location.search).get("redirect");
+  const searchParams = new URLSearchParams(location.search);
+  const publicShareId =
+    searchParams.get("publicShareId") || searchParams.get("playlistId");
+  const redirectParam = searchParams.get("redirect");
   const storedRedirectPath = localStorage.getItem("postLoginRedirect") || "";
-  const shareRedirectPath = redirectParam || storedRedirectPath || (playlistId ? `/search?playlistId=${encodeURIComponent(playlistId)}` : "");
+  const shareRedirectPath =
+    redirectParam || storedRedirectPath || buildSearchPath(publicShareId);
   const redirectPath = shareRedirectPath || "";
-  const hasPlaylistContext = shareRedirectPath.includes("playlistId=");
+  const hasPlaylistContext =
+    shareRedirectPath.includes("publicShareId=") ||
+    shareRedirectPath.includes("/playlist/");
 
   const handleKakaoLogin = async () => {
     try {
