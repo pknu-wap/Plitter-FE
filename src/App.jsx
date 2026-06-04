@@ -13,6 +13,7 @@ import SharedPlaylistEntry from "./pages/SharedPlaylistEntry";
 import SongSearch from "./pages/SongSearch";
 import CharacterLoading from "./pages/CharacterLoading";
 import CharacterResult from "./pages/CharacterResult";
+import LogotoRealMain from "./pages/LogotoRealMain";
 
 function toPlaylistPathFromResponseContent(content) {
   if (content?.playlistId) {
@@ -183,7 +184,7 @@ function App() {
         <Route path="/character-loading" element={<CharacterLoading />} />
         <Route path="/result" element={<CharacterResult />} />
         <Route path="/character-result" element={<CharacterResult />} />
-        <Route path="/playlist/:playlistId" element={<LandingPage />} />
+        <Route path="/logotorealmain" element={<LogotoRealMain />} />
       </Routes>
     </BrowserRouter>
   );
