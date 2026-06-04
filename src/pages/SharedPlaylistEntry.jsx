@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import plitterLogo from "../assets/Plitter.png";
+import popImage from "../assets/rnb.png";
 import { API_BASE_URL, parseJson } from "../lib/api";
 import "./SharedPlaylistEntry.css";
 
 const USE_MOCK_DATA = false;
+const FORCE_MOCK_CHARACTER = true;
 
 const MOCK_PLAYLIST_META = {
   recommendationCount: 10,
@@ -13,7 +15,10 @@ const MOCK_PLAYLIST_META = {
 
 const MOCK_MY_PLAYLIST_ID = "6";
 
-const MOCK_CHARACTER_DATA = null;
+const MOCK_CHARACTER_DATA = {
+  characterName: "테스트 캐릭터",
+  imageUrl: popImage,
+};
 
 const MOCK_RECOMMENDED_TRACKS = [
   {
@@ -49,7 +54,7 @@ const MOCK_RECOMMENDED_TRACKS = [
     albumName: "Armageddon",
     commentCount: 0,
   },
-    {
+  {
     recommendationId: 4,
     spotifyId: "mock-4",
     title: "Attention",
@@ -130,6 +135,7 @@ const MOCK_RECOMMENDED_TRACKS = [
 
 function getStoredCoverHistory(playlistId) {
   if (!playlistId) return [];
+
   try {
     const raw = localStorage.getItem(`recommendedCovers:${playlistId}`);
     const parsed = raw ? JSON.parse(raw) : [];
@@ -141,6 +147,7 @@ function getStoredCoverHistory(playlistId) {
 
 function getStoredRecommendedTracks(playlistId) {
   if (!playlistId) return [];
+
   try {
     const raw = localStorage.getItem(`recommendedTracks:${playlistId}`);
     const parsed = raw ? JSON.parse(raw) : [];
@@ -165,9 +172,12 @@ function normalizeTrack(track, fallbackCover) {
 
 function dedupeTracksByCover(tracks) {
   const seen = new Set();
+
   return tracks.filter((track) => {
     const cover = track?.albumCoverImageUrl || "";
+
     if (!cover || seen.has(cover)) return false;
+
     seen.add(cover);
     return true;
   });
@@ -177,11 +187,22 @@ function buildInitialTracks(playlistId) {
   if (USE_MOCK_DATA) return MOCK_RECOMMENDED_TRACKS;
   if (!playlistId) return [];
 
-  const latestCover = localStorage.getItem(`lastRecommendedCover:${playlistId}`) || "";
-  const historyCovers = getStoredCoverHistory(playlistId).map((cover) => normalizeTrack(null, cover));
-  const storedTracks = getStoredRecommendedTracks(playlistId).map((track) => normalizeTrack(track));
+  const latestCover =
+    localStorage.getItem(`lastRecommendedCover:${playlistId}`) || "";
 
-  return dedupeTracksByCover([...storedTracks, normalizeTrack(null, latestCover), ...historyCovers]);
+  const historyCovers = getStoredCoverHistory(playlistId).map((cover) =>
+    normalizeTrack(null, cover)
+  );
+
+  const storedTracks = getStoredRecommendedTracks(playlistId).map((track) =>
+    normalizeTrack(track)
+  );
+
+  return dedupeTracksByCover([
+    ...storedTracks,
+    normalizeTrack(null, latestCover),
+    ...historyCovers,
+  ]);
 }
 
 function mergeTracks(nextTracks, prevTracks) {
@@ -197,6 +218,7 @@ function getPlaylistIdFromResponseContent(content) {
     try {
       const shareUrl = new URL(content.shareUrl, window.location.origin);
       const matchedPath = shareUrl.pathname.match(/^\/playlist\/([^/]+)$/);
+
       return matchedPath ? decodeURIComponent(matchedPath[1]).trim() : "";
     } catch {
       return "";
@@ -209,6 +231,7 @@ function getPlaylistIdFromResponseContent(content) {
 function getCharacterAvailabilityMessage(availability) {
   const requiredCount = availability?.requiredCount ?? 10;
   const currentCount = availability?.currentCount ?? 0;
+
   return `추천 ${requiredCount}곡 이상이 필요합니다. 현재 ${currentCount}/${requiredCount}`;
 }
 
@@ -221,6 +244,7 @@ async function requestCharacterAvailability(playlistId, accessToken) {
       },
     }
   );
+
   const payload = await parseJson(response);
 
   return {
@@ -233,7 +257,11 @@ async function requestCharacterAvailability(playlistId, accessToken) {
 export default function SharedPlaylistEntry() {
   const navigate = useNavigate();
   const { playlistId } = useParams();
-  const normalizedPlaylistId = (playlistId || (USE_MOCK_DATA ? MOCK_MY_PLAYLIST_ID : "")).trim();
+
+  const normalizedPlaylistId = (
+    playlistId ||
+    (USE_MOCK_DATA ? MOCK_MY_PLAYLIST_ID : "")
+  ).trim();
 
   const accessToken = localStorage.getItem("accessToken") || "";
   const guestToken = localStorage.getItem("guestToken") || "";
@@ -262,35 +290,58 @@ export default function SharedPlaylistEntry() {
           ownerNickname: "",
         }
   );
-  const [characterData, setCharacterData] = useState(USE_MOCK_DATA ? MOCK_CHARACTER_DATA : null);
-  const [myPlaylistId, setMyPlaylistId] = useState(USE_MOCK_DATA ? MOCK_MY_PLAYLIST_ID : "");
-  const [recommendedTracks, setRecommendedTracks] = useState(() => buildInitialTracks(normalizedPlaylistId));
+
+  const [characterData, setCharacterData] = useState(
+    FORCE_MOCK_CHARACTER || USE_MOCK_DATA ? MOCK_CHARACTER_DATA : null
+  );
+
+  const [myPlaylistId, setMyPlaylistId] = useState(
+    USE_MOCK_DATA ? MOCK_MY_PLAYLIST_ID : ""
+  );
+
+  const [recommendedTracks, setRecommendedTracks] = useState(() =>
+    buildInitialTracks(normalizedPlaylistId)
+  );
+
   const [activeIndex, setActiveIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [copied, setCopied] = useState(false);
+
   const [characterAvailability, setCharacterAvailability] = useState(
-    USE_MOCK_DATA ? { available: true, requiredCount: 10, currentCount: 10 } : null
+    USE_MOCK_DATA
+      ? { available: true, requiredCount: 10, currentCount: 10 }
+      : null
   );
-  const [isCharacterAvailabilityLoading, setIsCharacterAvailabilityLoading] = useState(false);
+
+  const [isCharacterAvailabilityLoading, setIsCharacterAvailabilityLoading] =
+    useState(false);
+
   const hasGuestRecommended = useMemo(() => {
     if (USE_MOCK_DATA) return false;
     if (!guestRecommendedKey) return false;
+
     return localStorage.getItem(guestRecommendedKey) === "true";
   }, [guestRecommendedKey]);
+
   const hasRecommendationLimitExceeded = useMemo(() => {
     if (USE_MOCK_DATA) return false;
     if (!recommendationLimitKey) return false;
+
     return localStorage.getItem(recommendationLimitKey) === "true";
   }, [recommendationLimitKey]);
+
   const linkError = !normalizedPlaylistId ? "유효하지 않은 공유 링크입니다." : "";
+
   const pointerStartXRef = useRef(0);
   const hasDraggedRef = useRef(false);
+
   const isMyPlaylist = USE_MOCK_DATA
     ? myPlaylistId === normalizedPlaylistId
     : Boolean(accessToken) && myPlaylistId === normalizedPlaylistId;
 
   const searchPath = useMemo(() => {
     if (!normalizedPlaylistId) return "/search";
+
     return `/search?playlistId=${encodeURIComponent(normalizedPlaylistId)}`;
   }, [normalizedPlaylistId]);
 
@@ -300,7 +351,10 @@ export default function SharedPlaylistEntry() {
 
     const fetchPlaylist = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/playlists/${normalizedPlaylistId}/public`);
+        const response = await fetch(
+          `${API_BASE_URL}/playlists/${normalizedPlaylistId}/public`
+        );
+
         const payload = await parseJson(response);
 
         if (!response.ok || payload?.code !== "SUCCESS") {
@@ -313,30 +367,46 @@ export default function SharedPlaylistEntry() {
         });
 
         const latestCoverImageUrl = payload?.content?.latestCoverImageUrl || "";
+
         if (latestCoverImageUrl && storageKey) {
           localStorage.setItem(storageKey, latestCoverImageUrl);
         }
 
-        const publicRecommendations = Array.isArray(payload?.content?.recommendations)
+        const publicRecommendations = Array.isArray(
+          payload?.content?.recommendations
+        )
           ? payload.content.recommendations
           : [];
+
         const publicTracks = publicRecommendations
           .map((recommendation) => normalizeTrack(recommendation))
           .filter((track) => track.albumCoverImageUrl)
           .reverse();
-        const storedHistoryTracks = getStoredCoverHistory(normalizedPlaylistId).map((cover) => normalizeTrack(null, cover));
+
+        const storedHistoryTracks = getStoredCoverHistory(
+          normalizedPlaylistId
+        ).map((cover) => normalizeTrack(null, cover));
+
         const latestPublicTrack = normalizeTrack(null, latestCoverImageUrl);
-        const nextTracks = publicTracks.length > 0
-          ? mergeTracks(publicTracks, [...storedHistoryTracks, latestPublicTrack])
-          : mergeTracks([latestPublicTrack, ...storedHistoryTracks], []);
+
+        const nextTracks =
+          publicTracks.length > 0
+            ? mergeTracks(publicTracks, [
+                ...storedHistoryTracks,
+                latestPublicTrack,
+              ])
+            : mergeTracks([latestPublicTrack, ...storedHistoryTracks], []);
 
         if (publicTracks.length > 0) {
-          localStorage.setItem(`recommendedTracks:${normalizedPlaylistId}`, JSON.stringify(publicTracks));
+          localStorage.setItem(
+            `recommendedTracks:${normalizedPlaylistId}`,
+            JSON.stringify(publicTracks)
+          );
         }
 
         setRecommendedTracks(nextTracks);
       } catch {
-        // Ignore and use fallback UI.
+        // fallback UI 사용
       }
     };
 
@@ -344,7 +414,7 @@ export default function SharedPlaylistEntry() {
   }, [normalizedPlaylistId, storageKey]);
 
   useEffect(() => {
-    if (USE_MOCK_DATA) return;
+    if (USE_MOCK_DATA || FORCE_MOCK_CHARACTER) return;
     if (!normalizedPlaylistId) return;
 
     const fetchCharacter = async () => {
@@ -359,12 +429,17 @@ export default function SharedPlaylistEntry() {
               : {},
           }
         );
+
         const payload = await parseJson(response);
 
         const nextCharacterImageUrl =
           payload?.content?.downloadUrl || payload?.content?.imageUrl || "";
 
-        if (!response.ok || payload?.code !== "SUCCESS" || !nextCharacterImageUrl) {
+        if (
+          !response.ok ||
+          payload?.code !== "SUCCESS" ||
+          !nextCharacterImageUrl
+        ) {
           setCharacterData(null);
           return;
         }
@@ -394,6 +469,7 @@ export default function SharedPlaylistEntry() {
             Authorization: `Bearer ${accessToken}`,
           },
         });
+
         const payload = await parseJson(response);
 
         if (
@@ -404,6 +480,7 @@ export default function SharedPlaylistEntry() {
           if (!cancelled) {
             setMyPlaylistId("");
           }
+
           return;
         }
 
@@ -425,7 +502,8 @@ export default function SharedPlaylistEntry() {
   }, [accessToken, normalizedPlaylistId]);
 
   useEffect(() => {
-    if (USE_MOCK_DATA || !isMyPlaylist || !normalizedPlaylistId || !accessToken) return;
+    if (USE_MOCK_DATA) return;
+    if (!isMyPlaylist || !normalizedPlaylistId || !accessToken) return;
 
     let cancelled = false;
 
@@ -433,15 +511,14 @@ export default function SharedPlaylistEntry() {
       setIsCharacterAvailabilityLoading(true);
 
       try {
-        const { response, payload, content } = await requestCharacterAvailability(
-          normalizedPlaylistId,
-          accessToken
-        );
+        const { response, payload, content } =
+          await requestCharacterAvailability(normalizedPlaylistId, accessToken);
 
         if (!response.ok || payload?.code !== "SUCCESS") {
           if (!cancelled) {
             setCharacterAvailability(null);
           }
+
           return;
         }
 
@@ -480,6 +557,7 @@ export default function SharedPlaylistEntry() {
       alert("유효하지 않은 공유 링크입니다.");
       return;
     }
+
     const shareLink = `${window.location.origin}/playlist/${normalizedPlaylistId}`;
 
     try {
@@ -507,6 +585,7 @@ export default function SharedPlaylistEntry() {
           "postLoginRedirect",
           `/playlist/${encodeURIComponent(normalizedPlaylistId)}`
         );
+
         navigate(`/login?playlistId=${encodeURIComponent(normalizedPlaylistId)}`);
         return;
       }
@@ -514,10 +593,8 @@ export default function SharedPlaylistEntry() {
       setIsCharacterAvailabilityLoading(true);
 
       try {
-        const { response, payload, content } = await requestCharacterAvailability(
-          normalizedPlaylistId,
-          accessToken
-        );
+        const { response, payload, content } =
+          await requestCharacterAvailability(normalizedPlaylistId, accessToken);
 
         if (!response.ok || payload?.code !== "SUCCESS") {
           if (payload?.code === "UNAUTHORIZED") {
@@ -525,7 +602,11 @@ export default function SharedPlaylistEntry() {
               "postLoginRedirect",
               `/playlist/${encodeURIComponent(normalizedPlaylistId)}`
             );
-            navigate(`/login?playlistId=${encodeURIComponent(normalizedPlaylistId)}`);
+
+            navigate(
+              `/login?playlistId=${encodeURIComponent(normalizedPlaylistId)}`
+            );
+
             return;
           }
 
@@ -542,8 +623,11 @@ export default function SharedPlaylistEntry() {
         }
 
         const recreateQuery = hasCharacter ? "&recreate=true" : "";
+
         navigate(
-          `/character-loading?playlistId=${encodeURIComponent(normalizedPlaylistId)}${recreateQuery}`
+          `/character-loading?playlistId=${encodeURIComponent(
+            normalizedPlaylistId
+          )}${recreateQuery}`
         );
       } catch (error) {
         alert(error.message || "캐릭터 생성 가능 여부를 확인하지 못했습니다.");
@@ -565,6 +649,7 @@ export default function SharedPlaylistEntry() {
 
     if (!isLoggedIn) {
       localStorage.setItem("postLoginRedirect", searchPath);
+
       navigate(`/login?playlistId=${encodeURIComponent(normalizedPlaylistId)}`);
       return;
     }
@@ -588,49 +673,53 @@ export default function SharedPlaylistEntry() {
 
   const trackCount = recommendedTracks.length;
   const currentIndex = trackCount > 0 ? activeIndex % trackCount : 0;
+
   const centerTrack = trackCount > 0 ? recommendedTracks[currentIndex] : null;
-  const leftTrack = trackCount > 1
-    ? recommendedTracks[(currentIndex - 1 + trackCount) % trackCount]
-    : null;
-  const rightTrack = trackCount > 1
-    ? recommendedTracks[(currentIndex + 1) % trackCount]
-    : null;
-  const indicatorProgress = trackCount > 1 ? currentIndex / (trackCount - 1) : 0;
+
+  const leftTrack =
+    trackCount > 1
+      ? recommendedTracks[(currentIndex - 1 + trackCount) % trackCount]
+      : null;
+
+  const rightTrack =
+    trackCount > 1
+      ? recommendedTracks[(currentIndex + 1) % trackCount]
+      : null;
+
+  const indicatorProgress =
+    trackCount > 1 ? currentIndex / (trackCount - 1) : 0;
 
   const ownerLabel = playlistMeta.ownerNickname
     ? `${playlistMeta.ownerNickname}님의 플레이리스트`
     : "친구의 플레이리스트";
 
-  const description = playlistMeta.recommendationCount > 0
-    ? `${ownerLabel}에 ${playlistMeta.recommendationCount}곡이 모였어요`
-    : "친구에게 어울리는 한 곡을 쌓아보세요";
+  const showLimitMessage =
+    hasRecommendationLimitExceeded && Boolean(accessToken) && !isMyPlaylist;
 
-  const helperText = isLoggedIn
-    ? "마음에 드는 앨범을 눌러 추천 흐름을 이어가 보세요."
-    : "로그인하거나 게스트로 입장해 추천을 남겨보세요.";
-
-  const showLimitMessage = hasRecommendationLimitExceeded && Boolean(accessToken) && !isMyPlaylist;
   const showRecommendButton = !showLimitMessage;
+
   const showCharacterBlockedMessage =
     isMyPlaylist &&
     Boolean(characterAvailability) &&
     characterAvailability.available === false;
+
   const isCreateCharacterDisabled =
     isMyPlaylist &&
-    (isCharacterAvailabilityLoading || characterAvailability?.available === false);
+    (isCharacterAvailabilityLoading ||
+      characterAvailability?.available === false);
+
   const hasCharacter = Boolean(characterData?.imageUrl);
-  const characterReadyMessage = characterData?.characterName
-    ? `${characterData.characterName} 캐릭터가 완성되었어요`
-    : "캐릭터가 완성되었어요";
 
   const buttonText = (() => {
     if (isMyPlaylist) {
       if (isCharacterAvailabilityLoading) {
         return "생성 가능 여부 확인 중...";
       }
+
       if (hasCharacter) {
         return "캐릭터 다시 생성하기";
       }
+
       return "캐릭터 생성하러 가기";
     }
 
@@ -662,6 +751,7 @@ export default function SharedPlaylistEntry() {
     if (!isDragging || trackCount <= 1) return;
 
     const diff = event.clientX - pointerStartXRef.current;
+
     if (Math.abs(diff) < 40) return;
 
     hasDraggedRef.current = true;
@@ -671,49 +761,47 @@ export default function SharedPlaylistEntry() {
 
   const handlePointerUp = () => {
     if (!isDragging) return;
+
     setIsDragging(false);
   };
 
   const handleSideCoverClick = (direction) => {
     if (hasDraggedRef.current) return;
+
     moveCarousel(direction);
   };
 
   const handleCenterCoverClick = () => {
     if (hasDraggedRef.current || !centerTrack) return;
+
     openRecommendationTrack(centerTrack);
   };
 
   return (
     <main className="shared-entry-page">
       <header className="shared-entry-header">
-        <button type="button" className="shared-brand" onClick={() => navigate("/")}>
-          <img src={plitterLogo} alt="PLITTER" className="header-logo-image" />
+        <button
+          type="button"
+          className="shared-brand"
+          onClick={() => navigate("/logotorealmain")}
+        >
+          <img
+            src={plitterLogo}
+            alt="PLITTER"
+            className="header-logo-image"
+          />
         </button>
+
         {accessToken ? (
-          <button type="button" className="shared-my-list-button" onClick={handleGoMyPlaylist}>
+          <button
+            type="button"
+            className="shared-my-list-button"
+            onClick={handleGoMyPlaylist}
+          >
             MY
           </button>
         ) : null}
       </header>
-
-      <section className="shared-entry-copy">
-        {characterData ? (
-          <div className="shared-character-info">
-            <p className="shared-character-ready-message">{characterReadyMessage}</p>
-            <img
-              src={characterData.imageUrl}
-              alt={characterData.characterName || "생성된 캐릭터"}
-              className="shared-character-image"
-            />
-          </div>
-        ) : (
-          <>
-            <h1>{description}</h1>
-            <p>{helperText}</p>
-          </>
-        )}
-      </section>
 
       <section className="shared-record-section">
         <div
@@ -724,6 +812,18 @@ export default function SharedPlaylistEntry() {
           onPointerLeave={handlePointerUp}
           onPointerCancel={handlePointerUp}
         >
+          <div className="shared-character-layer">
+            {characterData ? (
+              <img
+                src={characterData.imageUrl}
+                alt={characterData.characterName || "생성된 캐릭터"}
+                className="shared-character-image"
+              />
+            ) : (
+              <div className="shared-character-placeholder" aria-hidden="true" />
+            )}
+          </div>
+
           <button
             type="button"
             className="shared-main-cover shared-main-cover-back-left"
@@ -731,8 +831,15 @@ export default function SharedPlaylistEntry() {
             disabled={!leftTrack}
             aria-label="왼쪽 추천곡 보기"
           >
-            {leftTrack ? <img src={leftTrack.albumCoverImageUrl} alt={leftTrack.title} className="shared-side-image" /> : null}
+            {leftTrack ? (
+              <img
+                src={leftTrack.albumCoverImageUrl}
+                alt={leftTrack.title}
+                className="shared-side-image"
+              />
+            ) : null}
           </button>
+
           <button
             type="button"
             className="shared-main-cover shared-main-cover-back-right"
@@ -740,7 +847,13 @@ export default function SharedPlaylistEntry() {
             disabled={!rightTrack}
             aria-label="오른쪽 추천곡 보기"
           >
-            {rightTrack ? <img src={rightTrack.albumCoverImageUrl} alt={rightTrack.title} className="shared-side-image" /> : null}
+            {rightTrack ? (
+              <img
+                src={rightTrack.albumCoverImageUrl}
+                alt={rightTrack.title}
+                className="shared-side-image"
+              />
+            ) : null}
           </button>
 
           {centerTrack ? (
@@ -750,7 +863,11 @@ export default function SharedPlaylistEntry() {
               onClick={handleCenterCoverClick}
               aria-label="대표 추천곡 보기"
             >
-              <img className="shared-cover" src={centerTrack.albumCoverImageUrl} alt={centerTrack.title} />
+              <img
+                className="shared-cover"
+                src={centerTrack.albumCoverImageUrl}
+                alt={centerTrack.title}
+              />
             </button>
           ) : (
             <div className="shared-cover-placeholder" aria-hidden="true" />
@@ -758,12 +875,15 @@ export default function SharedPlaylistEntry() {
         </div>
 
         {trackCount > 1 ? (
-          <div className="shared-cover-indicator" aria-label={`추천 곡 ${currentIndex + 1} / ${trackCount}`}>
+          <div
+            className="shared-cover-indicator"
+            aria-label={`추천 곡 ${currentIndex + 1} / ${trackCount}`}
+          >
             <span className="shared-cover-indicator-track" />
             <span
               className="shared-cover-indicator-thumb"
               style={{
-                left: `calc((100% - 20px) * ${indicatorProgress})`,
+                left: `calc((100% - 28px) * ${indicatorProgress})`,
               }}
             />
           </div>
@@ -772,10 +892,14 @@ export default function SharedPlaylistEntry() {
         <p className="shared-entry-eyebrow">{ownerLabel}</p>
       </section>
 
-      {linkError ? <p className="shared-playlist-error">{linkError}</p> : null}
+      {linkError ? (
+        <p className="shared-playlist-error">{linkError}</p>
+      ) : null}
 
       {showLimitMessage ? (
-        <p className="shared-limit-message">한 친구에게 3번까지 추천이 가능합니다</p>
+        <p className="shared-limit-message">
+          한 친구에게 3번까지 추천이 가능합니다
+        </p>
       ) : null}
 
       {showCharacterBlockedMessage ? (
@@ -794,6 +918,7 @@ export default function SharedPlaylistEntry() {
           {buttonText}
         </button>
       ) : null}
+
       {isMyPlaylist ? (
         <button
           type="button"

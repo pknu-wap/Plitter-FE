@@ -46,54 +46,51 @@
   object-fit: contain;
 }
 
-.shared-entry-copy {
-  margin-top: 34px;
-  text-align: center;
-}
-
-.shared-entry-eyebrow {
-  font-size: 16px;
-  font-weight: 700;
-  color: #b59567;
-  text-transform: uppercase;
-  margin-bottom: 138px
-}
-
-.shared-entry-copy h1 {
-  margin: 10px 0 0;
-  font-size: 27px;
-  line-height: 1.4;
-  font-weight: 800;
-  color: #111111;
-  letter-spacing: -0.05em;
-  word-break: keep-all;
-}
-
-.shared-entry-copy p {
-  margin: 10px auto 0;
-  max-width: 320px;
-  font-size: 14px;
-  line-height: 1.55;
-  color: #a08867;
-  word-break: keep-all;
-}
-
 .shared-record-section {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   padding: 24px 0 8px;
 }
 
 .shared-cover-stack {
   position: relative;
   width: 320px;
-  height: 290px;
+  height: 480px;
   cursor: grab;
   user-select: none;
   touch-action: none;
+}
+
+.shared-cover-stack:active {
+  cursor: grabbing;
+}
+
+/* 캐릭터: 앨범 위에 겹쳐 올라가는 영역 */
+.shared-character-layer {
+  position: absolute;
+  left: 50%;
+  top: 6px;
+  width: 211px;
+  height: 234px;
+  transform: translateX(-50%);
+  z-index: 4;
+  pointer-events: none;
+}
+
+.shared-character-image,
+.shared-character-placeholder {
+  width: 211px;
+  height: 234px;
+  object-fit: contain;
+  display: block;
+}
+
+.shared-character-placeholder {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .shared-main-cover {
@@ -102,10 +99,6 @@
   padding: 0;
   background: transparent;
   cursor: pointer;
-}
-
-.shared-cover-stack:active {
-  cursor: grabbing;
 }
 
 .shared-main-cover:disabled {
@@ -122,9 +115,10 @@
   box-shadow: 0 18px 32px rgba(77, 53, 28, 0.18);
 }
 
+/* 사이드 앨범 */
 .shared-main-cover-back-left,
 .shared-main-cover-back-right {
-  top: 150px;
+  top: 236px;
   width: 126px;
   height: 126px;
   opacity: 0.92;
@@ -141,13 +135,14 @@
   transform: translateX(16px) scale(0.96);
 }
 
+/* 중앙 앨범: 캐릭터와 27px 정도 겹침 */
 .shared-main-cover-front {
   left: 50%;
-  top: 120px;
+  top: 213px;
   width: 199px;
   height: 199px;
   transform: translateX(-50%);
-  z-index: 2;
+  z-index: 3;
 }
 
 .shared-main-cover-front:hover,
@@ -156,59 +151,64 @@
   opacity: 1;
 }
 
-.shared-center-caption strong {
-  font-size: 17px;
-  line-height: 1.35;
-  color: #111111;
-}
-
-.shared-center-caption span {
-  font-size: 13px;
-  color: #8d7354;
-}
-
+/* 앨범 없을 때 placeholder도 실제 앨범과 같은 위치 */
 .shared-cover-placeholder {
   position: absolute;
   left: 50%;
-  top: 0;
+  top: 213px;
   transform: translateX(-50%);
   width: 199px;
   height: 199px;
   border-radius: 8px;
   background: linear-gradient(135deg, #f3c4b4, #e8764f);
   box-shadow: 0 18px 32px rgba(77, 53, 28, 0.18);
-  margin-top: 60px;
 }
 
 .shared-cover-indicator {
   position: relative;
-  width: 92px;
-  height: 4px;
-  margin-top: 70px;
-}
-
-.shared-cover-indicator-track,
-.shared-cover-indicator-thumb {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  border-radius: 999px;
+  width: 128px;
+  height: 10px;
+  margin: -20px auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
 }
 
 .shared-cover-indicator-track {
+  position: absolute;
   left: 0;
+  top: 50%;
   width: 100%;
   height: 4px;
+  border-radius: 999px;
   background: rgba(192, 173, 140, 0.28);
+  transform: translateY(-50%);
+  box-shadow: inset 0 1px 3px rgba(120, 96, 54, 0.12);
 }
 
 .shared-cover-indicator-thumb {
-  left: 0;
-  width: 20px;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 2px 8px rgba(77, 53, 28, 0.12);
-  transition: left 180ms ease;
+  position: absolute;
+  top: 50%;
+  width: 28px;
+  height: 7px;
+  border-radius: 999px;
+  background: #ffffff;
+  transform: translateY(-50%);
+  box-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.18),
+    inset 0 0 0 1px rgba(188, 165, 124, 0.18);
+  transition: left 0.22s ease;
+}
+
+.shared-entry-eyebrow {
+  width: 100%;
+  margin: 28px 0 138px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: #b59567;
+  text-transform: uppercase;
 }
 
 .shared-playlist-error {
@@ -217,6 +217,15 @@
   color: #ca4a4a;
   font-size: 13px;
   font-weight: 600;
+}
+
+.shared-limit-message {
+  margin: 0 0 16px;
+  text-align: center;
+  color: #b08f5f;
+  font-size: 14px;
+  font-weight: 700;
+  word-break: keep-all;
 }
 
 .shared-recommend-button {
@@ -237,48 +246,11 @@
   opacity: 0.7;
 }
 
-.shared-record-section .shared-entry-eyebrow {
-  width: 100%;
-  margin: 36px 0 138px !important;
-  text-align: center;
-}
-
-.shared-limit-message {
-  margin: 0 0 16px;
-  text-align: center;
-  color: #b08f5f;
-  font-size: 14px;
-  font-weight: 700;
-  word-break: keep-all;
-}
-
-/* Character Info Styles */
-.shared-character-info {
-  text-align: center;
-}
-
-.shared-character-image {
-  width: 211px;
-  height: 234px;
-  object-fit: contain;
-  display: block;
-  margin: 14px auto 0;
-}
-
-.shared-character-ready-message {
-  margin: 0 0 12px;
-  text-align: center;
-  color: #b08f5f;
-  font-size: 13px;
-  font-weight: 700;
-  word-break: keep-all;
-}
-
 .shared-copy-link-button {
   width: 100%;
   height: 56px;
   margin-top: 12px;
-  margin-bottom: 0px;
+  margin-bottom: 0;
   border: none;
   border-radius: 12px;
   background: #fff7ec;
