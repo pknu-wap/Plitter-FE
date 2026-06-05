@@ -457,7 +457,7 @@ export default function LpPage() {
           </button>
         ) : (
           <button type="button" className="view-comments-btn" onClick={() => setIsCommentPopupOpen(true)}>
-            친구에게 추천하기 →
+            이 노래 친구에게 추천하기 →
           </button>
         )}
       </section>
