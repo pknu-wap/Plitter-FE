@@ -1,6 +1,8 @@
 .auth-callback-page {
   width: 100%;
   max-width: var(--app-page-max-width);
+  min-height: 100vh;
+  min-height: 100svh;
   min-height: 100dvh;
   margin: 0 auto;
   padding: 44px 24px;
@@ -92,5 +94,53 @@
 
   50% {
     transform: translate3d(0, -12px, 0) scale(1.04);
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-callback-page {
+    padding: 28px 24px;
+  }
+
+  .blob {
+    filter: blur(24px);
+  }
+
+  .blob-yellow {
+    width: 148px;
+    height: 160px;
+    top: 178px;
+    left: 10px;
+  }
+
+  .blob-orange {
+    width: 144px;
+    height: 160px;
+    top: 42px;
+    right: -12px;
+  }
+
+  .blob-blue {
+    width: 176px;
+    height: 176px;
+    top: 300px;
+    right: 0;
+  }
+
+  .blob-pink {
+    width: 132px;
+    height: 146px;
+    left: -22px;
+    bottom: 160px;
+  }
+
+  .blob-green {
+    left: 64px;
+    bottom: 104px;
+  }
+
+  .blob-violet {
+    width: 156px;
+    height: 172px;
   }
 }

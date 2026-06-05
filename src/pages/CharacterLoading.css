@@ -3,6 +3,8 @@
   width: 100%;
   max-width: var(--app-page-max-width);
   min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
   margin: 0 auto;
   padding: var(--app-page-padding-top) var(--app-page-padding-x) var(--app-page-padding-bottom);
   overflow: hidden;
@@ -168,6 +170,62 @@
   background: rgba(255, 255, 255, 0.96);
   box-shadow: 0 2px 8px rgba(77, 53, 28, 0.12);
   animation: loadingSlide 1.6s ease-in-out infinite;
+}
+
+@media (max-width: 480px) {
+  .character-content {
+    padding: 36px 0 24px;
+  }
+
+  .character-loading-copy h1 {
+    font-size: 24px;
+  }
+
+  .character-loading-indicator {
+    margin-top: 44px;
+  }
+
+  .blob-orange {
+    width: 210px;
+    height: 210px;
+    top: 68px;
+    right: -46px;
+  }
+
+  .blob-yellow {
+    width: 280px;
+    height: 280px;
+    top: 210px;
+    left: -164px;
+  }
+
+  .blob-blue {
+    width: 320px;
+    height: 240px;
+    top: 400px;
+    right: -160px;
+  }
+
+  .blob-pink {
+    width: 180px;
+    height: 180px;
+    top: 600px;
+    left: -88px;
+  }
+
+  .blob-green {
+    width: 150px;
+    height: 112px;
+    top: 760px;
+    left: 76px;
+  }
+
+  .blob-purple {
+    width: 220px;
+    height: 210px;
+    bottom: -80px;
+    right: -78px;
+  }
 }
 
 @keyframes rollOrange {

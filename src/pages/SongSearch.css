@@ -1,6 +1,8 @@
 .song-search-page {
   width: 100%;
   max-width: var(--app-page-max-width);
+  min-height: 100vh;
+  min-height: 100svh;
   min-height: 100dvh;
   margin: 0 auto;
   padding: var(--app-page-padding-top) var(--app-page-padding-x) 36px;
@@ -180,3 +182,44 @@
   color: #484848;
 }
 
+@media (max-width: 480px) {
+  .song-search-page {
+    padding-bottom: 20px;
+  }
+
+  .song-search-header {
+    margin-bottom: 16px;
+  }
+
+  .search-box {
+    height: 38px;
+    gap: 8px;
+    padding: 0 12px;
+  }
+
+  .song-search-empty {
+    min-height: calc(100svh - 170px);
+  }
+
+  .song-search-empty h2 {
+    max-width: 300px;
+    font-size: 24px;
+  }
+
+  .song-list {
+    gap: 16px;
+  }
+
+  .song-list-item::after {
+    left: 84px;
+  }
+
+  .song-list-button {
+    gap: 12px;
+  }
+
+  .song-cover {
+    width: 68px;
+    height: 68px;
+  }
+}

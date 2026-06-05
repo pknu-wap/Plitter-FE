@@ -7,6 +7,8 @@ body,
 #root {
   width: 100%;
   min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
   margin: 0;
   padding: 0;
 }
@@ -21,6 +23,8 @@ body {
   width: 100%;
   max-width: 540px;
   min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
   margin: 0 auto;
   padding: 25px 24px 0px 24px;
   background-color: #fff9f0;
@@ -325,4 +329,91 @@ body {
   letter-spacing: -0.5px;
 
   pointer-events: none;
+}
+
+@media (max-width: 480px) {
+  .realmain-page {
+    padding: 20px 24px 16px;
+  }
+
+  .realmain-page .landing-hero {
+    min-height: clamp(520px, 68svh, 640px);
+    margin-top: 28px;
+  }
+
+  .realmain-page .hero-find,
+  .realmain-page .hero-your {
+    font-size: clamp(88px, 25vw, 118px);
+  }
+
+  .realmain-page .hero-your {
+    margin-top: 18px;
+  }
+
+  .realmain-page .hero-description {
+    top: 76px;
+    font-size: 12px;
+  }
+
+  .realmain-page .vinyl-record {
+    width: clamp(304px, 86vw, 356px);
+    height: auto;
+    aspect-ratio: 369 / 374;
+    margin-top: -18px;
+  }
+
+  .realmain-page .vinyl-record-back {
+    top: 230px;
+    width: clamp(252px, 74vw, 296px);
+  }
+
+  .realmain-page .lp-ellipse-27 {
+    width: clamp(248px, 72vw, 288px);
+    height: auto;
+    aspect-ratio: 307 / 312;
+  }
+
+  .realmain-page .lp-ellipse-28 {
+    width: clamp(230px, 68vw, 268px);
+    height: auto;
+    aspect-ratio: 285 / 290;
+  }
+
+  .realmain-page .lp-ellipse-29 {
+    width: clamp(198px, 60vw, 232px);
+    height: auto;
+    aspect-ratio: 245 / 250;
+  }
+
+  .realmain-page .start-slider {
+    top: clamp(500px, 72svh, 560px);
+  }
+}
+
+@media (max-width: 480px) and (max-height: 760px) {
+  .realmain-page .landing-hero {
+    min-height: clamp(460px, 62svh, 560px);
+  }
+
+  .realmain-page .hero-find,
+  .realmain-page .hero-your {
+    font-size: clamp(74px, 23vw, 98px);
+  }
+
+  .realmain-page .hero-description {
+    top: 64px;
+    font-size: 11px;
+  }
+
+  .realmain-page .vinyl-record {
+    width: clamp(272px, 80vw, 320px);
+  }
+
+  .realmain-page .vinyl-record-back {
+    top: 208px;
+  }
+
+  .realmain-page .start-slider {
+    top: clamp(430px, 68svh, 500px);
+  }
 }
