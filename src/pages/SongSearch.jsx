@@ -151,7 +151,11 @@ export default function SongSearch() {
 
       {!isLoading && !hasSearched ? (
         <section className="song-search-empty">
-          <h2>친구에게 어울리는 노래를 추천 해보세요!</h2>
+          <h2>
+            친구에게 어울리는 노래를
+            <br />
+            추천 해보세요!
+          </h2>
           <p>아티스트, 노래, 가사 등을 검색합니다</p>
         </section>
       ) : null}
