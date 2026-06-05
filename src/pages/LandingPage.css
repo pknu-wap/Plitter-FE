@@ -7,6 +7,8 @@ body,
 #root {
   width: 100%;
   min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
   margin: 0;
   padding: 0;
 }
@@ -21,6 +23,8 @@ body {
   width: 100%;
   max-width: 540px;
   min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
   margin: 0 auto;
   padding: 25px 24px 0;
   background-color: #fff9f0;
@@ -273,4 +277,72 @@ body {
 
 .guest-recommend-button:active {
   opacity: 0.7;
+}
+
+@media (max-width: 480px) {
+  .landing-page {
+    padding: 20px 24px 16px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .landing-hero {
+    flex: 1;
+    min-height: clamp(500px, 66svh, 640px);
+    margin-top: 28px;
+  }
+
+  .hero-find,
+  .hero-your {
+    font-size: clamp(88px, 25vw, 118px);
+  }
+
+  .hero-your {
+    margin-top: 18px;
+  }
+
+  .hero-description {
+    top: 76px;
+    font-size: 12px;
+  }
+
+  .vinyl-record {
+    width: clamp(304px, 86vw, 356px);
+    height: auto;
+    aspect-ratio: 369 / 374;
+    margin-top: -18px;
+  }
+
+  .landing-login-section {
+    position: static;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    margin-top: auto;
+    padding-top: 24px;
+  }
+
+  .guest-recommend-button {
+    margin-top: 18px;
+  }
+}
+
+@media (max-width: 480px) and (max-height: 760px) {
+  .landing-hero {
+    min-height: clamp(440px, 62svh, 540px);
+  }
+
+  .hero-find,
+  .hero-your {
+    font-size: clamp(74px, 23vw, 96px);
+  }
+
+  .hero-description {
+    top: 64px;
+    font-size: 11px;
+  }
+
+  .vinyl-record {
+    width: clamp(272px, 80vw, 320px);
+  }
 }

@@ -1,6 +1,8 @@
 .comments-page {
   width: 100%;
   max-width: var(--app-page-max-width);
+  min-height: 100vh;
+  min-height: 100svh;
   min-height: 100dvh;
   margin: 0 auto;
   padding: var(--app-page-padding-top) var(--app-page-padding-x) var(--app-page-padding-bottom);
@@ -137,4 +139,30 @@
   font-weight: 600;
   margin: 0;
   word-break: keep-all;
+}
+
+@media (max-width: 480px) {
+  .comments-header {
+    margin-bottom: 18px;
+  }
+
+  .track-info-card {
+    padding: 16px;
+    gap: 12px;
+    border-radius: 20px;
+  }
+
+  .card-cover {
+    width: 92px;
+    height: 92px;
+  }
+
+  .comment-item {
+    border-radius: 18px;
+    padding: 16px;
+  }
+
+  .comment-author-row {
+    gap: 10px;
+  }
 }

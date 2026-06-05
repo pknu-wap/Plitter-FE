@@ -1,6 +1,8 @@
 .lp-page {
   width: 100%;
   max-width: var(--app-page-max-width);
+  min-height: 100vh;
+  min-height: 100svh;
   min-height: 100dvh;
   margin: 0 auto;
   padding: var(--app-page-padding-top) var(--app-page-padding-x) var(--app-page-padding-bottom);
@@ -600,4 +602,171 @@
   line-height: 22px;
   letter-spacing: -0.41px;
   cursor: pointer;
+}
+
+@media (max-width: 480px) {
+  .lp-page {
+    padding-bottom: 20px;
+  }
+
+  .lp-header {
+    margin-bottom: 16px;
+  }
+
+  .spotify-player-panel.visible {
+    max-height: 176px;
+    margin: 14px 0 14px;
+  }
+
+  .airpods-player-shell {
+    padding: 26px 12px 12px;
+    border-radius: 36px;
+  }
+
+  .lp-stage {
+    min-height: 440px;
+    margin-top: 6px;
+  }
+
+  .lp-record-view,
+  .post-it-container {
+    width: min(100%, 332px);
+    height: 392px;
+  }
+
+  .lp-vinyl {
+    width: 232px;
+    height: 232px;
+    top: 90px;
+    left: 112px;
+  }
+
+  .lp-album-cover {
+    width: 220px;
+    height: 220px;
+    left: 18px;
+    top: 96px;
+  }
+
+  .post-it {
+    width: 84px;
+    height: 86px;
+    padding: 10px 8px;
+  }
+
+  .post-it p {
+    font-size: 11px;
+  }
+
+  .post-it-1 {
+    top: 108px;
+    left: 32px;
+  }
+
+  .post-it-2 {
+    top: 76px;
+    right: 22px;
+  }
+
+  .post-it-3 {
+    top: 204px;
+    right: 40px;
+  }
+
+  .post-it-4 {
+    top: 286px;
+    left: 30px;
+  }
+
+  .post-it-5 {
+    top: 294px;
+    right: 18px;
+  }
+
+  .lp-track-preview {
+    margin-top: 12px;
+  }
+
+  .lp-action-group {
+    margin-top: 22px;
+    gap: 24px;
+  }
+
+  .load-player-btn {
+    height: 40px;
+  }
+
+  .view-comments-btn {
+    height: 52px;
+  }
+
+  .comment-bottom-sheet {
+    width: min(393px, 100vw);
+    height: min(515px, 76svh);
+    padding: 24px 20px 20px;
+  }
+
+  .sheet-track-info {
+    gap: 14px;
+  }
+
+  .sheet-album-cover {
+    width: 108px;
+    height: 108px;
+  }
+
+  .input-group {
+    margin-top: 32px;
+  }
+
+  .input-group.guest-comment-input-group {
+    margin-top: 116px;
+  }
+
+  .input-group textarea {
+    width: 100%;
+  }
+
+  .anonymous-row {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) and (max-height: 760px) {
+  .lp-stage {
+    min-height: 392px;
+  }
+
+  .lp-record-view,
+  .post-it-container {
+    width: min(100%, 304px);
+    height: 360px;
+  }
+
+  .lp-vinyl {
+    width: 212px;
+    height: 212px;
+    top: 84px;
+    left: 100px;
+  }
+
+  .lp-album-cover {
+    width: 200px;
+    height: 200px;
+    left: 16px;
+    top: 90px;
+  }
+
+  .post-it {
+    width: 76px;
+    height: 78px;
+  }
+
+  .lp-action-group {
+    gap: 20px;
+  }
+
+  .comment-bottom-sheet {
+    height: min(480px, 82svh);
+  }
 }

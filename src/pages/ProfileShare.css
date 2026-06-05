@@ -21,6 +21,8 @@ body {
   width: 100%;
   max-width: var(--app-page-max-width);
   min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
   margin: 0 auto;
   padding: 0 var(--app-page-padding-x) var(--app-page-padding-bottom);
   background-color: var(--app-page-bg);
@@ -157,4 +159,60 @@ body {
 .my-playlist-button:disabled {
   opacity: 0.45;
   cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .profile-share-page {
+    display: flex;
+    flex-direction: column;
+    padding-top: 20px;
+    padding-bottom: 16px;
+  }
+
+  .profile-share-header {
+    margin-top: 0;
+  }
+
+  .share-main-content {
+    flex: 1;
+    min-height: 0;
+    justify-content: center;
+    padding-top: 0;
+  }
+
+  .share-glow {
+    width: min(84vw, 330px);
+  }
+
+  .share-player-line {
+    margin-top: 72px;
+  }
+
+  .playlist-title {
+    margin: 28px 0 0;
+  }
+
+  .share-bottom-area {
+    position: static;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    margin-top: auto;
+    padding-top: 24px;
+  }
+}
+
+@media (max-width: 480px) and (max-height: 760px) {
+  .share-main-content {
+    justify-content: flex-start;
+    padding-top: 120px;
+  }
+
+  .share-player-line {
+    margin-top: 56px;
+  }
+
+  .playlist-title {
+    margin-top: 24px;
+  }
 }
