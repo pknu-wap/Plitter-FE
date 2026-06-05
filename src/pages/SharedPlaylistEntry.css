@@ -282,123 +282,87 @@
 
 @media (max-width: 480px) {
   .shared-entry-page {
-    padding-top: max(20px, calc(var(--app-page-padding-top) - 12px));
-    padding-bottom: 20px;
+    --shared-mobile-height-scale: clamp(0.7, calc((100dvh - 120px) / 820), 1);
+    --shared-mobile-width-scale: clamp(0.78, calc((100vw - 24px) / 320), 1);
+    --shared-mobile-scale: min(var(--shared-mobile-height-scale), var(--shared-mobile-width-scale));
+    --shared-mobile-space-scale: clamp(0.68, calc((100dvh - 160px) / 760), 1);
+    padding-top: max(18px, calc(var(--app-page-padding-top) * var(--shared-mobile-space-scale)));
+    padding-bottom: max(16px, calc(var(--app-page-padding-bottom) * var(--shared-mobile-space-scale)));
   }
 
   .shared-record-section {
-    padding: 12px 0 4px;
+    padding: calc(24px * var(--shared-mobile-space-scale)) 0 calc(8px * var(--shared-mobile-space-scale));
   }
 
   .shared-cover-stack {
-    width: 272px;
-    height: 404px;
+    width: calc(320px * var(--shared-mobile-scale));
+    height: calc(480px * var(--shared-mobile-scale));
   }
 
   .shared-character-layer {
-    top: 0;
-    width: 180px;
-    height: 200px;
+    top: calc(6px * var(--shared-mobile-scale));
+    width: calc(211px * var(--shared-mobile-scale));
+    height: calc(234px * var(--shared-mobile-scale));
   }
 
   .shared-character-image,
   .shared-character-placeholder {
-    width: 180px;
-    height: 200px;
+    width: calc(211px * var(--shared-mobile-scale));
+    height: calc(234px * var(--shared-mobile-scale));
   }
 
   .shared-main-cover-back-left,
   .shared-main-cover-back-right {
-    top: 198px;
-    width: 108px;
-    height: 108px;
+    top: calc(236px * var(--shared-mobile-scale));
+    width: calc(126px * var(--shared-mobile-scale));
+    height: calc(126px * var(--shared-mobile-scale));
   }
 
   .shared-main-cover-back-left {
-    left: 24px;
-    transform: translateX(-12px) scale(0.94);
+    left: calc(34px * var(--shared-mobile-scale));
+    transform: translateX(calc(-16px * var(--shared-mobile-scale))) scale(0.96);
   }
 
   .shared-main-cover-back-right {
-    right: 24px;
-    transform: translateX(12px) scale(0.94);
+    right: calc(34px * var(--shared-mobile-scale));
+    transform: translateX(calc(16px * var(--shared-mobile-scale))) scale(0.96);
   }
 
   .shared-main-cover-front,
   .shared-cover-placeholder {
-    top: 178px;
-    width: 176px;
-    height: 176px;
+    top: calc(213px * var(--shared-mobile-scale));
+    width: calc(199px * var(--shared-mobile-scale));
+    height: calc(199px * var(--shared-mobile-scale));
   }
 
   .shared-cover-indicator {
-    width: 116px;
-    margin-top: -36px;
+    width: calc(128px * var(--shared-mobile-scale));
+    margin-top: calc(-20px * var(--shared-mobile-scale));
   }
 
   .shared-entry-eyebrow {
-    margin: 18px 0 72px;
-    font-size: 15px;
+    margin: calc(28px * var(--shared-mobile-space-scale)) 0 calc(138px * var(--shared-mobile-space-scale));
+    font-size: clamp(15px, calc(14px + (2px * var(--shared-mobile-scale))), 16px);
   }
 
   .shared-limit-message {
-    margin-bottom: 12px;
-    font-size: 13px;
+    margin-bottom: calc(16px * var(--shared-mobile-space-scale));
+    font-size: clamp(13px, calc(12px + (2px * var(--shared-mobile-scale))), 14px);
   }
 
   .shared-share-guide-message {
-    margin: -6px 0 12px;
-    font-size: 12px;
+    margin: calc(-8px * var(--shared-mobile-space-scale)) 0 calc(16px * var(--shared-mobile-space-scale));
+    font-size: clamp(12px, calc(11px + (2px * var(--shared-mobile-scale))), 13px);
   }
 
   .shared-recommend-button,
   .shared-copy-link-button {
-    height: 52px;
-    font-size: 15px;
+    height: calc(56px * var(--shared-mobile-space-scale));
+    min-height: 48px;
+    font-size: clamp(15px, calc(14px + (2px * var(--shared-mobile-scale))), 16px);
   }
 
   .shared-copy-link-button {
-    margin-top: 10px;
-  }
-}
-
-@media (max-width: 480px) and (max-height: 820px) {
-  .shared-entry-page {
-    padding-top: 18px;
-    padding-bottom: 16px;
-  }
-
-  .shared-cover-stack {
-    width: 248px;
-    height: 368px;
-  }
-
-  .shared-character-layer {
-    width: 164px;
-    height: 182px;
-  }
-
-  .shared-character-image,
-  .shared-character-placeholder {
-    width: 164px;
-    height: 182px;
-  }
-
-  .shared-main-cover-back-left,
-  .shared-main-cover-back-right {
-    top: 180px;
-    width: 96px;
-    height: 96px;
-  }
-
-  .shared-main-cover-front,
-  .shared-cover-placeholder {
-    top: 162px;
-    width: 160px;
-    height: 160px;
-  }
-
-  .shared-entry-eyebrow {
-    margin: 14px 0 48px;
+    margin-top: calc(12px * var(--shared-mobile-space-scale));
   }
 }
