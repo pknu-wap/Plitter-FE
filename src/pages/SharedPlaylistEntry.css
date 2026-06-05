@@ -282,87 +282,122 @@
 
 @media (max-width: 480px) {
   .shared-entry-page {
-    --shared-mobile-height-scale: clamp(0.7, calc((100dvh - 120px) / 820), 1);
-    --shared-mobile-width-scale: clamp(0.78, calc((100vw - 24px) / 320), 1);
-    --shared-mobile-scale: min(var(--shared-mobile-height-scale), var(--shared-mobile-width-scale));
-    --shared-mobile-space-scale: clamp(0.68, calc((100dvh - 160px) / 760), 1);
-    padding-top: max(18px, calc(var(--app-page-padding-top) * var(--shared-mobile-space-scale)));
-    padding-bottom: max(16px, calc(var(--app-page-padding-bottom) * var(--shared-mobile-space-scale)));
+    min-height: 100vh;
+    min-height: 100svh;
+    min-height: 100dvh;
+    padding-top: 20px;
+    padding-bottom: 16px;
   }
 
   .shared-record-section {
-    padding: calc(24px * var(--shared-mobile-space-scale)) 0 calc(8px * var(--shared-mobile-space-scale));
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 12px 0 4px;
   }
 
   .shared-cover-stack {
-    width: calc(320px * var(--shared-mobile-scale));
-    height: calc(480px * var(--shared-mobile-scale));
+    width: clamp(236px, 72vw, 272px);
+    height: auto;
+    aspect-ratio: 2 / 3;
   }
 
   .shared-character-layer {
-    top: calc(6px * var(--shared-mobile-scale));
-    width: calc(211px * var(--shared-mobile-scale));
-    height: calc(234px * var(--shared-mobile-scale));
+    top: 1.25%;
+    width: 65.9375%;
+    height: 48.75%;
   }
 
   .shared-character-image,
   .shared-character-placeholder {
-    width: calc(211px * var(--shared-mobile-scale));
-    height: calc(234px * var(--shared-mobile-scale));
+    width: 100%;
+    height: 100%;
   }
 
   .shared-main-cover-back-left,
   .shared-main-cover-back-right {
-    top: calc(236px * var(--shared-mobile-scale));
-    width: calc(126px * var(--shared-mobile-scale));
-    height: calc(126px * var(--shared-mobile-scale));
+    top: 49.1667%;
+    width: 39.375%;
+    height: auto;
+    aspect-ratio: 1 / 1;
   }
 
   .shared-main-cover-back-left {
-    left: calc(34px * var(--shared-mobile-scale));
-    transform: translateX(calc(-16px * var(--shared-mobile-scale))) scale(0.96);
+    left: 10.625%;
+    transform: translateX(-5%) scale(0.96);
   }
 
   .shared-main-cover-back-right {
-    right: calc(34px * var(--shared-mobile-scale));
-    transform: translateX(calc(16px * var(--shared-mobile-scale))) scale(0.96);
+    right: 10.625%;
+    transform: translateX(5%) scale(0.96);
   }
 
   .shared-main-cover-front,
   .shared-cover-placeholder {
-    top: calc(213px * var(--shared-mobile-scale));
-    width: calc(199px * var(--shared-mobile-scale));
-    height: calc(199px * var(--shared-mobile-scale));
+    top: 44.375%;
+    width: 62.1875%;
+    height: auto;
+    aspect-ratio: 1 / 1;
   }
 
   .shared-cover-indicator {
-    width: calc(128px * var(--shared-mobile-scale));
-    margin-top: calc(-20px * var(--shared-mobile-scale));
+    width: clamp(112px, 32vw, 128px);
+    margin-top: -8px;
   }
 
   .shared-entry-eyebrow {
-    margin: calc(28px * var(--shared-mobile-space-scale)) 0 calc(138px * var(--shared-mobile-space-scale));
-    font-size: clamp(15px, calc(14px + (2px * var(--shared-mobile-scale))), 16px);
+    margin: 4px 0 72px;
+    font-size: clamp(15px, 4.1vw, 16px);
   }
 
   .shared-limit-message {
-    margin-bottom: calc(16px * var(--shared-mobile-space-scale));
-    font-size: clamp(13px, calc(12px + (2px * var(--shared-mobile-scale))), 14px);
+    margin-bottom: 12px;
+    font-size: clamp(13px, 3.5vw, 14px);
   }
 
   .shared-share-guide-message {
-    margin: calc(-8px * var(--shared-mobile-space-scale)) 0 calc(16px * var(--shared-mobile-space-scale));
-    font-size: clamp(12px, calc(11px + (2px * var(--shared-mobile-scale))), 13px);
+    margin: -6px 0 12px;
+    font-size: clamp(12px, 3.2vw, 13px);
   }
 
   .shared-recommend-button,
   .shared-copy-link-button {
-    height: calc(56px * var(--shared-mobile-space-scale));
+    height: clamp(48px, 6.3dvh, 56px);
     min-height: 48px;
-    font-size: clamp(15px, calc(14px + (2px * var(--shared-mobile-scale))), 16px);
+    font-size: clamp(15px, 4vw, 16px);
   }
 
   .shared-copy-link-button {
-    margin-top: calc(12px * var(--shared-mobile-space-scale));
+    margin-top: 10px;
+  }
+}
+
+@media (max-width: 480px) and (max-height: 760px) {
+  .shared-entry-page {
+    padding-top: 18px;
+    padding-bottom: 14px;
+  }
+
+  .shared-record-section {
+    gap: 10px;
+    padding-top: 8px;
+  }
+
+  .shared-cover-stack {
+    width: clamp(220px, 66vw, 248px);
+  }
+
+  .shared-cover-indicator {
+    width: 108px;
+    margin-top: -12px;
+  }
+
+  .shared-entry-eyebrow {
+    margin-bottom: 40px;
+    font-size: 15px;
+  }
+
+  .shared-recommend-button,
+  .shared-copy-link-button {
+    height: 48px;
   }
 }
