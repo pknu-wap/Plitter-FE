@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import kakaoBtn from "../assets/kakao_login.png";
 import { buildSearchPath } from "../lib/playlistShare";
 import "./Login.css";
 
