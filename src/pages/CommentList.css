@@ -37,6 +37,24 @@
   object-fit: contain;
 }
 
+.comments-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+}
+
+.header-back-button {
+  background-color: #BCA57C;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .track-info-card {
   background: linear-gradient(180deg, #f6efe1 0%, #eee1cb 100%);
   border-radius: 24px;
