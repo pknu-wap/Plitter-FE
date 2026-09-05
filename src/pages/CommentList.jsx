@@ -53,12 +53,24 @@ export default function CommentList() {
   const navigate = useNavigate();
   const accessToken = localStorage.getItem("accessToken") || "";
 
-  const [track, setTrack] = useState(normalizeTrack(location.state?.track));
+  const [track, setTrack] = useState(() => normalizeTrack(location.state?.track));
   const [comments, setComments] = useState(() => normalizeComments(location.state?.localComments));
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
   const recommendationId = location.state?.recommendationId ?? track?.recommendationId ?? null;
+
+  const searchParams = new URLSearchParams(location.search);
+  const publicShareId = 
+    location.state?.publicShareId || 
+    location.state?.playlistId || 
+    searchParams.get("publicShareId") || 
+    searchParams.get("playlistId") || 
+    "mock-playlist-id";
+
+  const handleBackToPlaylist = () => {
+    navigate(`/playlist/${publicShareId}`);
+  };
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -120,6 +132,9 @@ export default function CommentList() {
           <button type="button" className="brand-home-button" onClick={() => navigate("/")}>
             <img src={plitterLogo} alt="PLITTER" className="header-logo-image" />
           </button>
+          <button type="button" className="header-back-button" onClick={handleBackToPlaylist}>
+            Back
+          </button>
         </header>
 
         <p className="comments-status">선택된 곡 정보가 없습니다. 다시 추천 흐름에서 진입해 주세요.</p>
@@ -132,6 +147,10 @@ export default function CommentList() {
       <header className="comments-header">
         <button type="button" className="brand-home-button" onClick={() => navigate("/")}>
           <img src={plitterLogo} alt="PLITTER" className="header-logo-image" />
+        </button>
+        
+        <button type="button" className="header-back-button" onClick={handleBackToPlaylist}>
+          Back
         </button>
       </header>
 
