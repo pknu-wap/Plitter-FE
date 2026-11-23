@@ -3,13 +3,13 @@ import { BrowserRouter, Route, Routes, useLocation, useNavigate } from "react-ro
 import { API_BASE_URL, parseJson } from "./lib/api";
 import { buildPlaylistPath, getPublicShareIdFromResponseContent } from "./lib/playlistShare";
 import AuthCallback from "./pages/AuthCallback";
+import WinterSnow from "./components/WinterSnow";
 
 import CommentList from "./pages/CommentList";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import LpPage from "./pages/LpPage";
 import ProfileShare from "./pages/ProfileShare";
-import RealMain from "./pages/RealMain";
 import SharedPlaylistEntry from "./pages/SharedPlaylistEntry";
 import SongSearch from "./pages/SongSearch";
 import CharacterLoading from "./pages/CharacterLoading";
@@ -156,16 +156,17 @@ function MainEntryPage() {
 function App() {
   return (
     <BrowserRouter>
+      <WinterSnow />
       <AuthTokenHandler />
 
       <Routes>
-        <Route path="/" element={<RealMain/>} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/main" element={<MainEntryPage />} />
         <Route path="/search" element={<SongSearch />} />
         <Route path="/landing" element={<LandingPage />} />
-        <Route path="/realmain" element={<RealMain />} />
+        <Route path="/realmain" element={<LandingPage />} />
         <Route path="/profile-share" element={<ProfileShare />} />
         <Route path="/playlist/:publicShareId" element={<SharedPlaylistEntry />} />
         <Route path="/lp" element={<LpPage />} />
