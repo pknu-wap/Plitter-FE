@@ -1,0 +1,103 @@
+.winter-sleigh {
+  display: none;
+  pointer-events: none;
+}
+
+@media (min-width: 769px) {
+  .winter-sleigh {
+    --sleigh-width: min(220px, calc((100vw - var(--app-page-max-width)) * 0.36));
+    --sleigh-panel-width: calc((100vw - var(--app-page-max-width)) / 2);
+    display: block;
+    position: absolute;
+    z-index: 1;
+    top: 18%;
+    left: 0;
+    width: var(--sleigh-width);
+    opacity: 0.9;
+    pointer-events: auto;
+    touch-action: none;
+    cursor: grab;
+    translate: var(--sleigh-offset-x, 0px) var(--sleigh-offset-y, 0px);
+    animation: winter-sleigh-flight 28s linear infinite;
+    animation-delay: -5s;
+  }
+
+  .winter-snow-panel--right .winter-sleigh {
+    top: 42%;
+    animation-delay: -19s;
+  }
+
+  .winter-sleigh-art {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    pointer-events: none;
+    animation: winter-sleigh-bob 2.4s ease-in-out infinite alternate;
+  }
+
+  .winter-rudolph-glow {
+    animation: winter-rudolph-glow 1.8s ease-in-out infinite alternate;
+  }
+
+  .winter-sleigh[data-held="true"] {
+    cursor: grabbing;
+  }
+
+  .winter-sleigh[data-held="true"],
+  .winter-sleigh[data-held="true"] .winter-sleigh-art,
+  .winter-sleigh[data-held="true"] .winter-rudolph-glow {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes winter-sleigh-flight {
+  0% {
+    transform: translate3d(calc(-1 * var(--sleigh-width) - 24px), 3vh, 0);
+  }
+
+  22% {
+    transform: translate3d(calc((var(--sleigh-panel-width) - var(--sleigh-width)) / 2), -5vh, 0);
+  }
+
+  45% {
+    transform: translate3d(calc(var(--sleigh-panel-width) + 24px), 9vh, 0);
+  }
+
+  50%,
+  100% {
+    transform: translate3d(calc(var(--sleigh-panel-width) * 2 + var(--sleigh-width) + 48px), 9vh, 0);
+  }
+}
+
+@keyframes winter-sleigh-bob {
+  from {
+    transform: translateY(-4px) rotate(-4deg);
+  }
+
+  to {
+    transform: translateY(4px) rotate(3deg);
+  }
+}
+
+@keyframes winter-rudolph-glow {
+  from {
+    opacity: 0.4;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .winter-sleigh,
+  .winter-sleigh-art,
+  .winter-rudolph-glow {
+    animation: none;
+  }
+
+  .winter-sleigh {
+    display: none;
+  }
+}
