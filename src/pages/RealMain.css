@@ -354,17 +354,23 @@ body {
 
 @media (max-width: 480px) {
   .realmain-page {
+    display: flex;
+    flex-direction: column;
     padding: 20px 24px 16px;
   }
 
   .realmain-page .landing-hero {
-    min-height: clamp(520px, 68svh, 640px);
-    margin-top: 28px;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    margin-top: 35px;
+    padding-bottom: clamp(16px, 4svh, 36px);
   }
 
   .realmain-page .hero-find,
   .realmain-page .hero-your {
-    font-size: clamp(88px, 25vw, 118px);
+    font-size: clamp(72px, min(29.5vw, 15svh), 118px);
   }
 
   .realmain-page .hero-your {
@@ -372,19 +378,28 @@ body {
   }
 
   .realmain-page .hero-description {
-    top: 76px;
+    top: 50%;
+    transform: translateY(-50%);
     font-size: 12px;
+    line-height: 1.2;
   }
 
   .realmain-page .vinyl-record {
-    width: clamp(304px, 86vw, 356px);
+    width: min(100%, 356px);
     height: auto;
     aspect-ratio: 369 / 374;
-    margin-top: -18px;
+    margin: -18px auto 18px;
+  }
+
+  .realmain-page .vinyl-record .lp-layer {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
   }
 
   .realmain-page .vinyl-record-back {
-    top: 230px;
+    top: auto;
+    bottom: -36px;
     width: clamp(252px, 74vw, 296px);
   }
 
@@ -407,35 +422,12 @@ body {
   }
 
   .realmain-page .start-slider {
-    top: clamp(500px, 72svh, 560px);
-  }
-}
-
-@media (max-width: 480px) and (max-height: 760px) {
-  .realmain-page .landing-hero {
-    min-height: clamp(460px, 62svh, 560px);
-  }
-
-  .realmain-page .hero-find,
-  .realmain-page .hero-your {
-    font-size: clamp(74px, 23vw, 98px);
-  }
-
-  .realmain-page .hero-description {
-    top: 64px;
-    font-size: 11px;
-  }
-
-  .realmain-page .vinyl-record {
-    width: clamp(272px, 80vw, 320px);
-  }
-
-  .realmain-page .vinyl-record-back {
-    top: 208px;
-  }
-
-  .realmain-page .start-slider {
-    top: clamp(430px, 68svh, 500px);
+    position: relative;
+    top: auto;
+    left: auto;
+    flex: none;
+    transform: none;
+    margin: auto auto 0;
   }
 }
 
@@ -559,45 +551,5 @@ body {
 
   .realmain-page .start-record-hold-spin {
     animation: none;
-  }
-}
-
-@media (max-width: 480px) {
-  .realmain-page .hero-text {
-    display: grid;
-    gap: 6px;
-  }
-
-  .realmain-page .hero-find,
-  .realmain-page .hero-your {
-    line-height: 1;
-  }
-
-  .realmain-page .hero-your {
-    margin-top: 0;
-  }
-
-  .realmain-page .hero-description {
-    position: static;
-    line-height: 1.4;
-  }
-
-  .realmain-page .vinyl-record {
-    max-width: 100%;
-    margin-top: 16px;
-  }
-
-  .realmain-page .vinyl-record .lp-layer {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-  }
-
-  .realmain-page .start-slider {
-    position: relative;
-    top: auto;
-    left: auto;
-    transform: none;
-    margin: 12px auto 0;
   }
 }
