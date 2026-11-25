@@ -561,3 +561,43 @@ body {
     animation: none;
   }
 }
+
+@media (max-width: 480px) {
+  .realmain-page .hero-text {
+    display: grid;
+    gap: 6px;
+  }
+
+  .realmain-page .hero-find,
+  .realmain-page .hero-your {
+    line-height: 1;
+  }
+
+  .realmain-page .hero-your {
+    margin-top: 0;
+  }
+
+  .realmain-page .hero-description {
+    position: static;
+    line-height: 1.4;
+  }
+
+  .realmain-page .vinyl-record {
+    max-width: 100%;
+    margin-top: 16px;
+  }
+
+  .realmain-page .vinyl-record .lp-layer {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+
+  .realmain-page .start-slider {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    margin: 12px auto 0;
+  }
+}
